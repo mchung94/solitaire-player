@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile files('lib/sikulixapi.jar')
+    compile 'net.java.dev.jna:jna:4.4.0'
+    compile 'net.java.dev.jna:jna-platform:4.4.0'
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+    testCompile 'junit:junit:4.12'
+}
+
+mainClassName = 'com.secondthorn.solitaireplayer.app.CommandLineMain'
