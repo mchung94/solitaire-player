@@ -1,0 +1,44 @@
+Usage: solitaire-player.bat <Game> <Goal> [additional args for goal]
+Before running this program, the solitaire game must be running and at the
+start of a game.  This program will play one game, and must be re-run each
+time you start a new game.
+The command line arguments should be one of the following:
+1. Pyramid Board
+   This solves Pyramid Solitaire board challenges, such as "Clear 3 board(s)
+   in 2 deal(s)".  That would be run with: Pyramid Board.  It ignores the
+   number of deals because it only plays one game.
+   - If it can clear the board, it will do so in the minimum number of steps.
+   - If it's impossible to clear the board, it will Draw/Recycle until the game
+     is over, setting you up for the next board.
+2. Pyramid Score <Goal Score> <Current Score>
+   This solves Pyramid Solitaire Score challenges, such as "Earn a score of
+   2400".  That would be run with: Pyramid Score 0 2400.  If you already have
+   a score of 350, it would be run with: Pyramid Score 350 2400.
+   - If it can reach the goal score, it will do so in the minimum number of
+     steps.
+   - If it can't reach the goal score, it will find the minimum number of steps
+     to reach the maximum possible score for the game.  If it's possible to
+     clear the board, it will, because doing so gets the highest score.
+3. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
+   This solves Pyramid Solitaire Card challenges, such as "Clear 12 Aces in 2
+   deals".  That would be run with: Pyramid Card 12 A 0.  If you already
+   cleared 5 Aces, it would be run with: Pyramid Card 12 A 5.  It ignores the
+   number of deals because it only plays one game.
+   - The card ranks are: A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, and K
+   - If it can reach the goal, it will do so in the minimum number of steps.
+   - If it can't reach the goal, it will do something complicated because
+     there might not be one correct solution.  Explained below:
+     a. First it will look for two possible solutions: one where you clear the
+        board if possible, and one where you don't.  In both cases it will be
+        the minimum number of moves to maximize the maximum number of cards of
+        the goal rank.  This is in case you can remove 3 Aces while clearing
+        the board, but you could also clear 4 Aces but get stuck and unable to
+        clear the board.  We don't know what the right thing to do is, because
+        you'd have to know what the future boards are in order to decide.
+     b. If you can't clear the board, then it will remove as many cards of the
+        goal rank as possible.
+     c. If the solution with clearing the board removes more (or equal) number
+        of cards of the goal rank than the solution that doesn't clear the
+        board, it will just do that.
+     d. If clearing the table removes fewer cards of the goal rank, it will
+        ask you in a popup which one you want it to play.
