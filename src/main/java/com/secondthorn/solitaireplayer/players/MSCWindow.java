@@ -32,10 +32,10 @@ public final class MSCWindow {
      * Set up the Microsoft Solitaire Collection to a consistent and known state for playing.
      * This activates the window, moves it to the upper left corner, and will resize it to 1024x768.
      */
-    public static void positionForPlay() {
+    public static void positionForPlay() throws PlayException {
         WinDef.HWND hwnd = User32.INSTANCE.FindWindow(WINDOW_CLASS_NAME, WINDOW_TITLE_NAME);
-        if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd)) {
-            throw new RuntimeException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
+        if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
+            throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
         }
     }
 
@@ -59,6 +59,15 @@ public final class MSCWindow {
      */
     private static boolean showWindow(WinDef.HWND hwnd) {
         return User32.INSTANCE.ShowWindow(hwnd, SW_RESTORE);
+    }
+
+    /**
+     * Bring the window to the foreground.
+     * @param hwnd The handle of the window to bring to the foreground.
+     * @return true if successful
+     */
+    private static boolean setForegroundWindow(WinDef.HWND hwnd) {
+        return User32.INSTANCE.SetForegroundWindow(hwnd);
     }
 
 }

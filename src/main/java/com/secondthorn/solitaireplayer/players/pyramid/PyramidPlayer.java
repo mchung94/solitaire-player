@@ -1,11 +1,21 @@
 package com.secondthorn.solitaireplayer.players.pyramid;
 
 import com.secondthorn.solitaireplayer.players.MSCWindow;
+import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
 import com.secondthorn.solitaireplayer.solvers.pyramid.BoardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.CardChallengeSolver;
+import com.secondthorn.solitaireplayer.solvers.pyramid.Deck;
 import com.secondthorn.solitaireplayer.solvers.pyramid.PyramidSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.ScoreChallengeSolver;
+import org.sikuli.basics.Settings;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.sikuli.script.Sikulix.inputText;
 
 /**
  * A class that uses Sikuli to automate playing a game of Pyramid Solitaire in
@@ -19,6 +29,7 @@ public class PyramidPlayer extends SolitairePlayer {
      * It will throw IllegalArgumentException if the args don't make sense.
      * The player can specialize in either clearing the board/table, maximizing score, or
      * clearing cards of a certain rank.
+     *
      * @param args command line args
      */
     public PyramidPlayer(String[] args) {
@@ -58,7 +69,103 @@ public class PyramidPlayer extends SolitairePlayer {
     /**
      * Play a Pyramid Solitaire game.
      */
-    public void play() {
+    public void play() throws PlayException {
+        Settings.InputFontMono = true;
+        MSCWindow.positionForPlay();
+        PyramidWindow window = new PyramidWindow();
+        window.undoBoard();
+        Deck deck = buildDeck(window);
+        List<String> missingCards = missingCards(deck);
+        List<String> duplicateCards = duplicateCards(deck);
+        boolean ok = false;
+        while (!ok) {
+            String message = "Please verify the list of cards is correct.  Click Cancel to quit.";
+            if (missingCards.size() > 0) {
+                message += "\nMissing Cards: " + missingCards;
+            } else {
+                message += "\nMissing Cards: None";
+            }
+            if (duplicateCards.size() > 0) {
+                message += "\nDuplicate Cards: " + duplicateCards;
+            } else {
+                message += "\nDuplicate Cards: None";
+            }
+            String newDeckText = inputText(message, "Deck Verification", 8, 72, deck.toString());
+            if (newDeckText == null) {
+                throw new PlayException("User cancelled verification of deck cards and the program will quit.");
+            }
+            deck = new Deck(newDeckText);
+            missingCards = missingCards(deck);
+            duplicateCards = duplicateCards(deck);
+            if ((missingCards.size() == 0) && (duplicateCards.size() == 0)) {
+                ok = true;
+            }
+        }
         MSCWindow.positionForPlay();
     }
+
+    /**
+     * Look through all the cards in the game and create a Deck once you've found the 52 cards.
+     * Basically, we scan through all the cards on the Pyramid, then flip through all the cards
+     * in the deck looking at each one.
+     * @param window the PyramidWindow to help read cards on the screen
+     * @return A 52 card Deck object
+     * @throws PlayException if we're unable to read 52 cards, regardless of mistakes while reading
+     */
+    private Deck buildDeck(PyramidWindow window) throws PlayException {
+        List<String> cards = new ArrayList<>();
+        for (int i = 0; i < 28; i++) {
+            cards.add(window.cardAtPyramid(i));
+        }
+        for (int i = 0; i < 24; i++) {
+            String card = window.cardAtDeck();
+            cards.add(card);
+            window.draw();
+            while (!card.equals(window.cardAtWaste())) {
+                sleep(50);
+            }
+        }
+        window.undoBoard();
+        if (cards.size() != 52) {
+            throw new PlayException("Unable to read 52 cards, read " + cards.size() + " instead.");
+        }
+        return new Deck(cards);
+    }
+
+    /**
+     * Check if a Deck is missing any of the standard 52 cards.
+     * @param deck a Deck of cards being played in Pyramid Solitaire
+     * @return a list (possibly empty) of the cards missing in the Deck
+     */
+    private List<String> missingCards(Deck deck) {
+        List<String> missingCards = new ArrayList<>();
+        Set<String> cardSet = new HashSet<>();
+        for (int i = 0; i < 52; i++) {
+            cardSet.add(deck.cardAt(i));
+        }
+        for (char suit : "cdhs".toCharArray()) {
+            for (char rank : "A23456789TJQK".toCharArray()) {
+                String card = "" + rank + suit;
+                if (!cardSet.contains(card)) {
+                    missingCards.add(card);
+                }
+            }
+        }
+        return missingCards;
+    }
+
+    private List<String> duplicateCards(Deck deck) {
+        List<String> duplicateCards = new ArrayList<>();
+        Set<String> cardSet = new HashSet<>();
+        for (int i = 0; i < 52; i++) {
+            String card = deck.cardAt(i);
+            if (cardSet.contains(card)) {
+                duplicateCards.add(card);
+            } else {
+                cardSet.add(card);
+            }
+        }
+        return duplicateCards;
+    }
+
 }
