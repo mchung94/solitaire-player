@@ -77,7 +77,7 @@ public class PyramidPlayer extends SolitairePlayer {
         Deck deck = buildDeck(window);
         List<String> missingCards = missingCards(deck);
         List<String> duplicateCards = duplicateCards(deck);
-        boolean ok = false;
+        boolean ok = false;  // let user verify even if everything looks OK at first
         while (!ok) {
             String message = "Please verify the list of cards is correct.  Click Cancel to quit.";
             if (missingCards.size() > 0) {

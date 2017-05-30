@@ -1,5 +1,6 @@
 package com.secondthorn.solitaireplayer.solvers.pyramid;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -16,7 +17,9 @@ import java.util.List;
 public class Deck {
     private String[] cards;
     private boolean[] kingFlags;
+    private int[] rankBuckets;
     private boolean[][] matchFlags;
+    private long[] unwinnableMasks;
 
     /**
      * Create a new deck out of a String array of cards.
@@ -24,8 +27,10 @@ public class Deck {
      */
     public Deck(String[] cards) {
         this.cards = cards;
-        this.kingFlags = getKingFlags(cards);
-        this.matchFlags = getMatches(cards);
+        this.kingFlags = getKingFlags(this.cards);
+        this.rankBuckets = getRankBuckets(this.cards);
+        this.matchFlags = getMatches(this.cards);
+        this.unwinnableMasks = getUnwinnableMasks(this.kingFlags, this.matchFlags);
     }
 
     /**
@@ -63,6 +68,14 @@ public class Deck {
     }
 
     /**
+     * Return a numeric rank bucket value for a card for use when bucketing cards
+     * by rank.  Kings are 0 but every other card is its normal numeric rank value.
+     */
+    public int cardRankBucket(int deckIndex) {
+        return rankBuckets[deckIndex];
+    }
+
+    /**
      * Return a 52-element array of booleans indicating if the card at the index is a match with
      * the card at the given deck index (i.e. if the two cards have ranks that add up to 13).
      * <p>
@@ -74,6 +87,18 @@ public class Deck {
      */
     public boolean[] getMatchesForCard(int deckIndex) {
         return matchFlags[deckIndex];
+    }
+
+    /**
+     * Given a table index, return a mask which can be used to tell if a state is unwinnable.
+     * The mask has bits set for the table card plus any card that can be removed with it as a pair
+     * whose ranks add up to 13.  So if the table card hasn't been removed yet, but the cards that
+     * can remove it are gone, then the state is unwinnable.
+     * @param tableIndex 0-27 for the Pyramid table card index
+     * @return a bit mask that can check if the table card can't be removed
+     */
+    public long getUnwinnableMask(int tableIndex) {
+        return unwinnableMasks[tableIndex];
     }
 
     /**
@@ -108,6 +133,21 @@ public class Deck {
     }
 
     /**
+     * Build and return a numeric value for the card to use when bucketing cards by rank.
+     * This differs from the card's numeric rank because Kings are equal to 0 here,
+     * in order to save space in the bucket array.
+     * @param cards
+     * @return
+     */
+    private int[] getRankBuckets(String[] cards) {
+        int[] buckets = new int[52];
+        for (int i=0; i<cards.length; i++) {
+            buckets[i] = cardNumericRank(cards[i]) % 13;
+        }
+        return buckets;
+    }
+
+    /**
      * Return true if the cards are a pair whose ranks add up to 13.
      * @param card1 the first card
      * @param card2 the second card
@@ -134,6 +174,71 @@ public class Deck {
             }
         }
         return matches;
+    }
+
+    /**
+     * For each of the 28 table indexes, list the other table indexes that aren't covering or covered by the index.
+     * If table indexes are unrelated, then potentially the cards in them can be removed together as a pair
+     * if their ranks add up to 13.  Otherwise, they can't because you have to remove one to uncover the
+     * other and make it possible to remove.
+     */
+    private static final int[][] TABLE_UNRELATED_INDEXES = {
+            {},
+            {2, 5, 9, 14, 20, 27},
+            {1, 3, 6, 10, 15, 21},
+            {2, 4, 5, 8, 9, 13, 14, 19, 20, 26, 27},
+            {3, 5, 6, 9, 10, 14, 15, 20, 21, 27},
+            {1, 3, 4, 6, 7, 10, 11, 15, 16, 21, 22},
+            {2, 4, 5, 7, 8, 9, 12, 13, 14, 18, 19, 20, 25, 26, 27},
+            {5, 6, 8, 9, 10, 13, 14, 15, 19, 20, 21, 26, 27},
+            {3, 6, 7, 9, 10, 11, 14, 15, 16, 20, 21, 22, 27},
+            {1, 3, 4, 6, 7, 8, 10, 11, 12, 15, 16, 17, 21, 22, 23},
+            {2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19, 20, 24, 25, 26, 27},
+            {5, 8, 9, 10, 12, 13, 14, 15, 18, 19, 20, 21, 25, 26, 27},
+            {6, 9, 10, 11, 13, 14, 15, 16, 19, 20, 21, 22, 26, 27},
+            {3, 6, 7, 10, 11, 12, 14, 15, 16, 17, 20, 21, 22, 23, 27},
+            {1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23, 24},
+            {2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 20, 23, 24, 25, 26, 27},
+            {5, 8, 9, 12, 13, 14, 15, 17, 18, 19, 20, 21, 24, 25, 26, 27},
+            {9, 10, 13, 14, 15, 16, 18, 19, 20, 21, 22, 25, 26, 27},
+            {6, 10, 11, 14, 15, 16, 17, 19, 20, 21, 22, 23, 26, 27},
+            {3, 6, 7, 10, 11, 12, 15, 16, 17, 18, 20, 21, 22, 23, 24, 27},
+            {1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25},
+            {2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27},
+            {5, 8, 9, 12, 13, 14, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27},
+            {9, 13, 14, 15, 18, 19, 20, 21, 22, 24, 25, 26, 27},
+            {10, 14, 15, 16, 19, 20, 21, 22, 23, 25, 26, 27},
+            {6, 10, 11, 15, 16, 17, 20, 21, 22, 23, 24, 26, 27},
+            {3, 6, 7, 10, 11, 12, 15, 16, 17, 18, 21, 22, 23, 24, 25, 27},
+            {1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26}
+    };
+
+    /**
+     * For each of the 28 table indexes, build a 52-bit long bit mask with the bit for the table index
+     * and the bits for the cards that can be removed with it as a pair.  To find out if a state is
+     * unwinnable, use the mask to find out if the table card hasn't been removed, but all the cards
+     * that can be removed with it are gone.
+     * @param kingFlags flags to check which cards in the deck are kings
+     * @param matchFlags flags to check which cards pair with others add up to 13
+     * @return 28 bit masks that can check if each of the 28 table cards can't be removed
+     */
+    private long[] getUnwinnableMasks(boolean[] kingFlags, boolean[][] matchFlags) {
+        long[] unwinnableMasks = new long[28];
+        for(int i=0; i<28; i++) {
+            long mask = 0;
+            boolean[] matches = matchFlags[i];
+            int[] unrelatedIndexes = TABLE_UNRELATED_INDEXES[i];
+            if (!kingFlags[i]) {
+                mask = 1L << i;
+                for (int j=0; j<52; j++) {
+                    if (((j > 27) || (Arrays.binarySearch(unrelatedIndexes, j) >= 0)) && matches[j]) {
+                        mask |= 1L << j;
+                    }
+                }
+            }
+            unwinnableMasks[i] = mask;
+        }
+        return unwinnableMasks;
     }
 
     public String toString() {
