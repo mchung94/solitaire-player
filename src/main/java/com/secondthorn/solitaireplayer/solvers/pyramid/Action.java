@@ -10,24 +10,28 @@ import java.util.List;
 public class Action {
     private Command command;
     private List<String> cards;
+    private List<String> positions;
 
     /**
      * A private constructor for Actions, use the static factory methods instead.
      * @param command the type of action for the player to perform
      * @param cards optional list of cards when the command is to remove cards
+     * @param positions optional list of card positions when the command is to remove cards
      */
-    private Action(Command command, List<String> cards) {
+    private Action(Command command, List<String> cards, List<String> positions) {
         this.command = command;
         this.cards = cards;
+        this.positions = positions;
     }
 
     /**
      * Create an Action to represent removing a King or a pair of cards whose ranks add up to 13.
      * @param cards the cards to remove
+     * @param positions the positions of the cards to remove
      * @return a new Action instance for removing cards
      */
-    public static Action newRemoveAction(List<String> cards) {
-        return new Action(Command.REMOVE, cards);
+    public static Action newRemoveAction(List<String> cards, List<String> positions) {
+        return new Action(Command.REMOVE, cards, positions);
     }
 
     /**
@@ -36,7 +40,7 @@ public class Action {
      * @return a new Action instance for drawing a card from deck to waste
      */
     public static Action newDrawAction() {
-        return new Action(Command.DRAW, null);
+        return new Action(Command.DRAW, null, null);
     }
 
     /**
@@ -45,7 +49,7 @@ public class Action {
      * @return a new Action instance for recycling the waste pile
      */
     public static Action newRecycleAction() {
-        return new Action(Command.RECYCLE, null);
+        return new Action(Command.RECYCLE, null, null);
     }
 
     /**
@@ -55,6 +59,17 @@ public class Action {
      */
     public List<String> getCards() {
         return cards;
+    }
+
+    /**
+     * For Actions involving removing cards, return the card positions to remove.
+     * If the card is in the deck, the value is "Deck".
+     * If the card is in the waste pile, the value is "Waste".
+     * Otherwise, the card is in the table/pyramid and is the integer table index as a String.
+     * @return a list of positions to remove
+     */
+    public List<String> getPositions() {
+        return positions;
     }
 
     /**

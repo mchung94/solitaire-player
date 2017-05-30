@@ -3,6 +3,7 @@ package com.secondthorn.solitaireplayer.players.pyramid;
 import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
+import com.secondthorn.solitaireplayer.solvers.pyramid.Action;
 import com.secondthorn.solitaireplayer.solvers.pyramid.BoardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.CardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.Deck;
@@ -99,6 +100,43 @@ public class PyramidPlayer extends SolitairePlayer {
             duplicateCards = duplicateCards(deck);
             if ((missingCards.size() == 0) && (duplicateCards.size() == 0)) {
                 ok = true;
+            }
+        }
+        List<List<Action>> solutions = solver.solve(deck);
+        List<Action> solutionToPlay;
+        switch (solutions.size()) {
+            case 0:
+                throw new PlayException("No solution was found for this Pyramid Solitaire game.");
+            case 1:
+                solutionToPlay = solutions.get(0);
+                break;
+            case 2:
+                throw new PlayException("2 solutions found, should have implemented a way to choose one");
+            default:
+                throw new PlayException("An unexpected number of solutions was found: " + solutions.size());
+        }
+
+        for (Action action : solutionToPlay) {
+            switch (action.getCommand()) {
+                case DRAW:
+                    window.draw();
+                    break;
+                case RECYCLE:
+                    window.recycle();
+                    break;
+                case REMOVE:
+                    for (int i=0; i<action.getPositions().size(); i++) {
+                        String position = action.getPositions().get(i);
+                        if (position.equals("Deck")) {
+                            window.removeDeckCard();
+                        } else if (position.equals("Waste")) {
+                            window.removeWasteCard();
+                        } else {
+                            int tableIndex = Integer.parseInt(position);
+                            window.removeTableCardIndex(tableIndex);
+                        }
+                    }
+                    break;
             }
         }
         MSCWindow.positionForPlay();

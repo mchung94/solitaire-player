@@ -34,6 +34,27 @@ public class PyramidWindow {
 
     public void draw() throws PlayException {
         clickImage(drawImage);
+        sleep(500);
+    }
+
+    public void recycle() throws PlayException {
+        clickImage(drawImage);
+        sleep(1000);
+    }
+
+    public void removeTableCardIndex(int tableIndex) {
+        pyramidRegions[tableIndex].click();
+        sleep(500);
+    }
+
+    public void removeDeckCard() {
+        deckRegion.click();
+        sleep(500);
+    }
+
+    public void removeWasteCard() {
+        wasteRegion.click();
+        sleep(500);
     }
 
     public void undoBoard() throws PlayException {
@@ -155,6 +176,13 @@ public class PyramidWindow {
             return null;
         }
         return null;
+    }
+
+    private void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException ex) {
+        }
     }
 
 }

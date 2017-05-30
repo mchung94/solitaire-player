@@ -33,6 +33,7 @@ public class CommandLineMain {
             player.play();
         } catch (Exception ex) {
             System.err.println("Unrecoverable Error: " + ex.getMessage());
+            ex.printStackTrace();
             System.exit(1);
         }
     }
