@@ -46,12 +46,18 @@ public class PyramidPlayer extends SolitairePlayer {
                 solver = new BoardChallengeSolver();
                 break;
             case "Score":
-                if (args.length != 3) {
-                    throw new IllegalArgumentException("Wrong number of args for Pyramid Solitaire Score Challenge");
+                switch (args.length) {
+                    case 1:
+                        solver = new ScoreChallengeSolver();
+                        break;
+                    case 3:
+                        int goalScore = parseInt(args[1]);
+                        int currentScore = parseInt(args[2]);
+                        solver = new ScoreChallengeSolver(goalScore, currentScore);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Wrong number of args for Pyramid Solitaire Score Challenge");
                 }
-                int goalScore = parseInt(args[1]);
-                int currentScore = parseInt(args[2]);
-                solver = new ScoreChallengeSolver(goalScore, currentScore);
                 break;
             case "Card":
                 if (args.length != 4) {

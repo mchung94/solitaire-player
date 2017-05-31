@@ -8,18 +8,22 @@ The command line arguments should be one of the following:
    in 2 deal(s)".  That would be run with: Pyramid Board.  It ignores the
    number of deals because it only plays one game.
    - If it can clear the board, it will do so in the minimum number of steps.
-   - If it's impossible to clear the board, it will Draw/Recycle until the game
-     is over, setting you up for the next board.
+   - If it's impossible to clear the board, it will Draw/Recycle until the
+     game is over, setting you up for the next board.
 2. Pyramid Score <Goal Score> <Current Score>
    This solves Pyramid Solitaire Score challenges, such as "Earn a score of
-   2400".  That would be run with: Pyramid Score 0 2400.  If you already have
-   a score of 350, it would be run with: Pyramid Score 350 2400.
+   2400".  That would be run with: Pyramid Score 2400 0.  If you already have
+   a score of 350, it would be run with: Pyramid Score 2400 350.
    - If it can reach the goal score, it will do so in the minimum number of
      steps.
-   - If it can't reach the goal score, it will find the minimum number of steps
-     to reach the maximum possible score for the game.  If it's possible to
-     clear the board, it will, because doing so gets the highest score.
-3. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
+   - If it can't reach the goal score, it will find the minimum number of
+     steps to reach the maximum possible score for the game.  If it's possible
+     to clear the board, it will, because doing so gets the highest score.
+3. Pyramid Score
+   This plays Pyramid Solitaire for maximum score without a target score in
+   mind.  Given that the maximum possible score for a single game is 1290,
+   this is a shortcut for playing with: Pyramid Score 1290 0.
+4. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
    This solves Pyramid Solitaire Card challenges, such as "Clear 12 Aces in 2
    deals".  That would be run with: Pyramid Card 12 A 0.  If you already
    cleared 5 Aces, it would be run with: Pyramid Card 12 A 5.  It ignores the

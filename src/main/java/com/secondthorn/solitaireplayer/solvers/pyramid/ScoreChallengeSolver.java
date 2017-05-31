@@ -67,6 +67,13 @@ public class ScoreChallengeSolver implements PyramidSolver {
      */
     private int bestScore;
 
+    /**
+     * Create a ScoreChallengeSolver to find the maximum scoring solution without a goal
+     * score - just get the highest score possible.
+     */
+    public ScoreChallengeSolver() {
+        pointsNeeded = MAX_POSSIBLE_SCORE;
+    }
 
     /**
      * Create a ScoreChallengeSolver to find the maximum scoring solution or the solution
