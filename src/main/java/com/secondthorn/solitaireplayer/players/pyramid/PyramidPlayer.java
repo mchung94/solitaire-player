@@ -12,6 +12,7 @@ import com.secondthorn.solitaireplayer.solvers.pyramid.ScoreChallengeSolver;
 import org.sikuli.basics.Settings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,7 +82,8 @@ public class PyramidPlayer extends SolitairePlayer {
         MSCWindow.positionForPlay();
         PyramidWindow window = new PyramidWindow();
         window.undoBoard();
-        Deck deck = getDeck(window);
+        List<String> cards = scanCardsOnScreen(window);
+        Deck deck = buildDeck(cards);
         List<List<Action>> solutions = solver.solve(deck);
         List<Action> solutionToPlay = chooseSolution(solutions);
 
@@ -90,54 +92,46 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Build and return the Deck of cards currently being played.  First scan the cards
-     * in the game window using Sikuli, then ask the user to verify and fix if necessary.
+     * Build and return the Deck of cards currently being played.
+     * Ask the user to verify and fix if necessary.
      *
-     * @param window the PyramidWindow to help read cards on the screen
+     * @param cards a list of cards (a rough draft to be verified and corrected by the user)
      * @return A 52 card Deck object
      * @throws PlayException if we're unable to read 52 cards, regardless of mistakes while reading
      */
-    private Deck getDeck(PyramidWindow window) throws PlayException {
-        Deck deck = buildDeckFromCardsOnScreen(window);
-        List<String> missingCards = missingCards(deck);
-        List<String> duplicateCards = duplicateCards(deck);
-        boolean ok = false;  // let user verify even if everything looks OK at first
-        while (!ok) {
-            String message = "Please verify the list of cards is correct.  Click Cancel to quit.";
-            if (missingCards.size() > 0) {
-                message += "\nMissing Cards: " + missingCards;
-            } else {
-                message += "\nMissing Cards: None";
-            }
-            if (duplicateCards.size() > 0) {
-                message += "\nDuplicate Cards: " + duplicateCards;
-            } else {
-                message += "\nDuplicate Cards: None";
-            }
-            String newDeckText = inputText(message, "Deck Verification", 8, 72, deck.toString());
+    private Deck buildDeck(List<String> cards) throws PlayException {
+        List<String> missing = missingCards(cards);
+        List<String> duplicates = duplicateCards(cards);
+        List<String> malformed = malformedCards(cards);
+        do {
+            String message = "Please verify the list of cards is correct and edit if necessary.";
+            message += "\nClick Cancel to quit.";
+            message += "\nNumber of cards (should be 52): " + cards.size();
+            message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
+            message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
+            message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
+            String newDeckText = inputText(message, "Deck Verification", 8, 72, pyramidString(cards));
             if (newDeckText == null) {
                 throw new PlayException("User cancelled verification of deck cards and the program will quit.");
             }
-            deck = new Deck(newDeckText);
-            missingCards = missingCards(deck);
-            duplicateCards = duplicateCards(deck);
-            if ((missingCards.size() == 0) && (duplicateCards.size() == 0)) {
-                ok = true;
-            }
-        }
-        return deck;
+            cards = new ArrayList<>(Arrays.asList(newDeckText.trim().split("\\s+")));
+            missing = missingCards(cards);
+            duplicates = duplicateCards(cards);
+            malformed = malformedCards(cards);
+        } while ((cards.size() != 52) || (missing.size() > 0) || (duplicates.size() > 0) || (malformed.size() > 0));
+        return new Deck(cards);
     }
 
     /**
-     * Look through all the cards in the game and create a Deck once you've found the 52 cards.
+     * Look through all the cards in the game and return a list of the cards seen.
      * Basically, we scan through all the cards on the Pyramid, then flip through all the cards
      * in the deck looking at each one.
      *
      * @param window the PyramidWindow to help read cards on the screen
-     * @return A 52 card Deck object
-     * @throws PlayException if we're unable to read 52 cards, regardless of mistakes while reading
+     * @return A List of all the cards found on the screen
+     * @throws PlayException if there's a problem interacting with the window
      */
-    private Deck buildDeckFromCardsOnScreen(PyramidWindow window) throws PlayException {
+    private List<String> scanCardsOnScreen(PyramidWindow window) throws PlayException {
         List<String> cards = new ArrayList<>();
         for (int i = 0; i < 28; i++) {
             cards.add(window.cardAtPyramid(i));
@@ -151,14 +145,12 @@ public class PyramidPlayer extends SolitairePlayer {
             }
         }
         window.undoBoard();
-        if (cards.size() != 52) {
-            throw new PlayException("Unable to read 52 cards, read " + cards.size() + " instead.");
-        }
-        return new Deck(cards);
+        return cards;
     }
 
     /**
      * Out of a list of solutions returned by the solver, figure out which one to play and return it.
+     *
      * @param solutions a list of solutions generated by the solver
      * @return one of the solutions, a list of Actions
      * @throws PlayException if the number of solutions is unexpected (not one or two solutions)
@@ -177,10 +169,11 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
+     * Given a list of actions by the solver, perform them on the game window.
      *
-     * @param solution
-     * @param window
-     * @throws PlayException
+     * @param solution a list of Actions to perform
+     * @param window   the Pyramid Window to perform the actions on
+     * @throws PlayException if there's a problem interacting with the window
      */
     private void playSolution(List<Action> solution, PyramidWindow window) throws PlayException {
         for (Action action : solution) {
@@ -211,17 +204,14 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Check if a Deck is missing any of the standard 52 cards.
+     * Check if a a list of cards is missing any of the standard 52 cards.
      *
-     * @param deck a Deck of cards being played in Pyramid Solitaire
+     * @param cards a list of cards being played in Pyramid Solitaire
      * @return a list (possibly empty) of the cards missing in the Deck
      */
-    private List<String> missingCards(Deck deck) {
+    private List<String> missingCards(List<String> cards) {
         List<String> missingCards = new ArrayList<>();
-        Set<String> cardSet = new HashSet<>();
-        for (int i = 0; i < 52; i++) {
-            cardSet.add(deck.cardAt(i));
-        }
+        Set<String> cardSet = new HashSet<>(cards);
         for (char suit : "cdhs".toCharArray()) {
             for (char rank : "A23456789TJQK".toCharArray()) {
                 String card = "" + rank + suit;
@@ -233,11 +223,16 @@ public class PyramidPlayer extends SolitairePlayer {
         return missingCards;
     }
 
-    private List<String> duplicateCards(Deck deck) {
+    /**
+     * Return a list of duplicate cards found in the list of cards
+     *
+     * @param cards a list of cards
+     * @return a list of the duplicate cards in the given card list
+     */
+    private List<String> duplicateCards(List<String> cards) {
         List<String> duplicateCards = new ArrayList<>();
         Set<String> cardSet = new HashSet<>();
-        for (int i = 0; i < 52; i++) {
-            String card = deck.cardAt(i);
+        for (String card : cards) {
             if (cardSet.contains(card)) {
                 duplicateCards.add(card);
             } else {
@@ -245,6 +240,61 @@ public class PyramidPlayer extends SolitairePlayer {
             }
         }
         return duplicateCards;
+    }
+
+    /**
+     * Return a list of malformed cards, that aren't two letter strings with a
+     * rank character (A23456789TJQK) and a suit character (cdhs).
+     *
+     * @param cards a list of cards
+     * @return a list of the malformed cards in the given card list
+     */
+    private List<String> malformedCards(List<String> cards) {
+        List<String> malformedCards = new ArrayList<>();
+        for (String card : cards) {
+            if ((card == null) ||
+                    (card.length() != 2) ||
+                    ("A23456789TJQK".indexOf(card.charAt(0)) == -1) ||
+                    ("cdhs".indexOf(card.charAt(1)) == -1)) {
+                malformedCards.add(card);
+            }
+        }
+        return malformedCards;
+    }
+
+    /**
+     * Given a list of cards, return a single String containing the cards dealt out
+     * in a Pyramid Solitaire pattern.  It contains the 28 card pyramid, and a list
+     * of the rest of the cards starting from the top of the deck pile to the bottom.
+     * It expects a full deck of 52 or close to it.
+     *
+     * @param cards a list of cards
+     * @return a String representation of the cards laid out in a Pyramid Solitaire game setup
+     */
+    String pyramidString(List<String> cards) {
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 12 - (i * 2); j++) {
+                sb.append(" ");
+            }
+            for (int j = 0; j < i + 1; j++) {
+                sb.append(cards.get(count));
+                if (j < i) {
+                    sb.append("  ");
+                }
+                count++;
+            }
+            sb.append("\n");
+        }
+        while (count < cards.size()) {
+            sb.append(cards.get(count));
+            count++;
+            if (count < 52) {
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
     }
 
 }

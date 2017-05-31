@@ -12,13 +12,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class PyramidWindow {
     private String resourceDir;
     private Region appRegion;
-    private HashMap<Character, Image> rankImages;
-    private HashMap<Character, Image> suitImages;
+    private Map<Character, Image> rankImages;
+    private Map<Character, Image> suitImages;
     private Image drawImage;
+    private Match drawImageMatch;
     private Image undoBoardImage;
     private Image okImage;
     private Region[] pyramidRegions;
@@ -30,39 +32,41 @@ public class PyramidWindow {
         resourceDir = findResourceDir();
         loadCardRegions();
         loadImages();
+        drawImageMatch = findImageMatch(drawImage);
     }
 
     public void draw() throws PlayException {
-        clickImage(drawImage);
-        sleep(500);
+        drawImageMatch.click();
+        sleep(100);
     }
 
     public void recycle() throws PlayException {
-        clickImage(drawImage);
+        drawImageMatch.click();
         sleep(1000);
     }
 
     public void removeTableCardIndex(int tableIndex) {
-        pyramidRegions[tableIndex].click();
         sleep(500);
+        pyramidRegions[tableIndex].click();
     }
 
     public void removeDeckCard() {
-        deckRegion.click();
         sleep(500);
+        deckRegion.click();
     }
 
     public void removeWasteCard() {
-        wasteRegion.click();
         sleep(500);
+        wasteRegion.click();
     }
 
     public void undoBoard() throws PlayException {
-        if (appRegion.exists(undoBoardImage) != null) {
-            clickImage(undoBoardImage);
-            Match m = appRegion.exists(okImage);
-            if (m != null) {
-                m.click();
+        Match undoBoardMatch = appRegion.exists(undoBoardImage);
+        if (undoBoardMatch != null) {
+            undoBoardMatch.click();
+            Match okMatch = appRegion.exists(okImage);
+            if (okMatch != null) {
+                okMatch.click();
             }
         }
     }
@@ -137,26 +141,24 @@ public class PyramidWindow {
         okImage = loadResourceImage("OK");
     }
 
-    private Image loadResourceImage(String filename) {
-        return Image.create(ClassLoader.getSystemResource(resourceDir + filename + ".png"));
-    }
-
-    private void clickImage(Image image) throws PlayException {
+    private Match findImageMatch(Image image) throws PlayException {
+        Match bestMatch = null;
         try {
             Iterator<Match> iterator = appRegion.findAll(image);
-            Match bestMatch = null;
             while (iterator.hasNext()) {
                 Match m = iterator.next();
                 if ((bestMatch == null) || (m.getScore() > bestMatch.getScore())) {
                     bestMatch = m;
                 }
             }
-            if (bestMatch != null) {
-                bestMatch.click();
-            }
         } catch (FindFailed ex) {
-            throw new PlayException("Unable to find and click on \"" + image.getImageName() + "\"", ex);
+            throw new PlayException("Unable to find \"" + image.getImageName() + "\" on the screen", ex);
         }
+        return bestMatch;
+    }
+
+    private Image loadResourceImage(String filename) {
+        return Image.create(ClassLoader.getSystemResource(resourceDir + filename + ".png"));
     }
 
     private String cardAtRegion(Region region) {

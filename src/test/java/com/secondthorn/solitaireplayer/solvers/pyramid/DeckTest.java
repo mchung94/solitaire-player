@@ -143,19 +143,4 @@ public class DeckTest {
             assertEquals("Unwinnable Mask " + i + " doesn't match", expected[i], orderedDeck.getUnwinnableMask(i));
         }
     }
-
-    @Test
-    public void testToString() {
-        Deck orderedDeck = new Deck(orderedCards);
-        String expectedString =
-                "            Ac\n" +
-                "          2c  3c\n" +
-                "        4c  5c  6c\n" +
-                "      7c  8c  9c  Tc\n" +
-                "    Jc  Qc  Kc  Ad  2d\n" +
-                "  3d  4d  5d  6d  7d  8d\n" +
-                "9d  Td  Jd  Qd  Kd  Ah  2h\n" +
-                "3h 4h 5h 6h 7h 8h 9h Th Jh Qh Kh As 2s 3s 4s 5s 6s 7s 8s 9s Ts Js Qs Ks";
-        assertEquals(expectedString, orderedDeck.toString());
-    }
 }

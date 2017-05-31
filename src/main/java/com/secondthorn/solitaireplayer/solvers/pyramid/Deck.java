@@ -241,29 +241,4 @@ public class Deck {
         return unwinnableMasks;
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        for (int i=0; i<7; i++) {
-            for (int j=0; j<12 - (i*2); j++) {
-                sb.append(" ");
-            }
-            for (int j=0; j<i+1; j++) {
-                sb.append(this.cardAt(count));
-                if (j < i) {
-                    sb.append("  ");
-                }
-                count++;
-            }
-            sb.append("\n");
-        }
-        while (count < 52) {
-            sb.append(this.cardAt(count));
-            count++;
-            if (count < 52) {
-                sb.append(" ");
-            }
-        }
-        return sb.toString();
-    }
 }
