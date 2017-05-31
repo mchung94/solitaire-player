@@ -128,7 +128,7 @@ public class State {
      * @param deckIndex the deck index for a state
      * @return the waste index for the state
      */
-    static int getWasteIndex(long existFlags, int deckIndex) {
+    private static int getWasteIndex(long existFlags, int deckIndex) {
         int wasteIndex = deckIndex - 1;
         while (wasteIndex > 27) {
             if (((1L << wasteIndex) & existFlags) != 0) {
@@ -144,8 +144,8 @@ public class State {
      * the game has ended successfully (the board is cleared) and no more moves can be made.
      * Depending on the player's goal, it may or may not mean they have "won", for example if
      * they are trying to maximize the score or removing cards of a certain rank.
-     * @param state
-     * @return
+     * @param state a long value for the Pyramid Solitaire state
+     * @return true if the 28 table cards have been removed from the state
      */
     static boolean isTableClear(long state) {
         return (0xFFFFFFFL & state) == 0L;
@@ -267,5 +267,4 @@ public class State {
 
         return uncoveredIndexes;
     }
-
 }

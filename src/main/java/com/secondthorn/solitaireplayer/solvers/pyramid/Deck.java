@@ -136,8 +136,8 @@ public class Deck {
      * Build and return a numeric value for the card to use when bucketing cards by rank.
      * This differs from the card's numeric rank because Kings are equal to 0 here,
      * in order to save space in the bucket array.
-     * @param cards
-     * @return
+     * @param cards an array of 52 cards
+     * @return a 52 element int array showing the array index to use for each card when bucketing by rank
      */
     private int[] getRankBuckets(String[] cards) {
         int[] buckets = new int[52];

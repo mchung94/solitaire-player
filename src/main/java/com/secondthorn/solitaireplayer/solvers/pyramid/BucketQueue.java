@@ -31,7 +31,7 @@ public class BucketQueue<E> {
         buckets = new ArrayList<>(capacity);
         size = 0;
         for (int i=0; i<capacity; i++) {
-            buckets.add(new ArrayDeque<E>());
+            buckets.add(new ArrayDeque<>());
         }
     }
 

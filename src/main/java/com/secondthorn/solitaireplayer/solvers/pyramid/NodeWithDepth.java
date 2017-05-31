@@ -36,16 +36,6 @@ public class NodeWithDepth {
     }
 
     /**
-     * Return the action performed from this Node's parent state in order to get to this Node's state.
-     *
-     * @param deck the Deck of cards being played in Pyramid Solitaire
-     * @return the action performed to reach this state
-     */
-    public Action action(Deck deck) {
-        return node.action(deck);
-    }
-
-    /**
      * Return a list of all the actions performed to get from the initial state to this Node's state.
      *
      * @param deck the Deck of cards being played in Pyramid Solitaire

@@ -127,13 +127,15 @@ public class PyramidPlayer extends SolitairePlayer {
                 case REMOVE:
                     for (int i=0; i<action.getPositions().size(); i++) {
                         String position = action.getPositions().get(i);
-                        if (position.equals("Deck")) {
-                            window.removeDeckCard();
-                        } else if (position.equals("Waste")) {
-                            window.removeWasteCard();
-                        } else {
-                            int tableIndex = Integer.parseInt(position);
-                            window.removeTableCardIndex(tableIndex);
+                        switch (position) {
+                            case "Deck":
+                                window.removeDeckCard();
+                                break;
+                            case "Waste":
+                                window.removeWasteCard();
+                                break;
+                            default:
+                                window.removeTableCardIndex(Integer.parseInt(position));
                         }
                     }
                     break;
