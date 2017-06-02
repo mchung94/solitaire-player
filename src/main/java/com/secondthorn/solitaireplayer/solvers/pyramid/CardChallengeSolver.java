@@ -5,9 +5,10 @@ import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Pyramid Solitaire Card Challenge solver.
@@ -33,6 +34,13 @@ public class CardChallengeSolver implements PyramidSolver {
     private int numCardsToClear;
     private char cardRankToClear;
 
+    private Node goalReachedNode;
+    private int goalReachedNodeScore;
+    private Node bestClearNode;
+    private int bestClearNodeScore;
+    private Node bestNonClearNode;
+    private int bestNonClearNodeScore;
+
     public CardChallengeSolver(int goalNumCardsToClear, char cardRankToClear, int currentNumCardsCleared) {
         if (currentNumCardsCleared > goalNumCardsToClear) {
             throw new IllegalArgumentException("The current number of cards cleared must be smaller than the goal");
@@ -41,19 +49,20 @@ public class CardChallengeSolver implements PyramidSolver {
         this.cardRankToClear = cardRankToClear;
     }
 
-    public List<List<Action>> solve(Deck deck) {
-        List<List<Action>> solutions = new ArrayList<>();
+    public Map<String, List<Action>> solve(Deck deck) {
+        Map<String, List<Action>> solutions = new HashMap<>();
         Deque<Node> fringe = new ArrayDeque<>();
         TLongSet seenStates = new TLongHashSet();
         long state = State.INITIAL_STATE;
         Node node = new Node(state, null);
         fringe.add(node);
 
-        Node goalReachedNode = null;
-        Node bestClearNode = null;
-        int bestClearNodeScore = 0;
-        Node bestNonClearNode = null;
-        int bestNonClearNodeScore = 0;
+        goalReachedNode = null;
+        goalReachedNodeScore = 0;
+        bestClearNode = null;
+        bestClearNodeScore = 0;
+        bestNonClearNode = null;
+        bestNonClearNodeScore = 0;
 
         while (fringe.size() > 0) {
             node = fringe.remove();
@@ -61,6 +70,7 @@ public class CardChallengeSolver implements PyramidSolver {
             int score = State.numCardsOfRankRemoved(state, cardRankToClear, deck);
             if (score == numCardsToClear) {
                 goalReachedNode = node;
+                goalReachedNodeScore = score;
                 break;
             }
             if (State.isTableClear(state)) {
@@ -95,27 +105,48 @@ public class CardChallengeSolver implements PyramidSolver {
         }
 
         if (goalReachedNode != null) {
-            solutions.add(goalReachedNode.actions(deck));
+            addGoalReachedNode(deck, solutions);
         } else {
             if (bestClearNode == null) {
                 if (bestNonClearNode != null) {
-                    solutions.add(bestNonClearNode.actions(deck));
+                    addNonClearNode(deck, solutions);
                 }
             } else {
                 if (bestNonClearNode == null) {
-                    solutions.add(bestClearNode.actions(deck));
+                    addClearNode(deck, solutions);
                 } else {
                     if (bestClearNodeScore >= bestNonClearNodeScore) {
-                        solutions.add(bestClearNode.actions(deck));
+                        addClearNode(deck, solutions);
                     } else {
-                        solutions.add(bestClearNode.actions(deck));
-                        solutions.add(bestNonClearNode.actions(deck));
+                        addClearNode(deck, solutions);
+                        addNonClearNode(deck, solutions);
                     }
                 }
             }
         }
 
         return solutions;
+    }
+
+    private void addGoalReachedNode(Deck deck, Map<String, List<Action>> solutions) {
+        List<Action> solution = goalReachedNode.actions(deck);
+        String description = "Reach goal, remove " + goalReachedNodeScore + " " +
+                cardRankToClear + " in " + solution.size() + " steps";
+        solutions.put(description, solution);
+    }
+
+    private void addNonClearNode(Deck deck, Map<String, List<Action>> solutions) {
+        List<Action> solution = bestNonClearNode.actions(deck);
+        String description = "Can't clear board, remove " + bestNonClearNodeScore + " " +
+                cardRankToClear + " in " + solution.size() + " steps";
+        solutions.put(description, solution);
+    }
+
+    private void addClearNode(Deck deck, Map<String, List<Action>> solutions) {
+        List<Action> solution = bestClearNode.actions(deck);
+        String description = "Clear the board, remove " + bestClearNodeScore + " " +
+                cardRankToClear + " in " + solution.size() + " steps";
+        solutions.put(description, solution);
     }
 
     /**

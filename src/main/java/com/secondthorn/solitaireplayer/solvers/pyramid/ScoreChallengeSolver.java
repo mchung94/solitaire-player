@@ -5,9 +5,10 @@ import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Pyramid Solitaire Score Challenge solver.
@@ -104,8 +105,8 @@ public class ScoreChallengeSolver implements PyramidSolver {
      * @param deck a standard deck of 52 cards
      * @return a list of actions to perform to solve the game
      */
-    public List<List<Action>> solve(Deck deck) {
-        List<List<Action>> solutions = new ArrayList<>();
+    public Map<String, List<Action>> solve(Deck deck) {
+        Map<String, List<Action>> solutions = new HashMap<>();
         Deque<Node> fringe = new ArrayDeque<>();
         TLongSet seenStates = new TLongHashSet();
         long state = State.INITIAL_STATE;
@@ -140,7 +141,14 @@ public class ScoreChallengeSolver implements PyramidSolver {
             }
         }
         if (bestNode != null) {
-            solutions.add(bestNode.actions(deck));
+            List<Action> solution = bestNode.actions(deck);
+            String description;
+            if (State.isTableClear(bestNode.getState())) {
+                description = "Clear board, gain " + bestScore + " score in " + solution.size() + " steps";
+            } else {
+                description = "Can't clear board, gain " + bestScore + " score in " + solution.size() + " steps";
+            }
+            solutions.put(description, solution);
         }
         return solutions;
     }

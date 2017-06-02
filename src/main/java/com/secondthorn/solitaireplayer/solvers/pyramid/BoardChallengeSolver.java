@@ -4,8 +4,9 @@ import gnu.trove.list.TLongList;
 import gnu.trove.map.TLongIntMap;
 import gnu.trove.map.hash.TLongIntHashMap;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Pyramid Solitaire Board Challenge solver.
@@ -22,8 +23,8 @@ import java.util.List;
  */
 public class BoardChallengeSolver implements PyramidSolver {
 
-    public List<List<Action>> solve(Deck deck) {
-        List<List<Action>> solutions = new ArrayList<>();
+    public Map<String, List<Action>> solve(Deck deck) {
+        Map<String, List<Action>> solutions = new HashMap<>();
         BucketQueue<NodeWithDepth> fringe = new BucketQueue<>(100);
         TLongIntMap seenStates = new TLongIntHashMap();
         long state = State.INITIAL_STATE;
@@ -35,8 +36,9 @@ public class BoardChallengeSolver implements PyramidSolver {
             node = fringe.remove();
             state = node.getState();
             if (State.isTableClear(state)) {
-                solutions.add(node.actions(deck));
-                return solutions;
+                List<Action> solution = node.actions(deck);
+                solutions.put("Clear the board in " + solution.size() + " steps", solution);
+                break;
             }
             int nextDepth = node.getDepth() + 1;
             TLongList successors = State.successors(state, deck);

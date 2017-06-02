@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.sikuli.script.Sikulix.inputText;
@@ -105,7 +106,7 @@ public class PyramidPlayer extends SolitairePlayer {
         window.undoBoard();
         List<String> cards = scanCardsOnScreen(window);
         Deck deck = buildDeck(cards);
-        List<List<Action>> solutions = solver.solve(deck);
+        Map<String, List<Action>> solutions = solver.solve(deck);
         List<Action> solutionToPlay = chooseSolution(solutions);
 
         MSCWindow.positionForPlay();
@@ -176,14 +177,14 @@ public class PyramidPlayer extends SolitairePlayer {
      * @return one of the solutions, a list of Actions
      * @throws PlayException if the number of solutions is unexpected (not one or two solutions)
      */
-    private List<Action> chooseSolution(List<List<Action>> solutions) throws PlayException {
+    private List<Action> chooseSolution(Map<String, List<Action>> solutions) throws PlayException {
         switch (solutions.size()) {
             case 0:
                 // if there's nothing to do, offer to just automatically play to lose quickly
-                // so they user can go to the next deal
+                // so the user can go to the next deal
                 return loseQuickly;
             case 1:
-                return solutions.get(0);
+                return solutions.values().iterator().next();
             case 2:
                 throw new PlayException("2 solutions found, should have implemented a way to choose one");
             default:
