@@ -4,8 +4,6 @@ import gnu.trove.list.TLongList;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -124,7 +122,8 @@ public class CardChallengeSolver implements PyramidSolver {
      * For convenience, check if you've already found the best possible solutions for both
      * clearing the board and not clearing the board (all four cards removed in the best
      * solutions).  If true, we don't need to keep looking for solutions.
-     * @param bestClearNodeScore the number of goal cards removed for the best solution that clears the board
+     *
+     * @param bestClearNodeScore    the number of goal cards removed for the best solution that clears the board
      * @param bestNonClearNodeScore the number of goal cards removed for the best solution that didn't clear the board
      * @return true if we already found the best possible solutions
      */

@@ -21,26 +21,6 @@ import java.util.List;
  * until the player can't do it anymore.  There's no attempt to maximize score.
  */
 public class BoardChallengeSolver implements PyramidSolver {
-    /**
-     * When a board can't be cleared at all, the fastest list of steps to follow is to
-     * just Draw/Recycle cards until you can't anymore.  One interesting thing to note is that
-     * in Microsoft Solitaire Collection on Windows 10, if you keep drawing/recycling cards until you can't
-     * draw or recycle anymore, the game can end, even if there's still cards on the table you can still
-     * remove (at least as of May 2017).
-     */
-    private static List<Action> loseQuickly;
-
-    static {
-        loseQuickly = new ArrayList<>();
-        for (int cycle = 1; cycle <= 3; cycle++) {
-            for (int deckCard = 0; deckCard < 24; deckCard++) {
-                loseQuickly.add(Action.newDrawAction());
-            }
-            if (cycle < 3) {
-                loseQuickly.add(Action.newRecycleAction());
-            }
-        }
-    }
 
     public List<List<Action>> solve(Deck deck) {
         List<List<Action>> solutions = new ArrayList<>();
@@ -72,7 +52,6 @@ public class BoardChallengeSolver implements PyramidSolver {
                 }
             }
         }
-        solutions.add(loseQuickly);
         return solutions;
     }
 

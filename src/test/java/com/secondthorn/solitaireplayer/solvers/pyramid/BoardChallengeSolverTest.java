@@ -26,8 +26,6 @@ public class BoardChallengeSolverTest {
                        "Ah 4d 9h 3d 5s 4h Th Ad 3s 8d Ts Tc 9d Kc 7h Kd 6h Qs 2h Ac 7s 6c 3c 3h 9c Kh";
         Deck deck = new Deck(cards);
         List<List<Action>> solutions = solver.solve(deck);
-        assertEquals(1, solutions.size());
-        List<Action> solution = solutions.get(0);
-        assertEquals(74, solution.size());
+        assertEquals(0, solutions.size());
     }
 }
