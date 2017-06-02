@@ -267,4 +267,21 @@ public class State {
 
         return uncoveredIndexes;
     }
+
+    /**
+     * For a given state and card rank, count how many cards of that rank have been removed.
+     * @param state a long value for the Pyramid Solitaire state
+     * @param rank a char card rank
+     * @param deck the Deck of cards being played
+     * @return the number of cards of that rank that have been removed in the state
+     */
+    static int numCardsOfRankRemoved(long state, char rank, Deck deck) {
+        // using Kernighan's method in The C Programming Language 2nd Ed. Exercise 2-9 to count set bits
+        long cardsOfRankRemaining = state & deck.getCardRankMask(rank);
+        int numCardsOfRankRemaining;
+        for (numCardsOfRankRemaining = 0; cardsOfRankRemaining != 0; numCardsOfRankRemaining++) {
+            cardsOfRankRemaining &= cardsOfRankRemaining - 1;
+        }
+        return 4 - numCardsOfRankRemaining;
+    }
 }

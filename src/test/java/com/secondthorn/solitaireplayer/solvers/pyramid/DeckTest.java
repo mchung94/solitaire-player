@@ -45,6 +45,19 @@ public class DeckTest {
         assertDeckCardsMatch(orderedCards, new Deck(cards));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorThrowsExceptionWithTooFewCards() {
+        List<String> cards = orderedCards.subList(0, 51);
+        Deck deck = new Deck(cards);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorThrowsExceptionWithTooManyCards() {
+        List<String> cards = new ArrayList<>(orderedCards);
+        cards.add("Kc");
+        Deck deck = new Deck(cards);
+    }
+
     private char cardRank(String card) {
         return card.charAt(0);
     }
@@ -143,4 +156,30 @@ public class DeckTest {
             assertEquals("Unwinnable Mask " + i + " doesn't match", expected[i], orderedDeck.getUnwinnableMask(i));
         }
     }
+
+    @Test
+    public void cardRankMasks() {
+        Deck orderedDeck = new Deck(orderedCards);
+        long[] expectedMasks = {
+                0b0000000000001000000000000100000000000010000000000001L,
+                0b0000000000010000000000001000000000000100000000000010L,
+                0b0000000000100000000000010000000000001000000000000100L,
+                0b0000000001000000000000100000000000010000000000001000L,
+                0b0000000010000000000001000000000000100000000000010000L,
+                0b0000000100000000000010000000000001000000000000100000L,
+                0b0000001000000000000100000000000010000000000001000000L,
+                0b0000010000000000001000000000000100000000000010000000L,
+                0b0000100000000000010000000000001000000000000100000000L,
+                0b0001000000000000100000000000010000000000001000000000L,
+                0b0010000000000001000000000000100000000000010000000000L,
+                0b0100000000000010000000000001000000000000100000000000L,
+                0b1000000000000100000000000010000000000001000000000000L
+        };
+
+        for (int i=0; i<13; i++) {
+            long actualMask = orderedDeck.getCardRankMask("A23456789TJQK".charAt(i));
+            assertEquals(expectedMasks[i], actualMask);
+        }
+    }
+
 }

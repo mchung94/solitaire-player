@@ -230,4 +230,34 @@ public class StateTest {
         );
         assertFalse(State.isUnwinnable(FULL_STATE, deck));
     }
+
+    private long removeACard(long state, char rankToRemove, Deck deck) {
+        for (int i=0; i<52; i++) {
+            long cardMask = 1L << i;
+            if (((state & cardMask) != 0) && (deck.cardAt(i).charAt(0) == rankToRemove)) {
+                return ~cardMask & state;
+            }
+        }
+        return state;
+    }
+
+    private void assertNumCardsOfRankRemoved(long state, char rank, Deck deck) {
+        assertEquals(0, State.numCardsOfRankRemoved(state, rank, deck));
+        state = removeACard(state, rank, deck);
+        assertEquals(1, State.numCardsOfRankRemoved(state, rank, deck));
+        state = removeACard(state, rank, deck);
+        assertEquals(2, State.numCardsOfRankRemoved(state, rank, deck));
+        state = removeACard(state, rank, deck);
+        assertEquals(3, State.numCardsOfRankRemoved(state, rank, deck));
+        state = removeACard(state, rank, deck);
+        assertEquals(4, State.numCardsOfRankRemoved(state, rank, deck));
+    }
+
+    @Test
+    public void numCardsOfRankRemoved() {
+        Deck orderedDeck = new Deck(DeckTest.orderedCards);
+        for (char rank : "A23456789TJQK".toCharArray()) {
+            assertNumCardsOfRankRemoved(FULL_STATE, rank, orderedDeck);
+        }
+    }
 }

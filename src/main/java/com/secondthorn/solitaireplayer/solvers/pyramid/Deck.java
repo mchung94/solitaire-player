@@ -1,7 +1,12 @@
 package com.secondthorn.solitaireplayer.solvers.pyramid;
 
+import gnu.trove.map.TCharLongMap;
+import gnu.trove.map.TCharObjectMap;
+import gnu.trove.map.hash.TCharLongHashMap;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Deck is a standard deck of 52 cards containing the suits c d h s, and the ranks A 2 3 4 5 6 7 8 9 T J Q K.
@@ -20,17 +25,22 @@ public class Deck {
     private int[] rankBuckets;
     private boolean[][] matchFlags;
     private long[] unwinnableMasks;
+    private TCharLongMap cardRankMasks;
 
     /**
      * Create a new deck out of a String array of cards.
      * @param cards an array of 52 cards
      */
     public Deck(String[] cards) {
+        if (cards.length != 52) {
+            throw new IllegalArgumentException("A Deck must be 52 cards, " + cards.length + " sent in instead.");
+        }
         this.cards = cards;
         this.kingFlags = getKingFlags(this.cards);
         this.rankBuckets = getRankBuckets(this.cards);
         this.matchFlags = getMatches(this.cards);
         this.unwinnableMasks = getUnwinnableMasks(this.kingFlags, this.matchFlags);
+        this.cardRankMasks = getCardRankMasks(this.cards);
     }
 
     /**
@@ -99,6 +109,16 @@ public class Deck {
      */
     public long getUnwinnableMask(int tableIndex) {
         return unwinnableMasks[tableIndex];
+    }
+
+    /**
+     * For a given card rank, return a bit mask with the bits set only for the four cards in the deck
+     * of that rank.  This is used to determine how many of those cards were removed in a state.
+     * @param cardRank a card rank, one of A23456789TJQK
+     * @return a long bit mask with the bits set for the positions of the four cards in the deck of that rank
+     */
+    public long getCardRankMask(char cardRank) {
+        return cardRankMasks.get(cardRank);
     }
 
     /**
@@ -239,6 +259,25 @@ public class Deck {
             unwinnableMasks[i] = mask;
         }
         return unwinnableMasks;
+    }
+
+    /**
+     * For each rank, build a bit mask with the bits set for the positions of the four cards in the deck
+     * with that rank.  Put the results into a map keyed by the char rank.
+     * @param cards a deck of cards
+     * @return a map of bit masks for each card rank, indicating the positions in the deck for each card of that rank
+     */
+    private TCharLongMap getCardRankMasks(String[] cards) {
+        TCharLongMap cardRankMasks = new TCharLongHashMap();
+        for (char rank : "A23456789TJQK".toCharArray()) {
+            cardRankMasks.put(rank, 0L);
+        }
+        for (int i=0; i<52; i++) {
+            char rank = cardRank(cards[i]);
+            long newMask = cardRankMasks.get(rank) | (1L << i);
+            cardRankMasks.put(rank, newMask);
+        }
+        return cardRankMasks;
     }
 
 }

@@ -90,4 +90,15 @@ public class Action {
         DRAW,
         RECYCLE
     }
+
+    public String toString() {
+        switch (command) {
+            case DRAW:
+                return "Draw";
+            case RECYCLE:
+                return "Recycle";
+            default:
+                return "Remove " + cards + " (" + positions + ")";
+        }
+    }
 }
