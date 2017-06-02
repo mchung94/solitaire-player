@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.sikuli.script.Sikulix.inputText;
+import static org.sikuli.script.Sikulix.popAsk;
+import static org.sikuli.script.Sikulix.popSelect;
 
 /**
  * A class that uses Sikuli to automate playing a game of Pyramid Solitaire in
@@ -104,6 +106,7 @@ public class PyramidPlayer extends SolitairePlayer {
         MSCWindow.positionForPlay();
         PyramidWindow window = new PyramidWindow();
         window.undoBoard();
+        MSCWindow.positionForPlay();
         List<String> cards = scanCardsOnScreen(window);
         Deck deck = buildDeck(cards);
         Map<String, List<Action>> solutions = solver.solve(deck);
@@ -178,17 +181,36 @@ public class PyramidPlayer extends SolitairePlayer {
      * @throws PlayException if the number of solutions is unexpected (not one or two solutions)
      */
     private List<Action> chooseSolution(Map<String, List<Action>> solutions) throws PlayException {
+        List<Action> solution = null;
+        String solutionDescription = null;
         switch (solutions.size()) {
             case 0:
-                // if there's nothing to do, offer to just automatically play to lose quickly
-                // so the user can go to the next deal
-                return loseQuickly;
+                solutionDescription = "No solution found, so lose quickly to get to the next deal.";
+                solution = loseQuickly;
+                break;
             case 1:
-                return solutions.values().iterator().next();
-            case 2:
-                throw new PlayException("2 solutions found, should have implemented a way to choose one");
+                solutionDescription = solutions.keySet().iterator().next();
+                solution = solutions.get(solutionDescription);
+                break;
             default:
-                throw new PlayException("An unexpected number of solutions was found: " + solutions.size());
+                String[] keys = solutions.keySet().toArray(new String[solutions.keySet().size()]);
+                Arrays.sort(keys);
+                String message = "Select a solution, Cancel to exit without automatically playing.";
+                String title = "Multiple Solutions Found";
+                solutionDescription = popSelect(message, title, keys);
+                solution = solutions.get(solutionDescription);
+                break;
+        }
+        StringBuilder confirmMessage = new StringBuilder();
+        confirmMessage.append("Press Yes to play solution, No to quit.\n");
+        confirmMessage.append("Solution: ");
+        confirmMessage.append(solutionDescription);
+        confirmMessage.append("\n");
+
+        if ((solution != null) && popAsk(confirmMessage.toString(), "Play the solution?")) {
+            return solution;
+        } else {
+            throw new PlayException("User cancelled selecting and playing a solution.");
         }
     }
 

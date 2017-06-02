@@ -32,16 +32,15 @@ public class PyramidWindow {
         resourceDir = findResourceDir();
         loadCardRegions();
         loadImages();
-        drawImageMatch = findImageMatch(drawImage);
     }
 
     public void draw() throws PlayException {
-        drawImageMatch.click();
+        clickDrawButton();
         sleep(100);
     }
 
     public void recycle() throws PlayException {
-        drawImageMatch.click();
+        clickDrawButton();
         sleep(1000);
     }
 
@@ -68,6 +67,7 @@ public class PyramidWindow {
             if (okMatch != null) {
                 okMatch.click();
             }
+            sleep(500);
         }
     }
 
@@ -139,6 +139,13 @@ public class PyramidWindow {
         drawImage = loadResourceImage("Draw");
         undoBoardImage = loadResourceImage("UndoBoard");
         okImage = loadResourceImage("OK");
+    }
+
+    private void clickDrawButton() throws PlayException {
+        if (drawImageMatch == null) {
+            drawImageMatch = findImageMatch(drawImage);
+        }
+        drawImageMatch.click();
     }
 
     private Match findImageMatch(Image image) throws PlayException {

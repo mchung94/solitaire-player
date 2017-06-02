@@ -144,9 +144,9 @@ public class ScoreChallengeSolver implements PyramidSolver {
             List<Action> solution = bestNode.actions(deck);
             String description;
             if (State.isTableClear(bestNode.getState())) {
-                description = "Clear board, gain " + bestScore + " score in " + solution.size() + " steps";
+                description = "Clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";
             } else {
-                description = "Can't clear board, gain " + bestScore + " score in " + solution.size() + " steps";
+                description = "Can't clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";
             }
             solutions.put(description, solution);
         }

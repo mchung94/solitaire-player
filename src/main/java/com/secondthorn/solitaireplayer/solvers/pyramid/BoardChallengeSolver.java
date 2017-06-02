@@ -37,7 +37,7 @@ public class BoardChallengeSolver implements PyramidSolver {
             state = node.getState();
             if (State.isTableClear(state)) {
                 List<Action> solution = node.actions(deck);
-                solutions.put("Clear the board in " + solution.size() + " steps", solution);
+                solutions.put("Clear the board in " + solution.size() + " steps.", solution);
                 break;
             }
             int nextDepth = node.getDepth() + 1;

@@ -130,22 +130,22 @@ public class CardChallengeSolver implements PyramidSolver {
 
     private void addGoalReachedNode(Deck deck, Map<String, List<Action>> solutions) {
         List<Action> solution = goalReachedNode.actions(deck);
-        String description = "Reach goal, remove " + goalReachedNodeScore + " " +
-                cardRankToClear + " in " + solution.size() + " steps";
+        String description = "Reach goal, remove " + goalReachedNodeScore +
+                " cards of rank " + cardRankToClear + " in " + solution.size() + " steps.";
         solutions.put(description, solution);
     }
 
     private void addNonClearNode(Deck deck, Map<String, List<Action>> solutions) {
         List<Action> solution = bestNonClearNode.actions(deck);
-        String description = "Can't clear board, remove " + bestNonClearNodeScore + " " +
-                cardRankToClear + " in " + solution.size() + " steps";
+        String description = "Without clearing the board, remove " + bestNonClearNodeScore +
+                " cards of rank " + cardRankToClear + " in " + solution.size() + " steps.";
         solutions.put(description, solution);
     }
 
     private void addClearNode(Deck deck, Map<String, List<Action>> solutions) {
         List<Action> solution = bestClearNode.actions(deck);
-        String description = "Clear the board, remove " + bestClearNodeScore + " " +
-                cardRankToClear + " in " + solution.size() + " steps";
+        String description = "Clear the board, remove " + bestClearNodeScore +
+                " cards of rank " + cardRankToClear + " in " + solution.size() + " steps.";
         solutions.put(description, solution);
     }
 

@@ -33,7 +33,6 @@ public class CommandLineMain {
             player.play();
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
-            ex.printStackTrace();
             System.exit(1);
         }
     }
