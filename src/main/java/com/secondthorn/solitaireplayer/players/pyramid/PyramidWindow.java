@@ -60,7 +60,7 @@ public class PyramidWindow {
     }
 
     public void undoBoard() throws PlayException {
-        Match undoBoardMatch = appRegion.exists(undoBoardImage);
+        Match undoBoardMatch = appRegion.exists(undoBoardImage, 0);
         if (undoBoardMatch != null) {
             undoBoardMatch.click();
             Match okMatch = appRegion.exists(okImage);
@@ -95,7 +95,7 @@ public class PyramidWindow {
 
     private boolean pyramidImageExists(String imageFilename) {
         Image image = Image.create(ClassLoader.getSystemResource(imageFilename));
-        return appRegion.exists(image) != null;
+        return appRegion.exists(image, 0) != null;
     }
 
     private void loadCardRegions() throws PlayException {

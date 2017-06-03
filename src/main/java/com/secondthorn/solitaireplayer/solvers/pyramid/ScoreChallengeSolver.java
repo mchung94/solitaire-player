@@ -146,7 +146,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
             if (State.isTableClear(bestNode.getState())) {
                 description = "Clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";
             } else {
-                description = "Can't clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";
+                description = "Don't clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";
             }
             solutions.put(description, solution);
         }
