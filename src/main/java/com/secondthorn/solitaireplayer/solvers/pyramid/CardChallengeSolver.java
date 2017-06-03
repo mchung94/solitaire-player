@@ -49,6 +49,14 @@ public class CardChallengeSolver implements PyramidSolver {
         this.cardRankToClear = cardRankToClear;
     }
 
+    /**
+     * Find the best solution(s) to solve Card Challenges, maximizing removing cards of a certain rank.
+     * This uses Breadth-First Search without detecting unwinnable states, because instead of
+     * searching for a specific state or type of state, we're trying to maximize something.  So we need
+     * to search exhaustively.
+     * @param deck a standard deck of 52 cards
+     * @return a solution if one best one exists, or two if it can't determine the best
+     */
     public Map<String, List<Action>> solve(Deck deck) {
         Map<String, List<Action>> solutions = new HashMap<>();
         Deque<Node> fringe = new ArrayDeque<>();

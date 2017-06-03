@@ -102,6 +102,8 @@ public class ScoreChallengeSolver implements PyramidSolver {
      * Search for the solution that gives the maximum score (not the shortest solution).
      * But if we can reach the goal score before clearing the table or reaching a dead end,
      * the solution returned will stop at the goal score.
+     * This uses Breadth-First Search without unwinnable state detection, it will search exhaustively
+     * because it wants to maximize score.
      * @param deck a standard deck of 52 cards
      * @return a list of actions to perform to solve the game
      */

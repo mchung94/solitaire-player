@@ -12,17 +12,23 @@ import java.util.Map;
  * A Pyramid Solitaire Board Challenge solver.
  * <p>
  * Board challenges take the form: "Clear N board(s) in M deal(s)", e.g. "Clear 3 board(s) in 2 deal(s)".
- * This solver figures out how to clear boards or skip them in the fewest number of Actions possible.
+ * This solver figures out how to clear boards in the fewest number of actions possible.
  * Boards are cleared by removing all 28 cards on the table, the deck and waste piles don't matter.
  * <p>
  * If it's possible to clear the board, it will determine how to do so in the minimum number of steps.
- * <p>
- * If it's impossible to clear the board, it will determine how to reach a dead end with no more possible
- * moves in the minimum number of steps.  Most likely, it will involve drawing and recycling cards over and over
- * until the player can't do it anymore.  There's no attempt to maximize score.
+ * If it's impossible to clear the board, it will return no solution.  There is no attempt to maximize score.
  */
 public class BoardChallengeSolver implements PyramidSolver {
 
+    /**
+     * Find the way to clear the 28 table cards in the fewest number of steps possible.
+     * <p>
+     * This uses the A* algorithm and a simple unwinnable state detection process.  Compared to
+     * Breadth-First Search, this is faster at finding a solution if one exists, but slower to
+     * return no solution when it's impossible to clear.
+     * @param deck a standard deck of 52 cards
+     * @return a solution if one exists
+     */
     public Map<String, List<Action>> solve(Deck deck) {
         Map<String, List<Action>> solutions = new HashMap<>();
         BucketQueue<NodeWithDepth> fringe = new BucketQueue<>(100);
