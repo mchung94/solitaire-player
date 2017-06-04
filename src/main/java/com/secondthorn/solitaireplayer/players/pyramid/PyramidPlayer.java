@@ -110,8 +110,9 @@ public class PyramidPlayer extends SolitairePlayer {
         List<String> cards = scanCardsOnScreen(window);
         Deck deck = buildDeck(cards);
         Map<String, List<Action>> solutions = solver.solve(deck);
+        solver = null;
+        System.gc();
         List<Action> solutionToPlay = chooseSolution(solutions);
-
         MSCWindow.positionForPlay();
         playSolution(solutionToPlay, window);
     }
