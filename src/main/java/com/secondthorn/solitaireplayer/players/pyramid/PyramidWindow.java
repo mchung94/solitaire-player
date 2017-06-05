@@ -3,6 +3,7 @@ package com.secondthorn.solitaireplayer.players.pyramid;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secondthorn.solitaireplayer.players.PlayException;
+import org.sikuli.basics.Settings;
 import org.sikuli.script.FindFailed;
 import org.sikuli.script.Image;
 import org.sikuli.script.Match;
@@ -30,6 +31,7 @@ public class PyramidWindow {
     public PyramidWindow() throws PlayException {
         appRegion = org.sikuli.script.App.focusedWindow();
         resourceDir = findResourceDir();
+        adjustFontSettings();
         loadCardRegions();
         loadImages();
     }
@@ -204,6 +206,23 @@ public class PyramidWindow {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
             // do nothing
+        }
+    }
+
+    private void adjustFontSettings() {
+        int startPos = resourceDir.indexOf("-percent-scaling") - 3;
+        int scalingPercent = Integer.parseInt(resourceDir.substring(startPos, startPos+3));
+        Settings.InputFontMono = true;
+        switch (scalingPercent) {
+            case 100:
+                Settings.InputFontSize = 14;
+                break;
+            case 200:
+                Settings.InputFontSize = 28;
+                break;
+            case 250:
+                Settings.InputFontSize = 35;
+                break;
         }
     }
 

@@ -9,7 +9,6 @@ import com.secondthorn.solitaireplayer.solvers.pyramid.CardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.Deck;
 import com.secondthorn.solitaireplayer.solvers.pyramid.PyramidSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.ScoreChallengeSolver;
-import org.sikuli.basics.Settings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,7 +101,6 @@ public class PyramidPlayer extends SolitairePlayer {
      * Play a Pyramid Solitaire game.
      */
     public void play() throws PlayException {
-        Settings.InputFontMono = true;
         MSCWindow.positionForPlay();
         PyramidWindow window = new PyramidWindow();
         window.undoBoard();
