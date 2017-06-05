@@ -83,11 +83,30 @@ public class PyramidWindow {
         return cardAtRegion(wasteRegion);
     }
 
+    private JsonNode loadJsonResource(String resourcePath) throws PlayException {
+        ObjectMapper mapper = new ObjectMapper();
+        URL url = ClassLoader.getSystemResource(resourcePath);
+        JsonNode node;
+        try {
+            node = mapper.readTree(url);
+            return node;
+        } catch (IOException ex) {
+            throw new PlayException("Unable to load " + resourcePath);
+        }
+    }
+
     private String findResourceDir() throws PlayException {
-        if (pyramidImageExists("pyramid/regular/Pyramid.png")) {
-            return "pyramid/regular/";
-        } else if (pyramidImageExists("pyramid/goal/Pyramid.png")) {
-            return "pyramid/goal/";
+        String scaleKey = (appRegion.w - appRegion.x) + "x" + (appRegion.h - appRegion.y);
+        JsonNode scaleNode = loadJsonResource("pyramid/scales.json");
+        scaleNode = scaleNode.get(scaleKey);
+        if (scaleNode == null) {
+            throw new PlayException("Unable to determine Windows Display Settings Scaling percentage");
+        }
+        String scaleDir = scaleNode.asText();
+        if (pyramidImageExists(scaleDir + "regular/Pyramid.png")) {
+            return scaleDir + "regular/";
+        } else if (pyramidImageExists(scaleDir + "goal/Pyramid.png")) {
+            return scaleDir + "goal/";
         } else {
             throw new PlayException("Unable to detect if we're playing a Regular or Goal game of Pyramid Solitaire");
         }
@@ -99,15 +118,8 @@ public class PyramidWindow {
     }
 
     private void loadCardRegions() throws PlayException {
-        ObjectMapper mapper = new ObjectMapper();
         String regionsFilename = resourceDir + "regions.json";
-        URL url = ClassLoader.getSystemResource(regionsFilename);
-        JsonNode regionsNode;
-        try {
-            regionsNode = mapper.readTree(url);
-        } catch (IOException ex) {
-            throw new PlayException("Unable to load " + regionsFilename);
-        }
+        JsonNode regionsNode = loadJsonResource(regionsFilename);
         JsonNode pyramidRegionsNode = regionsNode.get("pyramidRegions");
         pyramidRegions = new Region[pyramidRegionsNode.size()];
         for (int i = 0; i < pyramidRegionsNode.size(); i++) {
@@ -191,6 +203,7 @@ public class PyramidWindow {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
+            // do nothing
         }
     }
 
