@@ -103,10 +103,10 @@ public class PyramidWindow {
             throw new PlayException("Unable to determine Windows Display Settings Scaling percentage");
         }
         String scaleDir = scaleNode.asText();
-        if (pyramidImageExists(scaleDir + "regular/Pyramid.png")) {
-            return scaleDir + "regular/";
-        } else if (pyramidImageExists(scaleDir + "goal/Pyramid.png")) {
+        if (pyramidImageExists(scaleDir + "goal/Pyramid.png")) {
             return scaleDir + "goal/";
+        } else if (pyramidImageExists(scaleDir + "regular/Pyramid.png")) {
+            return scaleDir + "regular/";
         } else {
             throw new PlayException("Unable to detect if we're playing a Regular or Goal game of Pyramid Solitaire");
         }
