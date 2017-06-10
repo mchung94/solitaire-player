@@ -111,6 +111,10 @@ public class PyramidPlayer extends SolitairePlayer {
         solver = null;
         System.gc();
         List<Action> solutionToPlay = chooseSolution(solutions);
+        System.out.println("Solution to play: " + solutionToPlay.size() + " steps");
+        for (Action action : solutionToPlay) {
+            System.out.println(action);
+        }
         MSCWindow.positionForPlay();
         playSolution(solutionToPlay, window);
     }
