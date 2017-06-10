@@ -63,6 +63,7 @@ public final class MSCWindow {
 
     /**
      * Bring the window to the foreground.
+     *
      * @param hwnd The handle of the window to bring to the foreground.
      * @return true if successful
      */

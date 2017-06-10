@@ -79,7 +79,8 @@ public class ScoreChallengeSolver implements PyramidSolver {
     /**
      * Create a ScoreChallengeSolver to find the maximum scoring solution or the solution
      * that will reach the goal score.
-     * @param goalScore the goal score to win the challenge
+     *
+     * @param goalScore    the goal score to win the challenge
      * @param currentScore the player's current score
      */
     public ScoreChallengeSolver(int goalScore, int currentScore) {
@@ -92,6 +93,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
     /**
      * After running the solve method and finding a solution, this returns the score achieved by
      * the solution.
+     *
      * @return the score for the solution
      */
     public int getBestScore() {
@@ -104,6 +106,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
      * the solution returned will stop at the goal score.
      * This uses Breadth-First Search without unwinnable state detection, it will search exhaustively
      * because it wants to maximize score.
+     *
      * @param deck a standard deck of 52 cards
      * @return a list of actions to perform to solve the game
      */
@@ -157,8 +160,9 @@ public class ScoreChallengeSolver implements PyramidSolver {
 
     /**
      * Calculate the score for a given state, in order to find the best scoring solution
+     *
      * @param state a Pyramid Solitaire state
-     * @param deck the Deck of 52 cards being used for Pyramid Solitaire
+     * @param deck  the Deck of 52 cards being used for Pyramid Solitaire
      * @return the current score at the given state
      */
     private int score(long state, Deck deck) {

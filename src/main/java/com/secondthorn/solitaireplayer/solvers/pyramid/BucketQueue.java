@@ -13,6 +13,7 @@ import java.util.List;
  * when you add items you just look up the queue for the given priority and add it, and when
  * you remove something you remove it from the queue for the lowest priority.  In both cases you
  * just keep update the lowest priority and the size.
+ *
  * @param <E> the type of elements held in this queue
  */
 public class BucketQueue<E> {
@@ -23,6 +24,7 @@ public class BucketQueue<E> {
 
     /**
      * Create a bucket queue that allows priorities from 0 to maximumPriority inclusive.
+     *
      * @param maximumPriority the maximum priority an element in the queue can have
      */
     public BucketQueue(int maximumPriority) {
@@ -30,14 +32,15 @@ public class BucketQueue<E> {
         currentPriority = capacity;
         buckets = new ArrayList<>(capacity);
         size = 0;
-        for (int i=0; i<capacity; i++) {
+        for (int i = 0; i < capacity; i++) {
             buckets.add(new ArrayDeque<>());
         }
     }
 
     /**
      * Add an item to the bucket queue with the given priority.
-     * @param e an element to be added to the queue
+     *
+     * @param e        an element to be added to the queue
      * @param priority the priority of the element
      */
     public void add(E e, int priority) {
@@ -50,6 +53,7 @@ public class BucketQueue<E> {
 
     /**
      * Return the number of elements currently in the bucket queue.
+     *
      * @return the size of the queue
      */
     public int size() {
@@ -58,6 +62,7 @@ public class BucketQueue<E> {
 
     /**
      * Remove and return the lowest priority element in the bucket queue.
+     *
      * @return the lowest priority element in the bucket queue
      */
     public E remove() {

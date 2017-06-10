@@ -26,6 +26,7 @@ public class BoardChallengeSolver implements PyramidSolver {
      * This uses the A* algorithm and a simple unwinnable state detection process.  Compared to
      * Breadth-First Search, this is faster at finding a solution if one exists, but slower to
      * return no solution when it's impossible to clear.
+     *
      * @param deck a standard deck of 52 cards
      * @return a solution if one exists
      */

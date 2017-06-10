@@ -12,19 +12,19 @@ import gnu.trove.list.array.TLongArrayList;
  * <p>
  * The state is represented using 60 bits (the last four bits of the long are ignored):
  * <ul>
- *     <li>Bits 0-51 represent the existence of each card in the deck</li>
- *     <ul>
- *         <li>Bits 0-27 are the 28 table cards</li>
- *         <li>Bits 28-51 are the 24 deck/waste cards, 28 is the initial top of the deck</li>
- *     </ul>
- *     <li>Bits 52-57 is a 6-bit number from 28-52 to indicate the deck index</li>
- *     <ul>
- *         <li>The card at the deck index is the top of the deck</li>
- *         <li>Cards above the deck index are the rest of the deck cards</li>
- *         <li>Cards below the deck index are the waste pile, the closest one to the deck index is the top</li>
- *         <li>Deck index 52 means the deck is empty, waste index 27 means the waste pile is empty</li>
- *     </ul>
- *     <li>Bits 58-60 is a 2-bit number from 1-3 indicating which cycle through the deck the player is on</li>
+ * <li>Bits 0-51 represent the existence of each card in the deck</li>
+ * <ul>
+ * <li>Bits 0-27 are the 28 table cards</li>
+ * <li>Bits 28-51 are the 24 deck/waste cards, 28 is the initial top of the deck</li>
+ * </ul>
+ * <li>Bits 52-57 is a 6-bit number from 28-52 to indicate the deck index</li>
+ * <ul>
+ * <li>The card at the deck index is the top of the deck</li>
+ * <li>Cards above the deck index are the rest of the deck cards</li>
+ * <li>Cards below the deck index are the waste pile, the closest one to the deck index is the top</li>
+ * <li>Deck index 52 means the deck is empty, waste index 27 means the waste pile is empty</li>
+ * </ul>
+ * <li>Bits 58-60 is a 2-bit number from 1-3 indicating which cycle through the deck the player is on</li>
  * </ul>
  */
 public class State {
@@ -82,9 +82,10 @@ public class State {
 
     /**
      * Create a new state (a long value) given the three values to be packed into the state.
+     *
      * @param existFlags 52 bits showing which cards in the deck haven't been removed yet
-     * @param deckIndex an integer from 28-52 indicating the top of the deck (or empty if 52)
-     * @param cycle an integer from 1-3 indicating which cycle through the deck cards we're on
+     * @param deckIndex  an integer from 28-52 indicating the top of the deck (or empty if 52)
+     * @param cycle      an integer from 1-3 indicating which cycle through the deck cards we're on
      * @return a new long representing the state
      */
     static long createState(long existFlags, int deckIndex, int cycle) {
@@ -96,6 +97,7 @@ public class State {
 
     /**
      * Given a state, return the 52 bits showing which cards in the deck haven't been removed yet.
+     *
      * @param state a long value for the Pyramid Solitaire state
      * @return the 52 bit existence flag values showing which cards in the deck haven't been removed
      */
@@ -105,6 +107,7 @@ public class State {
 
     /**
      * Given a state, return the deck index.
+     *
      * @param state a long value for the Pyramid Solitaire state
      * @return the deck index integer from 28-52, 52 means the deck is empty
      */
@@ -114,6 +117,7 @@ public class State {
 
     /**
      * Given a state, return the cycle.
+     *
      * @param state a long value for the Pyramid Solitaire state
      * @return the cycle integer from 1-3
      */
@@ -124,8 +128,9 @@ public class State {
     /**
      * Given 52 bit exist flags and the deck index, derive the waste index which points to the
      * first card in the waste pile.  27 means the waste pile is empty.
+     *
      * @param existFlags the 52 bit existence flag values for a state
-     * @param deckIndex the deck index for a state
+     * @param deckIndex  the deck index for a state
      * @return the waste index for the state
      */
     private static int getWasteIndex(long existFlags, int deckIndex) {
@@ -144,6 +149,7 @@ public class State {
      * the game has ended successfully (the board is cleared) and no more moves can be made.
      * Depending on the player's goal, it may or may not mean they have "won", for example if
      * they are trying to maximize the score or removing cards of a certain rank.
+     *
      * @param state a long value for the Pyramid Solitaire state
      * @return true if the 28 table cards have been removed from the state
      */
@@ -156,8 +162,9 @@ public class State {
      * This is an admissible and consistent heuristic.
      * This is only used for Board Challenges where the player needs to clear the board,
      * so it's an estimate of how many more steps to clear the 28 table cards.
+     *
      * @param state a long value for the Pyramid Solitaire state
-     * @param deck the Deck of cards being played
+     * @param deck  the Deck of cards being played
      * @return the estimated number of steps from the current state to clearing the board
      */
     static int hCost(long state, Deck deck) {
@@ -183,8 +190,9 @@ public class State {
      * When this method returns true, the board definitely can't be cleared.  But returning false
      * isn't a guarantee that the board can be cleared, because it just doesn't do a complete check
      * for performance reasons.
+     *
      * @param state a long value for the Pyramid Solitaire state
-     * @param deck the Deck of cards being played
+     * @param deck  the Deck of cards being played
      * @return true if the board can't be cleared
      */
     static boolean isUnwinnable(long state, Deck deck) {
@@ -201,8 +209,9 @@ public class State {
     /**
      * For a given state, return a list of the states resulting from applying all applicable actions
      * to the state.
+     *
      * @param state a long value for the Pyramid Solitaire state
-     * @param deck the Deck of cards being played
+     * @param deck  the Deck of cards being played
      * @return a list of the successor states (longs)
      */
     static TLongList successors(long state, Deck deck) {
@@ -251,6 +260,7 @@ public class State {
     /**
      * Given a state, return a list of table indexes for cards that aren't covered by other cards
      * below it.  Covered cards are blocked, and can't be removed until they're uncovered first.
+     *
      * @param state a long value for the Pyramid Solitaire state
      * @return a list of table indexes for the uncovered table cards
      */
@@ -270,9 +280,10 @@ public class State {
 
     /**
      * For a given state and card rank, count how many cards of that rank have been removed.
+     *
      * @param state a long value for the Pyramid Solitaire state
-     * @param rank a char card rank
-     * @param deck the Deck of cards being played
+     * @param rank  a char card rank
+     * @param deck  the Deck of cards being played
      * @return the number of cards of that rank that have been removed in the state
      */
     static int numCardsOfRankRemoved(long state, char rank, Deck deck) {

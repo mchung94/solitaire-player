@@ -54,6 +54,7 @@ public class CardChallengeSolver implements PyramidSolver {
      * This uses Breadth-First Search without detecting unwinnable states, because instead of
      * searching for a specific state or type of state, we're trying to maximize something.  So we need
      * to search exhaustively.
+     *
      * @param deck a standard deck of 52 cards
      * @return a solution if one best one exists, or two if it can't determine the best
      */

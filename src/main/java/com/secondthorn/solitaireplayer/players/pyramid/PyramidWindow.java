@@ -94,6 +94,7 @@ public class PyramidWindow {
 
     /**
      * Draw a card from the deck to the waste pile.
+     *
      * @throws PlayException if there's an issue with finding the Draw button
      */
     public void draw() throws PlayException {
@@ -104,6 +105,7 @@ public class PyramidWindow {
     /**
      * Recycle the waste pile back into the deck.  This and draw() both click on the Draw button
      * because that's how the game functionality was designed.
+     *
      * @throws PlayException if there's an issue with finding the Draw button
      */
     public void recycle() throws PlayException {
@@ -114,6 +116,7 @@ public class PyramidWindow {
     /**
      * Click on a card in the table/board at the given table index.  You have to click on a King or a
      * pair of cards to actually remove them but this clicks on one of the cards you want to remove.
+     *
      * @param tableIndex The index 0-27 of one of the cards on the table (the "pyramid").
      */
     public void removeTableCardIndex(int tableIndex) {
@@ -156,6 +159,7 @@ public class PyramidWindow {
 
     /**
      * Return the card at the given table card index.
+     *
      * @param pyramidIndex the table index to look at
      * @return The two-letter String for the card at the table pyramid index, or null if no card is there.
      */
@@ -165,6 +169,7 @@ public class PyramidWindow {
 
     /**
      * Return the card at the top of the deck.
+     *
      * @return The two-letter String for the card at the top of the deck, or null if no card is there.
      */
     public String cardAtDeck() {
@@ -173,6 +178,7 @@ public class PyramidWindow {
 
     /**
      * Return the card at the top of the waste pile.
+     *
      * @return The two-letter String for the card at the top of the waste pile, or null if no card is there.
      */
     public String cardAtWaste() {
@@ -181,6 +187,7 @@ public class PyramidWindow {
 
     /**
      * Parse and return the JSON in the given file location.
+     *
      * @param resourcePath The path to the file containing JSON data.
      * @return A JsonNode of the file contents.
      * @throws PlayException if there's a problem reading the file.
@@ -210,6 +217,7 @@ public class PyramidWindow {
      * When playing a goal-based Pyramid Solitaire game, the extra bar at the bottom of the client area
      * that displays the goal, takes up space and means the card images are shifted and squashed a bit
      * compared to the regular Pyramid Solitaire games.
+     *
      * @return The resource path directory to use for loading images and data
      * @throws PlayException if there's a problem determining the correct resource directory
      */
@@ -234,6 +242,7 @@ public class PyramidWindow {
      * Check if the pyramid image exists somewhere on the app window region.
      * This is meant for checking which type of pyramid symbol/word is on the top of the client area
      * when finding out if this is a regular or goal-based Pyramid Solitaire game.
+     *
      * @param imageFilename the image to look for in the window client area
      * @return true if the image exists in the Microsoft Solitaire Collection window
      */
@@ -246,6 +255,7 @@ public class PyramidWindow {
      * Using the resource directory, load the regions.json file which contains the x, y, width, height
      * rectangles for the location of the upper left corner of each of the 28 cards on the
      * table, plus the locations of the deck and waste piles.
+     *
      * @throws PlayException
      */
     private void loadCardRegions() throws PlayException {
@@ -264,6 +274,7 @@ public class PyramidWindow {
      * Given a set of x/y/width/height coordinates from the regions.json file,
      * return a Sikuli Region object encapsulating these values.  The purpose of having
      * the region is that you can call click() on them to click in the center of the area.
+     *
      * @param node a JSON node containing fields x, y, width, and height
      * @return a Sikuli Region containing the x, y, width, and height fields
      */
@@ -297,6 +308,7 @@ public class PyramidWindow {
     /**
      * Click on the Draw button to draw a card from the deck to the waste pile, or recycle the
      * waste pile.
+     *
      * @throws PlayException when there's a problem clicking on the Draw button
      */
     private void clickDrawButton() throws PlayException {
@@ -308,6 +320,7 @@ public class PyramidWindow {
 
     /**
      * Find and return the best matching location for the image on the window region.
+     *
      * @param image the image to look for on the app window
      * @return the best match for the image
      * @throws PlayException if there's a problem finding the image on the screen
@@ -330,6 +343,7 @@ public class PyramidWindow {
 
     /**
      * Given an image filename, load and return the image for use by Sikuli.
+     *
      * @param filename the image filename
      * @return the Sikuli Image object
      */
@@ -340,6 +354,7 @@ public class PyramidWindow {
     /**
      * Determine the most likely card to be at the region, or null if there isn't a card there or
      * if it can't figure out what card is there.
+     *
      * @param region a region to check for a card (upper left corner containing rank and suit)
      * @return A two-letter card representation (rank and suit) or null if no card found
      */
@@ -365,6 +380,7 @@ public class PyramidWindow {
     /**
      * Utility function to sleep for the given number of milliseconds, catching and
      * ignoring the InterruptedException if it happens.
+     *
      * @param milliseconds the number of milliseconds to sleep
      */
     private void sleep(int milliseconds) {
@@ -380,7 +396,7 @@ public class PyramidWindow {
      */
     private void adjustFontSettings() {
         int startPos = resourceDir.indexOf("-percent-scaling") - 3;
-        int scalingPercent = Integer.parseInt(resourceDir.substring(startPos, startPos+3));
+        int scalingPercent = Integer.parseInt(resourceDir.substring(startPos, startPos + 3));
         switch (scalingPercent) {
             case 100:
                 Settings.InputFontSize = 14;

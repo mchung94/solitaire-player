@@ -15,6 +15,7 @@ public abstract class SolitairePlayer {
     /**
      * A static factory method to instantiate Solitaire Players.
      * This throws IllegalArgumentException to indicate command line argument problems.
+     *
      * @param args command line args
      * @return a new instance of a concrete subclass of SolitairePlayer
      */
@@ -42,6 +43,7 @@ public abstract class SolitairePlayer {
 
     /**
      * A utility method for subclasses to parse command line strings into ints.
+     *
      * @param s a command line argument
      * @return an int value of the argument
      */
@@ -56,6 +58,7 @@ public abstract class SolitairePlayer {
     /**
      * A utility method for subclasses to parse command line strings into card ranks
      * A card rank must be one of the following chars: A 2 3 4 5 6 7 8 9 T J Q K.
+     *
      * @param s a command line argument
      * @return a char card rank of the argument
      */
@@ -70,6 +73,7 @@ public abstract class SolitairePlayer {
     /**
      * Utility method to let players sleep for a number of milliseconds without having
      * to handle InterruptedException
+     *
      * @param milliseconds the number of milliseconds to sleep
      */
     protected void sleep(long milliseconds) {
