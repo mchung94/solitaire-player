@@ -12,7 +12,7 @@ import java.util.List;
  * It's basically an array of queues where the index into the array is the priority.  So
  * when you add items you just look up the queue for the given priority and add it, and when
  * you remove something you remove it from the queue for the lowest priority.  In both cases you
- * just keep update the lowest priority and the size.
+ * just keep updating the lowest priority.
  *
  * @param <E> the type of elements held in this queue
  */
@@ -20,7 +20,6 @@ public class BucketQueue<E> {
     private int capacity;
     private int currentPriority;
     private List<Deque<E>> buckets;
-    private int size;
 
     /**
      * Create a bucket queue that allows priorities from 0 to maximumPriority inclusive.
@@ -31,7 +30,6 @@ public class BucketQueue<E> {
         capacity = maximumPriority + 1;
         currentPriority = capacity;
         buckets = new ArrayList<>(capacity);
-        size = 0;
         for (int i = 0; i < capacity; i++) {
             buckets.add(new ArrayDeque<>());
         }
@@ -44,20 +42,19 @@ public class BucketQueue<E> {
      * @param priority the priority of the element
      */
     public void add(E e, int priority) {
-        buckets.get(priority).add(e);
         if (priority < currentPriority) {
             currentPriority = priority;
         }
-        size++;
+        buckets.get(priority).add(e);
     }
 
     /**
-     * Return the number of elements currently in the bucket queue.
+     * Check if the bucket queue is empty.
      *
-     * @return the size of the queue
+     * @return true if the bucket queue is empty, false otherwise.
      */
-    public int size() {
-        return size;
+    public boolean isEmpty() {
+        return currentPriority == capacity;
     }
 
     /**
@@ -68,7 +65,6 @@ public class BucketQueue<E> {
     public E remove() {
         Deque<E> currentBucket = buckets.get(currentPriority);
         E e = currentBucket.remove();
-        size--;
         if (currentBucket.size() == 0) {
             do {
                 currentPriority++;

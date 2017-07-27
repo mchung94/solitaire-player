@@ -39,7 +39,7 @@ public class BoardChallengeSolver implements PyramidSolver {
         if (!State.isUnwinnable(state, deck)) {
             fringe.add(node, State.hCost(state, deck));
         }
-        while (fringe.size() != 0) {
+        while (!fringe.isEmpty()) {
             node = fringe.remove();
             state = node.getState();
             if (State.isTableClear(state)) {

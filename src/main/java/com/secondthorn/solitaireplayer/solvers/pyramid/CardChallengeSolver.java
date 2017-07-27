@@ -73,7 +73,7 @@ public class CardChallengeSolver implements PyramidSolver {
         bestNonClearNode = null;
         bestNonClearNodeScore = 0;
 
-        while (fringe.size() > 0) {
+        while (!fringe.isEmpty()) {
             node = fringe.remove();
             state = node.getState();
             int score = State.numCardsOfRankRemoved(state, cardRankToClear, deck);

@@ -119,7 +119,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
         Node bestNode = null;
         bestScore = 0;
         fringe.addLast(node);
-        while (fringe.size() > 0) {
+        while (!fringe.isEmpty()) {
             node = fringe.removeFirst();
             state = node.getState();
             TLongList successors = State.successors(state, deck);
