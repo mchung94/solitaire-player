@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class ScoreChallengeSolverTest {
     @Test(expected = IllegalArgumentException.class)
     public void currentScoreHigherThanGoalScore() {
-        ScoreChallengeSolver solver = new ScoreChallengeSolver(1290, 2580);
+        new ScoreChallengeSolver(1290, 2580);
     }
 
     @Test

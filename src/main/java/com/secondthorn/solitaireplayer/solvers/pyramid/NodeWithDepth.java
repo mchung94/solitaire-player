@@ -7,7 +7,7 @@ import java.util.List;
  * following a Node's parents but it takes time.  Why not store the depth in the regular Node?  Because
  * some algorithms like Breadth First Search don't really need it, and can save memory by not storing it.
  */
-public class NodeWithDepth {
+class NodeWithDepth {
     private int depth;
     private Node node;
 
@@ -18,7 +18,7 @@ public class NodeWithDepth {
      * @param parentNode the parent node
      * @param depth      the number of steps from the initial state to this state
      */
-    public NodeWithDepth(long state, NodeWithDepth parentNode, int depth) {
+    NodeWithDepth(long state, NodeWithDepth parentNode, int depth) {
         if (parentNode == null) {
             this.node = new Node(state, null);
         } else {
@@ -27,11 +27,11 @@ public class NodeWithDepth {
         this.depth = depth;
     }
 
-    public int getDepth() {
+    int getDepth() {
         return depth;
     }
 
-    public long getState() {
+    long getState() {
         return node.getState();
     }
 
@@ -41,7 +41,7 @@ public class NodeWithDepth {
      * @param deck the Deck of cards being played in Pyramid Solitaire
      * @return a list of Actions
      */
-    public List<Action> actions(Deck deck) {
+    List<Action> actions(Deck deck) {
         return node.actions(deck);
     }
 }

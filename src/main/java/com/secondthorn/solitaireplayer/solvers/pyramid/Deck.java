@@ -1,9 +1,10 @@
 package com.secondthorn.solitaireplayer.solvers.pyramid;
 
-import gnu.trove.map.TCharLongMap;
-import gnu.trove.map.hash.TCharLongHashMap;
+import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,52 +15,13 @@ import java.util.List;
  * Cards are represented as two-letter strings containing rank and suit, for example Kc or 7s.
  * <p>
  * A Deck precalculates a lot of information about the cards so that anything the solver requires just turns into
- * an array index operation and nothing too complicated.  For example, which cards match with each other for removal
- * or which cards are kings.
+ * an array index operation and nothing too complicated.
  */
 public class Deck {
-    /**
-     * For each of the 28 table indexes, list the other table indexes that aren't covering or covered by the index.
-     * If table indexes are unrelated, then potentially the cards in them can be removed together as a pair
-     * if their ranks add up to 13.  Otherwise, they can't because you have to remove one to uncover the
-     * other and make it possible to remove.
-     */
-    private static final int[][] TABLE_UNRELATED_INDEXES = {
-            {},
-            {2, 5, 9, 14, 20, 27},
-            {1, 3, 6, 10, 15, 21},
-            {2, 4, 5, 8, 9, 13, 14, 19, 20, 26, 27},
-            {3, 5, 6, 9, 10, 14, 15, 20, 21, 27},
-            {1, 3, 4, 6, 7, 10, 11, 15, 16, 21, 22},
-            {2, 4, 5, 7, 8, 9, 12, 13, 14, 18, 19, 20, 25, 26, 27},
-            {5, 6, 8, 9, 10, 13, 14, 15, 19, 20, 21, 26, 27},
-            {3, 6, 7, 9, 10, 11, 14, 15, 16, 20, 21, 22, 27},
-            {1, 3, 4, 6, 7, 8, 10, 11, 12, 15, 16, 17, 21, 22, 23},
-            {2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19, 20, 24, 25, 26, 27},
-            {5, 8, 9, 10, 12, 13, 14, 15, 18, 19, 20, 21, 25, 26, 27},
-            {6, 9, 10, 11, 13, 14, 15, 16, 19, 20, 21, 22, 26, 27},
-            {3, 6, 7, 10, 11, 12, 14, 15, 16, 17, 20, 21, 22, 23, 27},
-            {1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23, 24},
-            {2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 20, 23, 24, 25, 26, 27},
-            {5, 8, 9, 12, 13, 14, 15, 17, 18, 19, 20, 21, 24, 25, 26, 27},
-            {9, 10, 13, 14, 15, 16, 18, 19, 20, 21, 22, 25, 26, 27},
-            {6, 10, 11, 14, 15, 16, 17, 19, 20, 21, 22, 23, 26, 27},
-            {3, 6, 7, 10, 11, 12, 15, 16, 17, 18, 20, 21, 22, 23, 24, 27},
-            {1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25},
-            {2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27},
-            {5, 8, 9, 12, 13, 14, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27},
-            {9, 13, 14, 15, 18, 19, 20, 21, 22, 24, 25, 26, 27},
-            {10, 14, 15, 16, 19, 20, 21, 22, 23, 25, 26, 27},
-            {6, 10, 11, 15, 16, 17, 20, 21, 22, 23, 24, 26, 27},
-            {3, 6, 7, 10, 11, 12, 15, 16, 17, 18, 21, 22, 23, 24, 25, 27},
-            {1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26}
-    };
     private String[] cards;
-    private boolean[] kingFlags;
-    private int[] rankBuckets;
-    private boolean[][] matchFlags;
-    private long[] unwinnableMasks;
-    private TCharLongMap cardRankMasks;
+    private int[] values;
+    private long[] cardRankMasks;
+    private TLongObjectMap<StateCache> stateCaches;
 
     /**
      * Create a new deck out of a String array of cards.
@@ -71,11 +33,9 @@ public class Deck {
             throw new IllegalArgumentException("A Deck must be 52 cards, " + cards.length + " sent in instead.");
         }
         this.cards = cards;
-        this.kingFlags = getKingFlags(this.cards);
-        this.rankBuckets = getRankBuckets(this.cards);
-        this.matchFlags = getMatches(this.cards);
-        this.unwinnableMasks = getUnwinnableMasks(this.kingFlags, this.matchFlags);
-        this.cardRankMasks = getCardRankMasks(this.cards);
+        this.values = calcCardValues(cards);
+        this.cardRankMasks = calcCardRankMasks(values);
+        this.stateCaches = calcStateCaches();
     }
 
     /**
@@ -97,70 +57,66 @@ public class Deck {
     }
 
     /**
-     * Return a string representation of the card at the given deck index.
+     * Return a string representation of the card at deckIndex.
      *
      * @param deckIndex the index into the deck of cards
      * @return the card at the deckIndex
      */
-    public String cardAt(int deckIndex) {
+    String cardAt(int deckIndex) {
         return cards[deckIndex];
     }
 
     /**
-     * Return true if the card at the given deck index is a King.
+     * Return the card's numeric value.  Aces are always 1, Jacks are 11, Queens are 12, and Kings are 13.
      *
      * @param deckIndex the index into the deck of cards
-     * @return true if the card at the index is a King, false otherwise
+     * @return the card's numeric value
      */
-    public boolean isKing(int deckIndex) {
-        return kingFlags[deckIndex];
+    int cardValue(int deckIndex) {
+        return values[deckIndex];
     }
 
     /**
-     * Return a numeric rank bucket value for a card for use when bucketing cards
-     * by rank.  Kings are 0 but every other card is its normal numeric rank value.
-     */
-    public int cardRankBucket(int deckIndex) {
-        return rankBuckets[deckIndex];
-    }
-
-    /**
-     * Return a 52-element array of booleans indicating if the card at the index is a match with
-     * the card at the given deck index (i.e. if the two cards have ranks that add up to 13).
-     * <p>
-     * The usage of this is to find out for a single card, which out of a list of other cards match with it.
-     * So for performance, instead of being a 2D lookup, it can return a whole 52-element boolean array for
-     * the card so it can just do single lookups to find each other card that matches with it.
+     * Return true if the card at deckIndex is a King.
      *
      * @param deckIndex the index into the deck of cards
-     * @return a 52-element boolean array indicating if the card matches with the other card
+     * @return true if the card at deckIndex is a King, false otherwise
      */
-    public boolean[] getMatchesForCard(int deckIndex) {
-        return matchFlags[deckIndex];
+    boolean isKing(int deckIndex) {
+        return values[deckIndex] == 13;
     }
 
     /**
-     * Given a table index, return a mask which can be used to tell if a state is unwinnable.
-     * The mask has bits set for the table card plus any card that can be removed with it as a pair
-     * whose ranks add up to 13.  So if the table card hasn't been removed yet, but the cards that
-     * can remove it are gone, then the state is unwinnable.
+     * For a given card value, return a bit mask with the bits set only for the four cards in the deck
+     * of that value.
      *
-     * @param tableIndex 0-27 for the Pyramid table card index
-     * @return a bit mask that can check if the table card can't be removed
-     */
-    public long getUnwinnableMask(int tableIndex) {
-        return unwinnableMasks[tableIndex];
-    }
-
-    /**
-     * For a given card rank, return a bit mask with the bits set only for the four cards in the deck
-     * of that rank.  This is used to determine how many of those cards were removed in a state.
-     *
-     * @param cardRank a card rank, one of A23456789TJQK
+     * @param value a card value, from 1 to 13 representing Ace through King
      * @return a long bit mask with the bits set for the positions of the four cards in the deck of that rank
      */
-    public long getCardRankMask(char cardRank) {
-        return cardRankMasks.get(cardRank);
+    long cardRankMask(int value) {
+        return cardRankMasks[value];
+    }
+
+    /**
+     * Return true if the cards at the deck indexes add up to 13 and potentially can be removed together if
+     * they're both uncovered.
+     *
+     * @param deckIndex1 a card deck index
+     * @param deckIndex2 another card deck index
+     * @return true if they match (add up to 13 together)
+     */
+    boolean cardsMatch(int deckIndex1, int deckIndex2) {
+        return cardValue(deckIndex1) + cardValue(deckIndex2) == 13;
+    }
+
+    /**
+     * For a given Pyramid flags value, return the StateCache that has all the precalculated data for it.
+     *
+     * @param pyramidFlags 28-bit flags (as a long) for the 28 pyramid cards
+     * @return a StateCache with all the data relating to that particular pyramidFlags value
+     */
+    StateCache getStateCache(long pyramidFlags) {
+        return stateCaches.get(pyramidFlags);
     }
 
     /**
@@ -169,128 +125,213 @@ public class Deck {
      * @param card a two-letter representation of the card's rank and suit
      * @return the card's rank as a char
      */
-    private char cardRank(String card) {
+    private char calcRank(String card) {
         return card.charAt(0);
     }
 
     /**
-     * Build and return a boolean array indicating which cards in the list are kings.
-     *
-     * @param cards an array of 52 cards
-     * @return an array of booleans showing which cards are kings
-     */
-    private boolean[] getKingFlags(String[] cards) {
-        boolean[] flags = new boolean[52];
-        for (int i = 0; i < cards.length; i++) {
-            flags[i] = cardRank(cards[i]) == 'K';
-        }
-        return flags;
-    }
-
-    /**
-     * Return the numeric rank value of a card for the purposes of Pyramid Solitaire.
+     * Return the card's value.  Aces are always 1, Jacks are 11, Queens are 12, and Kings are 13.
      *
      * @param card a two-letter representation of the card's rank and suit
      * @return the card's numeric rank value
      */
-    private int cardNumericRank(String card) {
-        return " A23456789TJQK".indexOf(cardRank(card));
+    private int calcValue(String card) {
+        return "A23456789TJQK".indexOf(calcRank(card)) + 1;
     }
 
     /**
-     * Build and return a numeric value for the card to use when bucketing cards by rank.
-     * This differs from the card's numeric rank because Kings are equal to 0 here,
-     * in order to save space in the bucket array.
+     * Return a mapping from deck index to card numeric value.
      *
-     * @param cards an array of 52 cards
-     * @return a 52 element int array showing the array index to use for each card when bucketing by rank
+     * @param cards the 52 cards in the deck
+     * @return an array containing each card's value
      */
-    private int[] getRankBuckets(String[] cards) {
-        int[] buckets = new int[52];
+    private int[] calcCardValues(String[] cards) {
+        int[] values = new int[52];
         for (int i = 0; i < cards.length; i++) {
-            buckets[i] = cardNumericRank(cards[i]) % 13;
+            values[i] = calcValue(cards[i]);
         }
-        return buckets;
+        return values;
     }
 
     /**
-     * Return true if the cards are a pair whose ranks add up to 13.
+     * For each card value, build a bit mask with the bits set for the positions of the four cards in the deck with
+     * that value.  So index 1 would be a mask with the bits for each Ace's position set to 1.
      *
-     * @param card1 the first card
-     * @param card2 the second card
-     * @return true if the card ranks add up to 13
+     * @param values the value of each card in the deck
+     * @return a bit mask for each card value indicating which cards in the deck have that value
      */
-    private boolean cardRanksAddTo13(String card1, String card2) {
-        return cardNumericRank(card1) + cardNumericRank(card2) == 13;
-    }
-
-    /**
-     * Build and return an array of arrays.  For each card it will create a 52-element boolean array
-     * showing which cards match with it or not.  This is so the solving algorithm can determine this
-     * with just an array lookup and no expensive calculations.
-     *
-     * @param cards an array of 52 cards
-     * @return a 52-element boolean array, each containing another 52-element boolean array
-     */
-    private boolean[][] getMatches(String[] cards) {
-        boolean[][] matches = new boolean[52][];
-        for (int i = 0; i < 52; i++) {
-            boolean[] matchesForCard = new boolean[52];
-            matches[i] = matchesForCard;
-            for (int j = 0; j < 52; j++) {
-                matchesForCard[j] = cardRanksAddTo13(cards[i], cards[j]);
-            }
+    private long[] calcCardRankMasks(int[] values) {
+        long[] cardBucketMasks = new long[14];
+        for (int i = 0; i < values.length; i++) {
+            cardBucketMasks[values[i]] |= State.mask(i);
         }
-        return matches;
+        return cardBucketMasks;
     }
 
     /**
-     * For each of the 28 table indexes, build a 52-bit long bit mask with the bit for the table index
-     * and the bits for the cards that can be removed with it as a pair.  To find out if a state is
-     * unwinnable, use the mask to find out if the table card hasn't been removed, but all the cards
-     * that can be removed with it are gone.
+     * For the given Pyramid flags, return whether or not it's a goal state (all 28 pyramid cards removed).
      *
-     * @param kingFlags  flags to check which cards in the deck are kings
-     * @param matchFlags flags to check which cards pair with others add up to 13
-     * @return 28 bit masks that can check if each of the 28 table cards can't be removed
+     * @param pyramidFlags 28-bit flags (as a long) for the 28 pyramid cards
+     * @return true if the 28 pyramid cards are removed, false otherwise
      */
-    private long[] getUnwinnableMasks(boolean[] kingFlags, boolean[][] matchFlags) {
-        long[] unwinnableMasks = new long[28];
-        for (int i = 0; i < 28; i++) {
-            long mask = 0;
-            boolean[] matches = matchFlags[i];
-            int[] unrelatedIndexes = TABLE_UNRELATED_INDEXES[i];
-            if (!kingFlags[i]) {
-                mask = 1L << i;
-                for (int j = 0; j < 52; j++) {
-                    if (((j > 27) || (Arrays.binarySearch(unrelatedIndexes, j) >= 0)) && matches[j]) {
-                        mask |= 1L << j;
-                    }
+    private boolean calcIsPyramidClear(long pyramidFlags) {
+        return pyramidFlags == 0L;
+    }
+
+    /**
+     * Given all the cards existing in a Pyramid flags value, return an estimate of how many steps to clear the
+     * pyramid.  The estimate is the number of kings remaining in the pyramid, plus the maximum count of the number
+     * of cards in each matching pair.  For example if there are two fours and three nines in the pyramid, it would
+     * take at least three steps to remove all the fours and nines.  Count this for each pair of ranks that add to 13.
+     *
+     * @param existingPyramidIndexes all the pyramid card indexes that exist in a Pyramid flags value
+     * @return a heuristic estimate of how many steps to remove the remaining pyramid cards
+     */
+    private int calcHeuristicCost(int[] existingPyramidIndexes) {
+        int[] buckets = new int[14];
+        for (int pyramidIndex : existingPyramidIndexes) {
+            buckets[cardValue(pyramidIndex)]++;
+        }
+        int hCost = buckets[13];
+        for (int i = 1; i <= 6; i++) {
+            hCost += Math.max(buckets[i], buckets[13 - i]);
+        }
+        return hCost;
+    }
+
+    /**
+     * Given all the cards existing in a Pyramid flags value, return masks to check if any card in the pyramid is
+     * unremovable.  This function locates the matching cards for each card in the pyramid and makes a mask singling
+     * them out, then filters out the ones that are covering or covered by it.
+     * <p>
+     * Performing a logical bitwise AND on these masks with a given state, if the result is zero that means there
+     * is a card in the pyramid that can't be removed.
+     *
+     * @param existingPyramidIndexes all the pyramid card indexes that exist in a Pyramid flags value
+     * @return a list of masks to check if there's a card in the pyramid that can't be removed
+     */
+    private long[] calcUnwinnableMasks(int[] existingPyramidIndexes) {
+        TLongList masks = new TLongArrayList();
+        for (int pyramidIndex : existingPyramidIndexes) {
+            int cardValue = cardValue(pyramidIndex);
+            if (cardValue != 13) {
+                long mask = cardRankMask(13 - cardValue);
+                mask &= Pyramid.UNRELATED_CARD_MASKS[pyramidIndex];
+                if (!masks.contains(mask)) {
+                    masks.add(mask);
                 }
             }
-            unwinnableMasks[i] = mask;
         }
-        return unwinnableMasks;
+        return masks.toArray();
     }
 
     /**
-     * For each rank, build a bit mask with the bits set for the positions of the four cards in the deck
-     * with that rank.  Put the results into a map keyed by the char rank.
+     * Return card removal masks that involve the card at deckIndex.
+     * If that card is a king, it just returns just the mask to remove it.
+     * Otherwise, it returns all masks for that card plus a matching card in otherIndexes, starting from the
+     * one at firstOtherIndexes.  firstOtherIndexes is just an optimization so that you can only look at a subset
+     * of otherIndexes without creating a new array.
      *
-     * @param cards a deck of cards
-     * @return a map of bit masks for each card rank, indicating the positions in the deck for each card of that rank
+     * @param deckIndex       a card deck index from 0 - 51 that you want the masks for removing it
+     * @param otherIndexes    other card deck indexes of uncovered cards to possibly match with the one at deckIndex
+     * @param firstOtherIndex an index to the first index in otherIndexes that you want to use for checking
+     * @return a list of masks that can remove the cards involving the one at deckIndex
      */
-    private TCharLongMap getCardRankMasks(String[] cards) {
-        TCharLongMap cardRankMasks = new TCharLongHashMap();
-        for (char rank : "A23456789TJQK".toCharArray()) {
-            cardRankMasks.put(rank, 0L);
+    private TLongList calcRemovalMasks(int deckIndex, int[] otherIndexes, int firstOtherIndex) {
+        TLongList masks = new TLongArrayList();
+        if (isKing(deckIndex)) {
+            masks.add(State.removalMask(deckIndex));
+        } else {
+            for (int i = firstOtherIndex; i < otherIndexes.length; i++) {
+                if (cardsMatch(deckIndex, otherIndexes[i])) {
+                    masks.add(State.removalMask(deckIndex) & State.removalMask(otherIndexes[i]));
+                }
+            }
         }
-        for (int i = 0; i < 52; i++) {
-            char rank = cardRank(cards[i]);
-            long newMask = cardRankMasks.get(rank) | (1L << i);
-            cardRankMasks.put(rank, newMask);
-        }
-        return cardRankMasks;
+        return masks;
     }
+
+    /**
+     * Return all the card removal masks removing any cards referred to by the deck indexes in uncoveredIndexes
+     *
+     * @param uncoveredIndexes the uncovered cards in the pyramid
+     * @return card removal masks for any cards that can be removed from the pyramid
+     */
+    private TLongList calcPyramidRemovalMasks(int[] uncoveredIndexes) {
+        TLongList allMasks = new TLongArrayList();
+        for (int i = 0; i < uncoveredIndexes.length; i++) {
+            allMasks.addAll(calcRemovalMasks(uncoveredIndexes[i], uncoveredIndexes, i + 1));
+        }
+        return allMasks;
+    }
+
+    /**
+     * Return an array of card removal mask lists indexed by stock index, and involving stock index with
+     * uncoveredIndexes.  When the index isn't a valid non-empty stock index (28-51), set the value to an empty list.
+     *
+     * @param uncoveredIndexes the uncovered cards in the pyramid
+     * @return card removal masks for each stock index used with the uncovered indexes
+     */
+    private TLongList[] calcStockRemovalMasks(int[] uncoveredIndexes) {
+        TLongList[] stockMasks = new TLongList[53];
+        for (int i = 0; i < stockMasks.length; i++) {
+            if ((i >= 28) && (i <= 51)) {
+                stockMasks[i] = calcRemovalMasks(i, uncoveredIndexes, 0);
+            } else {
+                stockMasks[i] = new TLongArrayList();
+            }
+        }
+        return stockMasks;
+    }
+
+    /**
+     * Given all the uncovered cards in a Pyramid flags value, return all possible card removal masks for them.
+     * For every possible combination of stock index and waste index (cards 28-51 in the deck), generate a list of
+     * card removal masks using these indexes plus the uncoveredIndexes.  These lists will be put into an array of
+     * arrays indexed by stock index first (28-52), then by waste index (27-51).  result[stockIndex][wasteIndex] gives
+     * you the list.  This makes finding successor states
+     *
+     * @param uncoveredIndexes the uncovered indexes for a Pyramid flags value
+     * @return an array indexed by stock index and waste index to a list of card removal masks
+     */
+    private long[][][] calcSuccessorMasks(int[] uncoveredIndexes) {
+        long[][][] successorMasks = new long[53][52][];
+        TLongList pyramidMasks = calcPyramidRemovalMasks(uncoveredIndexes);
+        TLongList[] stockMasks = calcStockRemovalMasks(uncoveredIndexes);
+        for (int stockIndex = 28; stockIndex < 53; stockIndex++) {
+            for (int wasteIndex = 27; wasteIndex < stockIndex; wasteIndex++) {
+                TLongList masks = new TLongArrayList();
+                if (!State.isStockEmpty(stockIndex) &&
+                        !State.isWasteEmpty(wasteIndex) &&
+                        cardsMatch(stockIndex, wasteIndex)) {
+                    masks.add(State.removalMask(stockIndex) & State.removalMask(wasteIndex));
+                }
+                masks.addAll(stockMasks[wasteIndex]);
+                masks.addAll(stockMasks[stockIndex]);
+                masks.addAll(pyramidMasks);
+                successorMasks[stockIndex][wasteIndex] = masks.toArray();
+            }
+        }
+        return successorMasks;
+    }
+
+    /**
+     * For all 1430 possible values of Pyramid flags, precalculate and cache everything the search algorithm needs.
+     *
+     * @return a map from Pyramid flags to precalculated StateCaches
+     */
+    private TLongObjectMap<StateCache> calcStateCaches() {
+        TLongObjectMap<StateCache> stateCaches = new TLongObjectHashMap<>();
+        for (Pyramid pyramid : Pyramid.ALL) {
+            boolean isPyramidClear = calcIsPyramidClear(pyramid.getFlags());
+            int heuristicCost = calcHeuristicCost(pyramid.getAllIndexes());
+            long[] unwinnableMasks = calcUnwinnableMasks(pyramid.getAllIndexes());
+            long[][][] successorMasks = calcSuccessorMasks(pyramid.getUncoveredIndexes());
+            StateCache stateCache = new StateCache(isPyramidClear, heuristicCost, unwinnableMasks, successorMasks);
+            stateCaches.put(pyramid.getFlags(), stateCache);
+        }
+        return stateCaches;
+    }
+
 
 }

@@ -33,6 +33,7 @@ import java.util.Map;
 public class CardChallengeSolver implements PyramidSolver {
     private int numCardsToClear;
     private char cardRankToClear;
+    private int cardRankValueToClear;
 
     private Node goalReachedNode;
     private int goalReachedNodeScore;
@@ -47,6 +48,7 @@ public class CardChallengeSolver implements PyramidSolver {
         }
         this.numCardsToClear = goalNumCardsToClear - currentNumCardsCleared;
         this.cardRankToClear = cardRankToClear;
+        this.cardRankValueToClear = "A23456789TJQK".indexOf(cardRankToClear) + 1;
     }
 
     /**
@@ -76,13 +78,14 @@ public class CardChallengeSolver implements PyramidSolver {
         while (!fringe.isEmpty()) {
             node = fringe.remove();
             state = node.getState();
-            int score = State.numCardsOfRankRemoved(state, cardRankToClear, deck);
+            StateCache stateCache = deck.getStateCache(State.getPyramidFlags(state));
+            int score = numCardsOfRankRemoved(state, cardRankValueToClear, deck);
             if (score == numCardsToClear) {
                 goalReachedNode = node;
                 goalReachedNodeScore = score;
                 break;
             }
-            if (State.isTableClear(state)) {
+            if (stateCache.isPyramidClear()) {
                 if (score > bestClearNodeScore) {
                     bestClearNode = node;
                     bestClearNodeScore = score;
@@ -91,7 +94,7 @@ public class CardChallengeSolver implements PyramidSolver {
                     }
                 }
             } else {
-                TLongList successors = State.successors(state, deck);
+                TLongList successors = stateCache.getSuccessors(state);
                 if (successors.size() == 0) {
                     if (score > bestNonClearNodeScore) {
                         bestNonClearNode = node;
@@ -135,6 +138,25 @@ public class CardChallengeSolver implements PyramidSolver {
         }
 
         return solutions;
+    }
+
+    /**
+     * For a given state and card rank, count how many cards of that rank have been removed.
+     *
+     * @param state     a long value for the Pyramid Solitaire state
+     * @param rankValue a char card rank value (1 - 13)
+     * @param deck      the Deck of cards being played
+     * @return the number of cards of that rank that have been removed in the state
+     */
+    private int numCardsOfRankRemoved(long state, int rankValue, Deck deck) {
+        // using Kernighan's method in The C Programming Language 2nd Ed. Exercise 2-9 to count set bits
+        int numCardsRemoved = 4;
+        long remainingCardFlags = state & deck.cardRankMask(rankValue);
+        while (remainingCardFlags != 0) {
+            remainingCardFlags &= remainingCardFlags - 1;
+            numCardsRemoved--;
+        }
+        return numCardsRemoved;
     }
 
     private void addGoalReachedNode(Deck deck, Map<String, List<Action>> solutions) {

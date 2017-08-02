@@ -9,13 +9,13 @@ import static org.junit.Assert.assertTrue;
 public class BucketQueueTest {
     @Test
     public void newBucketQueueIsEmpty() {
-        BucketQueue<Integer> bq = new BucketQueue<>(100);
+        BucketQueue<Integer> bq = new BucketQueue<>(102);
         assertTrue(bq.isEmpty());
     }
 
     @Test
     public void addAndRemoveLeavesQueueEmpty() {
-        BucketQueue<String> bq = new BucketQueue(100);
+        BucketQueue<String> bq = new BucketQueue<>(102);
         bq.add("One", 1);
         assertEquals("One", bq.remove());
         assertTrue(bq.isEmpty());

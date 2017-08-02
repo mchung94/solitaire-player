@@ -9,9 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 public class CardChallengeSolverTest {
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void constructorAlreadyPastGoal() {
-        CardChallengeSolver solver = new CardChallengeSolver(3, 'A', 4);
+        new CardChallengeSolver(3, 'A', 4);
     }
 
     @Test

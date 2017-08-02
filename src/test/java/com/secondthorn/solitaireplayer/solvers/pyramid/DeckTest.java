@@ -4,11 +4,14 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class DeckTest {
-    static List<String> orderedCards;
+    static Deck deck;
+    private static List<String> orderedCards;
 
     static {
         orderedCards = new ArrayList<>(52);
@@ -17,10 +20,11 @@ public class DeckTest {
                 orderedCards.add("" + rank + suit);
             }
         }
+        deck = new Deck(orderedCards);
     }
 
     private void assertDeckCardsMatch(List<String> cards, Deck deck) {
-        for (int i=0; i<52; i++) {
+        for (int i = 0; i < 52; i++) {
             assertEquals(cards.get(i), deck.cardAt(i));
         }
     }
@@ -32,11 +36,8 @@ public class DeckTest {
 
     @Test
     public void constructorWithStringOfCards() {
-        StringBuilder stringOfCards = new StringBuilder();
-        for (String card : orderedCards) {
-            stringOfCards.append(card).append(" ");
-        }
-        assertDeckCardsMatch(orderedCards, new Deck(stringOfCards.toString()));
+        String stringOfCards = orderedCards.stream().collect(Collectors.joining(" "));
+        assertDeckCardsMatch(orderedCards, new Deck(stringOfCards));
     }
 
     @Test
@@ -48,119 +49,68 @@ public class DeckTest {
     @Test(expected = IllegalArgumentException.class)
     public void constructorThrowsExceptionWithTooFewCards() {
         List<String> cards = orderedCards.subList(0, 51);
-        Deck deck = new Deck(cards);
+        new Deck(cards);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorThrowsExceptionWithTooManyCards() {
         List<String> cards = new ArrayList<>(orderedCards);
         cards.add("Kc");
-        Deck deck = new Deck(cards);
+        new Deck(cards);
+    }
+
+    @Test
+    public void cardAt() {
+        for (int i = 0; i < 52; i++) {
+            assertEquals(orderedCards.get(i), deck.cardAt(i));
+        }
     }
 
     private char cardRank(String card) {
         return card.charAt(0);
     }
 
-    @Test
-    public void kingsFoundOnOrderedDeck() {
-        Deck orderedDeck = new Deck(orderedCards);
-        for (int i=0; i<52; i++) {
-            char rank = cardRank(orderedDeck.cardAt(i));
-            assertEquals(rank == 'K', orderedDeck.isKing(i));
+    private int cardValue(String card) {
+        switch (cardRank(card)) {
+            case 'A': return 1;
+            case '2': return 2;
+            case '3': return 3;
+            case '4': return 4;
+            case '5': return 5;
+            case '6': return 6;
+            case '7': return 7;
+            case '8': return 8;
+            case '9': return 9;
+            case 'T': return 10;
+            case 'J': return 11;
+            case 'Q': return 12;
+            case 'K': return 13;
+            default: throw new RuntimeException(card + " isn't a valid card for cardValue()");
         }
     }
 
     @Test
-    public void cardRankBucketsOnOrderedDeck() {
-        Deck orderedDeck = new Deck(orderedCards);
-        for (int i=0; i<52; i++) {
-            int rankBucket = "KA23456789TJQK".indexOf(orderedDeck.cardAt(i).charAt(0));
-            assertEquals(rankBucket, orderedDeck.cardRankBucket(i));
-        }
-    }
-
-    private boolean cardRanksAddTo13(String card1, String card2) {
-        switch (cardRank(card1)) {
-            case 'A': return cardRank(card2) == 'Q';
-            case '2': return cardRank(card2) == 'J';
-            case '3': return cardRank(card2) == 'T';
-            case '4': return cardRank(card2) == '9';
-            case '5': return cardRank(card2) == '8';
-            case '6': return cardRank(card2) == '7';
-            case '7': return cardRank(card2) == '6';
-            case '8': return cardRank(card2) == '5';
-            case '9': return cardRank(card2) == '4';
-            case 'T': return cardRank(card2) == '3';
-            case 'J': return cardRank(card2) == '2';
-            case 'Q': return cardRank(card2) == 'A';
-            default: return false;
+    public void cardValue() {
+        Deck deck = new Deck(orderedCards);
+        for (int i = 0; i < 52; i++) {
+            assertEquals(cardValue(orderedCards.get(i)), deck.cardValue(i));
         }
     }
 
     @Test
-    public void cardsMatchOnOrderedDeck() {
-        Deck orderedDeck = new Deck(orderedCards);
-        for (int i=0; i<52; i++) {
-            String card1 = orderedDeck.cardAt(i);
-            boolean[] matches = orderedDeck.getMatchesForCard(i);
-            for (int j=0; j<52; j++) {
-                String card2 = orderedDeck.cardAt(j);
-                assertEquals(cardRanksAddTo13(card1, card2), matches[j]);
-            }
-        }
-    }
-
-    private long getUnwinnableMask(int... args) {
-        long mask = 0;
-        for (int arg : args) {
-            mask |= 1L << arg;
-        }
-        return mask;
-    }
-
-    @Test
-    public void unwinnableMasksOnOrderedDeck() {
-        Deck orderedDeck = new Deck(orderedCards);
-        long[] expected = {
-                getUnwinnableMask(0, 37, 50),
-                getUnwinnableMask(1, 36, 49),
-                getUnwinnableMask(2, 35, 48),
-                getUnwinnableMask(3, 8, 34, 47),
-                getUnwinnableMask(4, 20, 33, 46),
-                getUnwinnableMask(5, 6, 32, 45),
-                getUnwinnableMask(6, 5, 18, 31, 44),
-                getUnwinnableMask(7, 30, 43),
-                getUnwinnableMask(8, 3, 16, 29, 42),
-                getUnwinnableMask(9, 15, 28, 41),
-                getUnwinnableMask(10, 14, 27, 40),
-                getUnwinnableMask(11, 13, 26, 39),
-                0, // Kc is always removable
-                getUnwinnableMask(13, 11, 37, 50),
-                getUnwinnableMask(14, 10, 23, 36, 49),
-                getUnwinnableMask(15, 9, 35, 48),
-                getUnwinnableMask(16, 8, 21, 34, 47),
-                getUnwinnableMask(17, 20, 33, 46),
-                getUnwinnableMask(18, 6, 19, 32, 45),
-                getUnwinnableMask(19, 18, 31, 44),
-                getUnwinnableMask(20, 4, 17, 30, 43),
-                getUnwinnableMask(21, 16, 29, 42),
-                getUnwinnableMask(22, 28, 41),
-                getUnwinnableMask(23, 14, 27, 40),
-                getUnwinnableMask(24, 26, 39),
-                0, // Kd is always removable
-                getUnwinnableMask(26, 11, 24, 37, 50),
-                getUnwinnableMask(27, 10, 23, 36, 49),
-        };
-        for (int i=0; i<expected.length; i++) {
-            assertEquals("Unwinnable Mask " + i + " doesn't match", expected[i], orderedDeck.getUnwinnableMask(i));
+    public void kingsFoundOnOrderedDeck() {
+        Deck deck = new Deck(orderedCards);
+        for (int i = 0; i < 52; i++) {
+            char rank = cardRank(deck.cardAt(i));
+            assertEquals(rank == 'K', deck.isKing(i));
         }
     }
 
     @Test
     public void cardRankMasks() {
-        Deck orderedDeck = new Deck(orderedCards);
+        Deck deck = new Deck(orderedCards);
         long[] expectedMasks = {
+                0b0000000000000000000000000000000000000000000000000000L,
                 0b0000000000001000000000000100000000000010000000000001L,
                 0b0000000000010000000000001000000000000100000000000010L,
                 0b0000000000100000000000010000000000001000000000000100L,
@@ -176,9 +126,33 @@ public class DeckTest {
                 0b1000000000000100000000000010000000000001000000000000L
         };
 
-        for (int i=0; i<13; i++) {
-            long actualMask = orderedDeck.getCardRankMask("A23456789TJQK".charAt(i));
+        for (int i = 0; i < 13; i++) {
+            long actualMask = deck.cardRankMask(i);
             assertEquals(expectedMasks[i], actualMask);
+        }
+    }
+
+    private boolean cardsMatch(String card1, String card2) {
+        return cardValue(card1) + cardValue(card2) == 13;
+    }
+
+    @Test
+    public void cardsMatch() {
+        Deck deck = new Deck(orderedCards);
+        for (int i = 0; i < 52; i++) {
+            String card1 = orderedCards.get(i);
+            for (int j = 0; j < 52; j++) {
+                String card2 = orderedCards.get(j);
+                assertEquals(cardsMatch(card1, card2), deck.cardsMatch(i, j));
+            }
+        }
+    }
+
+    @Test
+    public void getStateCache() {
+        Deck deck = new Deck(orderedCards);
+        for (Pyramid pyramid : Pyramid.ALL) {
+            assertNotNull(deck.getStateCache(pyramid.getFlags()));
         }
     }
 

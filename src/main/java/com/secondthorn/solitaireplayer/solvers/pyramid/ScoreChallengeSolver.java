@@ -96,7 +96,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
      *
      * @return the score for the solution
      */
-    public int getBestScore() {
+    int getBestScore() {
         return bestScore;
     }
 
@@ -122,14 +122,15 @@ public class ScoreChallengeSolver implements PyramidSolver {
         while (!fringe.isEmpty()) {
             node = fringe.removeFirst();
             state = node.getState();
-            TLongList successors = State.successors(state, deck);
+            StateCache stateCache = deck.getStateCache(State.getPyramidFlags(state));
+            TLongList successors = stateCache.getSuccessors(state);
             int score = score(state, deck);
             if ((score >= pointsNeeded) || (score == MAX_POSSIBLE_SCORE)) {
                 bestNode = node;
                 bestScore = score;
                 break;
             }
-            if (State.isTableClear(state) || (successors.size() == 0)) {
+            if (stateCache.isPyramidClear() || (successors.size() == 0)) {
                 if ((bestNode == null) || (score > bestScore)) {
                     bestNode = node;
                     bestScore = score;
@@ -148,7 +149,8 @@ public class ScoreChallengeSolver implements PyramidSolver {
         if (bestNode != null) {
             List<Action> solution = bestNode.actions(deck);
             String description;
-            if (State.isTableClear(bestNode.getState())) {
+            StateCache stateCache = deck.getStateCache(State.getPyramidFlags(bestNode.getState()));
+            if (stateCache.isPyramidClear()) {
                 description = "Clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";
             } else {
                 description = "Don't clear the board, gain " + bestScore + " score in " + solution.size() + " steps.";

@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @param <E> the type of elements held in this queue
  */
-public class BucketQueue<E> {
+class BucketQueue<E> {
     private int capacity;
     private int currentPriority;
     private List<Deque<E>> buckets;
@@ -26,7 +26,7 @@ public class BucketQueue<E> {
      *
      * @param maximumPriority the maximum priority an element in the queue can have
      */
-    public BucketQueue(int maximumPriority) {
+    BucketQueue(int maximumPriority) {
         capacity = maximumPriority + 1;
         currentPriority = capacity;
         buckets = new ArrayList<>(capacity);
@@ -41,7 +41,7 @@ public class BucketQueue<E> {
      * @param e        an element to be added to the queue
      * @param priority the priority of the element
      */
-    public void add(E e, int priority) {
+    void add(E e, int priority) {
         if (priority < currentPriority) {
             currentPriority = priority;
         }
@@ -53,7 +53,7 @@ public class BucketQueue<E> {
      *
      * @return true if the bucket queue is empty, false otherwise.
      */
-    public boolean isEmpty() {
+    boolean isEmpty() {
         return currentPriority == capacity;
     }
 
@@ -62,7 +62,7 @@ public class BucketQueue<E> {
      *
      * @return the lowest priority element in the bucket queue
      */
-    public E remove() {
+    E remove() {
         Deque<E> currentBucket = buckets.get(currentPriority);
         E e = currentBucket.remove();
         if (currentBucket.size() == 0) {

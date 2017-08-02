@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * A Search Node for general search algorithms (Breadth first search, A*, etc).
  */
-public class Node {
+class Node {
     private long state;
     private Node parent;
 
@@ -17,12 +17,12 @@ public class Node {
      * @param state  the Node's state
      * @param parent the Node's parent
      */
-    public Node(long state, Node parent) {
+    Node(long state, Node parent) {
         this.state = state;
         this.parent = parent;
     }
 
-    public long getState() {
+    long getState() {
         return state;
     }
 
@@ -32,16 +32,16 @@ public class Node {
      * @param deck the Deck of cards being played in Pyramid Solitaire
      * @return the action performed to reach this state
      */
-    public Action action(Deck deck) {
+    Action action(Deck deck) {
         Action action = null;
         if (parent != null) {
             long diff = state ^ parent.state;
-            long existFlagsDiff = State.getExistFlags(diff);
+            long existFlagsDiff = State.getDeckFlags(diff);
             long cycleDiff = State.getCycle(diff);
             if (cycleDiff != 0) {
                 action = Action.newRecycleAction();
             } else if (existFlagsDiff != 0) {
-                int deckIndex = State.getDeckIndex(parent.state);
+                int deckIndex = State.getStockIndex(parent.state);
                 List<String> cardsToRemove = new ArrayList<>();
                 List<String> positionsToRemove = new ArrayList<>();
                 long flag = 1L;
@@ -73,7 +73,7 @@ public class Node {
      * @param deck the Deck of cards being played in Pyramid Solitaire
      * @return a list of Actions
      */
-    public List<Action> actions(Deck deck) {
+    List<Action> actions(Deck deck) {
         List<Action> actions;
         if (parent == null) {
             actions = new ArrayList<>();

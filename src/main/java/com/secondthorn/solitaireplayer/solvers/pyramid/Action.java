@@ -32,7 +32,7 @@ public class Action {
      * @param positions the positions of the cards to remove
      * @return a new Action instance for removing cards
      */
-    public static Action newRemoveAction(List<String> cards, List<String> positions) {
+    static Action newRemoveAction(List<String> cards, List<String> positions) {
         return new Action(Command.REMOVE, cards, positions);
     }
 

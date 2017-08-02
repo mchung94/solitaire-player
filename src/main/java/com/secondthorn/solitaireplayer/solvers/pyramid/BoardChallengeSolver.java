@@ -32,31 +32,34 @@ public class BoardChallengeSolver implements PyramidSolver {
      */
     public Map<String, List<Action>> solve(Deck deck) {
         Map<String, List<Action>> solutions = new HashMap<>();
-        BucketQueue<NodeWithDepth> fringe = new BucketQueue<>(100);
+        BucketQueue<NodeWithDepth> fringe = new BucketQueue<>(102);
         TLongIntMap seenStates = new TLongIntHashMap();
         long state = State.INITIAL_STATE;
+        StateCache stateCache = deck.getStateCache(State.getPyramidFlags(state));
         NodeWithDepth node = new NodeWithDepth(state, null, 0);
-        if (!State.isUnwinnable(state, deck)) {
-            fringe.add(node, State.hCost(state, deck));
+        if (!stateCache.isUnwinnable(state)) {
+            fringe.add(node, stateCache.getHeuristicCost());
         }
         while (!fringe.isEmpty()) {
             node = fringe.remove();
             state = node.getState();
-            if (State.isTableClear(state)) {
+            stateCache = deck.getStateCache(State.getPyramidFlags(state));
+            if (stateCache.isPyramidClear()) {
                 List<Action> solution = node.actions(deck);
                 solutions.put("Clear the board in " + solution.size() + " steps.", solution);
                 break;
             }
             int nextDepth = node.getDepth() + 1;
-            TLongList successors = State.successors(state, deck);
+            TLongList successors = stateCache.getSuccessors(state);
             for (int i = 0, len = successors.size(); i < len; i++) {
                 long nextState = successors.get(i);
+                StateCache nextStateCache = deck.getStateCache(State.getPyramidFlags(nextState));
                 int seenDepth = seenStates.get(nextState);
                 if ((seenDepth == seenStates.getNoEntryValue()) || (nextDepth < seenDepth)) {
                     seenStates.put(nextState, nextDepth);
-                    if (!State.isUnwinnable(nextState, deck)) {
+                    if (!nextStateCache.isUnwinnable(nextState)) {
                         NodeWithDepth newNode = new NodeWithDepth(nextState, node, nextDepth);
-                        fringe.add(newNode, nextDepth + State.hCost(nextState, deck));
+                        fringe.add(newNode, nextDepth + nextStateCache.getHeuristicCost());
                     }
                 }
             }
