@@ -2,6 +2,7 @@ package com.secondthorn.solitaireplayer.players.pyramid;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
 import org.sikuli.basics.Settings;
 import org.sikuli.script.FindFailed;
@@ -222,13 +223,7 @@ public class PyramidWindow {
      * @throws PlayException if there's a problem determining the correct resource directory
      */
     private String findResourceDir() throws PlayException {
-        String scaleKey = (appRegion.w - appRegion.x) + "x" + (appRegion.h - appRegion.y);
-        JsonNode scaleNode = loadJsonResource("pyramid/scales.json");
-        scaleNode = scaleNode.get(scaleKey);
-        if (scaleNode == null) {
-            throw new PlayException("Unable to determine Windows Display Settings Scaling percentage");
-        }
-        String scaleDir = scaleNode.asText();
+        String scaleDir = "pyramid/" + MSCWindow.getPercentScaling() + "-percent-scaling/";
         if (pyramidImageExists(scaleDir + "goal/Pyramid.png")) {
             return scaleDir + "goal/";
         } else if (pyramidImageExists(scaleDir + "regular/Pyramid.png")) {

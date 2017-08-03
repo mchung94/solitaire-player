@@ -29,11 +29,21 @@ public final class MSCWindow {
     }
 
     /**
+     * Return the window handle for the Microsoft Solitaire Collection window.  We call this each time
+     * instead of caching it because the user may close/restart the window and we want the right handle.
+     *
+     * @return the Microsoft Solitaire Collection window handle
+     */
+    private static WinDef.HWND getHWND() {
+        return User32.INSTANCE.FindWindow(WINDOW_CLASS_NAME, WINDOW_TITLE_NAME);
+    }
+
+    /**
      * Set up the Microsoft Solitaire Collection to a consistent and known state for playing.
      * This activates the window, moves it to the upper left corner, and will resize it to 1024x768.
      */
     public static void positionForPlay() throws PlayException {
-        WinDef.HWND hwnd = User32.INSTANCE.FindWindow(WINDOW_CLASS_NAME, WINDOW_TITLE_NAME);
+        WinDef.HWND hwnd = getHWND();
         if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
             throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
         }
@@ -69,6 +79,37 @@ public final class MSCWindow {
      */
     private static boolean setForegroundWindow(WinDef.HWND hwnd) {
         return User32.INSTANCE.SetForegroundWindow(hwnd);
+    }
+
+    /**
+     * Based on the actual window size retrieved after trying to resize it to 1024x768,
+     * determine the Windows 10 scaling size (Display Settings -> Scale and Layout).
+     * This works because even though we ask the window size to be set to 1024x768, the actual window size
+     * afterwards is different depending on the user's scaling size setting.
+     *
+     * @return The percentage scaling size in Windows 10 display settings
+     * @throws PlayException if there's an issue determining the scaling size
+     */
+    public static int getPercentScaling() throws PlayException {
+        positionForPlay();
+        WinDef.RECT rect = new WinDef.RECT();
+        User32.INSTANCE.GetWindowRect(getHWND(), rect);
+        String size = (rect.right - rect.left) + "x" + (rect.bottom - rect.top);
+        int percentScaling;
+        switch (size) {
+            case "1024x768":
+                percentScaling = 100;
+                break;
+            case "1026x977":
+                percentScaling = 200;
+                break;
+            case "1282x1221":
+                percentScaling = 250;
+                break;
+            default:
+                throw new PlayException("Unsupported Windows Display Settings scaling size: it's not 100%/200%/250%");
+        }
+        return percentScaling;
     }
 
 }
