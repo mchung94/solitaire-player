@@ -1,5 +1,5 @@
 {
-  "pyramidRegions": [
+  "pyramid": [
     {"x": 577,  "y": 203, "width": 28, "height": 58},
     {"x": 486,  "y": 256, "width": 28, "height": 58},
     {"x": 667,  "y": 256, "width": 28, "height": 58},
@@ -29,6 +29,6 @@
     {"x": 941,  "y": 525, "width": 28, "height": 58},
     {"x": 1124, "y": 525, "width": 28, "height": 58}
   ],
-  "deckRegion"  : {"x": 421, "y": 774, "width": 28, "height": 58},
-  "wasteRegion" : {"x": 733, "y": 774, "width": 28, "height": 58}
+  "deck"  : {"x": 421, "y": 774, "width": 28, "height": 58},
+  "waste" : {"x": 733, "y": 774, "width": 28, "height": 58}
 }

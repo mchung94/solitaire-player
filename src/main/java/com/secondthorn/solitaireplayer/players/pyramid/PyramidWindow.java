@@ -67,29 +67,16 @@ public class PyramidWindow {
     private Image okImage;
 
     /**
-     * The regions (x, y, width, height) of all the 28 cards on the board/table.  We "hardcode" these
-     * into resources/.../regions.json files instead of just searching for images throughout the window,
-     * to make it more accurate, but then this means we have to have multiple sets of these depending on
-     * window scaling.
+     * The Sikuli Regions (x, y, width, height) of all the cards as well as the stock and waste piles.
      */
-    private Region[] pyramidRegions;
-
-    /**
-     * The region of the deck card pile on the game window.
-     */
-    private Region deckRegion;
-
-    /**
-     * The region of the waste pile on the game window.
-     */
-    private Region wasteRegion;
+    private Regions regions;
 
     public PyramidWindow() throws PlayException {
         Settings.InputFontMono = true;
         appRegion = org.sikuli.script.App.focusedWindow();
         resourceDir = findResourceDir();
         adjustFontSettings();
-        loadCardRegions();
+        regions = Regions.newInstance(resourceDir + "regions.json");
         loadImages();
     }
 
@@ -122,7 +109,7 @@ public class PyramidWindow {
      */
     public void removeTableCardIndex(int tableIndex) {
         sleep(500);
-        pyramidRegions[tableIndex].click();
+        regions.pyramid[tableIndex].click();
     }
 
     /**
@@ -131,7 +118,7 @@ public class PyramidWindow {
      */
     public void removeDeckCard() {
         sleep(500);
-        deckRegion.click();
+        regions.deck.click();
     }
 
     /**
@@ -140,7 +127,7 @@ public class PyramidWindow {
      */
     public void removeWasteCard() {
         sleep(500);
-        wasteRegion.click();
+        regions.waste.click();
     }
 
     /**
@@ -165,7 +152,7 @@ public class PyramidWindow {
      * @return The two-letter String for the card at the table pyramid index, or null if no card is there.
      */
     public String cardAtPyramid(int pyramidIndex) {
-        return cardAtRegion(pyramidRegions[pyramidIndex]);
+        return cardAtRegion(regions.pyramid[pyramidIndex]);
     }
 
     /**
@@ -174,7 +161,7 @@ public class PyramidWindow {
      * @return The two-letter String for the card at the top of the deck, or null if no card is there.
      */
     public String cardAtDeck() {
-        return cardAtRegion(deckRegion);
+        return cardAtRegion(regions.deck);
     }
 
     /**
@@ -183,26 +170,7 @@ public class PyramidWindow {
      * @return The two-letter String for the card at the top of the waste pile, or null if no card is there.
      */
     public String cardAtWaste() {
-        return cardAtRegion(wasteRegion);
-    }
-
-    /**
-     * Parse and return the JSON in the given file location.
-     *
-     * @param resourcePath The path to the file containing JSON data.
-     * @return A JsonNode of the file contents.
-     * @throws PlayException if there's a problem reading the file.
-     */
-    private JsonNode loadJsonResource(String resourcePath) throws PlayException {
-        ObjectMapper mapper = new ObjectMapper();
-        URL url = ClassLoader.getSystemResource(resourcePath);
-        JsonNode node;
-        try {
-            node = mapper.readTree(url);
-            return node;
-        } catch (IOException ex) {
-            throw new PlayException("Unable to load " + resourcePath);
-        }
+        return cardAtRegion(regions.waste);
     }
 
     /**
@@ -247,39 +215,6 @@ public class PyramidWindow {
     }
 
     /**
-     * Using the resource directory, load the regions.json file which contains the x, y, width, height
-     * rectangles for the location of the upper left corner of each of the 28 cards on the
-     * table, plus the locations of the deck and waste piles.
-     *
-     * @throws PlayException
-     */
-    private void loadCardRegions() throws PlayException {
-        String regionsFilename = resourceDir + "regions.json";
-        JsonNode regionsNode = loadJsonResource(regionsFilename);
-        JsonNode pyramidRegionsNode = regionsNode.get("pyramidRegions");
-        pyramidRegions = new Region[pyramidRegionsNode.size()];
-        for (int i = 0; i < pyramidRegionsNode.size(); i++) {
-            pyramidRegions[i] = createRegionFromJson(pyramidRegionsNode.get(i));
-        }
-        deckRegion = createRegionFromJson(regionsNode.get("deckRegion"));
-        wasteRegion = createRegionFromJson(regionsNode.get("wasteRegion"));
-    }
-
-    /**
-     * Given a set of x/y/width/height coordinates from the regions.json file,
-     * return a Sikuli Region object encapsulating these values.  The purpose of having
-     * the region is that you can call click() on them to click in the center of the area.
-     *
-     * @param node a JSON node containing fields x, y, width, and height
-     * @return a Sikuli Region containing the x, y, width, and height fields
-     */
-    private Region createRegionFromJson(JsonNode node) {
-        int x = node.get("x").asInt();
-        int y = node.get("y").asInt();
-        int width = node.get("width").asInt();
-        int height = node.get("height").asInt();
-        return Region.create(x, y, width, height);
-    }
 
     /**
      * Load and store all images in the resource directory - ranks, suits, Draw, Undo Board, and OK.
@@ -389,10 +324,8 @@ public class PyramidWindow {
     /**
      * Resize the Sikuli input text size to adjust for the scaling factor.
      */
-    private void adjustFontSettings() {
-        int startPos = resourceDir.indexOf("-percent-scaling") - 3;
-        int scalingPercent = Integer.parseInt(resourceDir.substring(startPos, startPos + 3));
-        switch (scalingPercent) {
+    private void adjustFontSettings() throws PlayException {
+        switch (MSCWindow.getPercentScaling()) {
             case 100:
                 Settings.InputFontSize = 14;
                 break;
