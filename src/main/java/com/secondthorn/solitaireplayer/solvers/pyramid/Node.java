@@ -32,7 +32,7 @@ class Node {
      * @param deck the Deck of cards being played in Pyramid Solitaire
      * @return the action performed to reach this state
      */
-    Action action(Deck deck) {
+    private Action action(Deck deck) {
         Action action = null;
         if (parent != null) {
             long diff = state ^ parent.state;

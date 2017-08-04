@@ -43,9 +43,9 @@ public class Regions {
 
 /**
  * A Jackson JSON deserializer for Sikuli Region objects.
- * Region object can't be dealt with by Jackson's default JSON deserialization behavior, also
- * a mixin to have it ignore properties we don't care about is also hard to do as there's a lot of other
- * classes involved too.
+ * Jackson's default JSON deserialization behavior has problems with Region objects, and using a mixin to
+ * have Jackson ignore properties we don't care about is also hard to do because there's a lot of other
+ * classes involved too.  So far I think this is the simplest way to create Region objects based on JSON data.
  */
 class RegionDeserializer extends StdDeserializer<Region> {
     RegionDeserializer(Class<?> vc) {
@@ -53,8 +53,8 @@ class RegionDeserializer extends StdDeserializer<Region> {
     }
 
     @Override
-    public Region deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        JsonNode node = p.readValueAsTree();
+    public Region deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        JsonNode node = parser.readValueAsTree();
         int x = node.get("x").asInt();
         int y = node.get("y").asInt();
         int width = node.get("width").asInt();

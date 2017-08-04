@@ -157,9 +157,8 @@ public class PyramidPlayer extends SolitairePlayer {
      *
      * @param window the PyramidWindow to help read cards on the screen
      * @return A List of all the cards found on the screen
-     * @throws PlayException if there's a problem interacting with the window
      */
-    private List<String> scanCardsOnScreen(PyramidWindow window) throws PlayException {
+    private List<String> scanCardsOnScreen(PyramidWindow window) {
         List<String> cards = new ArrayList<>();
         for (int i = 0; i < 28; i++) {
             cards.add(window.cardAtPyramid(i));
@@ -168,9 +167,6 @@ public class PyramidPlayer extends SolitairePlayer {
             String card = window.cardAtDeck();
             cards.add(card);
             window.draw();
-            while (!card.equals(window.cardAtWaste())) {
-                sleep(50);
-            }
         }
         window.undoBoard();
         return cards;
@@ -184,8 +180,8 @@ public class PyramidPlayer extends SolitairePlayer {
      * @throws PlayException if the number of solutions is unexpected (not one or two solutions)
      */
     private List<Action> chooseSolution(Map<String, List<Action>> solutions) throws PlayException {
-        List<Action> solution = null;
-        String solutionDescription = null;
+        List<Action> solution;
+        String solutionDescription;
         switch (solutions.size()) {
             case 0:
                 solutionDescription = "No solution found, so lose quickly to get to the next deal.";
@@ -222,9 +218,8 @@ public class PyramidPlayer extends SolitairePlayer {
      *
      * @param solution a list of Actions to perform
      * @param window   the Pyramid Window to perform the actions on
-     * @throws PlayException if there's a problem interacting with the window
      */
-    private void playSolution(List<Action> solution, PyramidWindow window) throws PlayException {
+    private void playSolution(List<Action> solution, PyramidWindow window) {
         for (Action action : solution) {
             switch (action.getCommand()) {
                 case DRAW:
@@ -238,13 +233,13 @@ public class PyramidPlayer extends SolitairePlayer {
                         String position = action.getPositions().get(i);
                         switch (position) {
                             case "Deck":
-                                window.removeDeckCard();
+                                window.clickDeckCard();
                                 break;
                             case "Waste":
-                                window.removeWasteCard();
+                                window.clickWasteCard();
                                 break;
                             default:
-                                window.removeTableCardIndex(Integer.parseInt(position));
+                                window.clickTableCardIndex(Integer.parseInt(position));
                         }
                     }
                     break;

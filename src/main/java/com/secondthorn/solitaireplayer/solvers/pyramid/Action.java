@@ -57,16 +57,6 @@ public class Action {
     }
 
     /**
-     * For Actions involving removing cards, return the cards to remove.
-     * Cards are represented as two-letter strings containing rank and suit.
-     *
-     * @return a list of cards to remove
-     */
-    public List<String> getCards() {
-        return cards;
-    }
-
-    /**
      * For Actions involving removing cards, return the card positions to remove.
      * If the card is in the deck, the value is "Deck".
      * If the card is in the waste pile, the value is "Waste".

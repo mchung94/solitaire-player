@@ -1,29 +1,22 @@
 package com.secondthorn.solitaireplayer.players.pyramid;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
-import org.sikuli.basics.Settings;
-import org.sikuli.script.FindFailed;
 import org.sikuli.script.Image;
 import org.sikuli.script.Match;
 import org.sikuli.script.Region;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
  * PyramidWindow represents the client area of the Microsoft Solitaire Collection window during
  * Pyramid Solitaire games.  The difference between this class and MSCWindow is that MSCWindow
- * represents the entire window itself and operations to perform on it such as resizing the window
- * and giving it focus, PyramidWindow represents what's inside the window and interacts with the
- * cards and buttons in the game.
+ * represents the window itself and operations to perform on it such as resizing the window
+ * and giving it focus, while PyramidWindow represents the game inside the window and interacts
+ * with the cards and buttons in the game.
  */
-public class PyramidWindow {
+class PyramidWindow {
     /**
      * The src/main/resources/pyramid/ subdirectory that contains the appropriate images and data relating
      * to the cards for the window scaling and type of game.
@@ -52,11 +45,6 @@ public class PyramidWindow {
     private Image drawImage;
 
     /**
-     * The cached location of the Draw button.
-     */
-    private Match drawImageMatch;
-
-    /**
      * The image of the Undo Board button for resetting the game back to the start.
      */
     private Image undoBoardImage;
@@ -71,34 +59,30 @@ public class PyramidWindow {
      */
     private Regions regions;
 
-    public PyramidWindow() throws PlayException {
-        Settings.InputFontMono = true;
+    PyramidWindow() throws PlayException {
         appRegion = org.sikuli.script.App.focusedWindow();
         resourceDir = findResourceDir();
-        adjustFontSettings();
         regions = Regions.newInstance(resourceDir + "regions.json");
         loadImages();
     }
 
     /**
      * Draw a card from the deck to the waste pile.
-     *
-     * @throws PlayException if there's an issue with finding the Draw button
      */
-    public void draw() throws PlayException {
-        clickDrawButton();
-        sleep(100);
+    void draw() {
+        if (click(drawImage, 1.0d)) {
+            sleep(250); // wait for the card to move to the waste pile
+        }
     }
 
     /**
      * Recycle the waste pile back into the deck.  This and draw() both click on the Draw button
      * because that's how the game functionality was designed.
-     *
-     * @throws PlayException if there's an issue with finding the Draw button
      */
-    public void recycle() throws PlayException {
-        clickDrawButton();
-        sleep(1000);
+    void recycle() {
+        if (click(drawImage, 1.0d)) {
+            sleep(1000); // wait for the cards to move from the waste pile to the stock pile
+        }
     }
 
     /**
@@ -107,8 +91,8 @@ public class PyramidWindow {
      *
      * @param tableIndex The index 0-27 of one of the cards on the table (the "pyramid").
      */
-    public void removeTableCardIndex(int tableIndex) {
-        sleep(500);
+    void clickTableCardIndex(int tableIndex) {
+        sleep(250);
         regions.pyramid[tableIndex].click();
     }
 
@@ -116,8 +100,8 @@ public class PyramidWindow {
      * Click on the deck to remove the card.  You have to click on a King or a
      * pair of cards to actually remove them but this clicks on one of the cards you want to remove.
      */
-    public void removeDeckCard() {
-        sleep(500);
+    void clickDeckCard() {
+        sleep(250);
         regions.deck.click();
     }
 
@@ -125,23 +109,18 @@ public class PyramidWindow {
      * Click on the waste pile to remove the card.  You have to click on a King or a
      * pair of cards to actually remove them but this clicks on one of the cards you want to remove.
      */
-    public void removeWasteCard() {
-        sleep(500);
+    void clickWasteCard() {
+        sleep(250);
         regions.waste.click();
     }
 
     /**
      * Undo the board if the option is available.
      */
-    public void undoBoard() throws PlayException {
-        Match undoBoardMatch = appRegion.exists(undoBoardImage, 0);
-        if (undoBoardMatch != null) {
-            undoBoardMatch.click();
-            Match okMatch = appRegion.exists(okImage);
-            if (okMatch != null) {
-                okMatch.click();
-            }
-            sleep(500);
+    void undoBoard() {
+        if (clickIfExists(undoBoardImage)) {
+            click(okImage, 3.0d);
+            sleep(2000); // wait for the cards to move back into the starting positions
         }
     }
 
@@ -151,7 +130,7 @@ public class PyramidWindow {
      * @param pyramidIndex the table index to look at
      * @return The two-letter String for the card at the table pyramid index, or null if no card is there.
      */
-    public String cardAtPyramid(int pyramidIndex) {
+    String cardAtPyramid(int pyramidIndex) {
         return cardAtRegion(regions.pyramid[pyramidIndex]);
     }
 
@@ -160,17 +139,8 @@ public class PyramidWindow {
      *
      * @return The two-letter String for the card at the top of the deck, or null if no card is there.
      */
-    public String cardAtDeck() {
+    String cardAtDeck() {
         return cardAtRegion(regions.deck);
-    }
-
-    /**
-     * Return the card at the top of the waste pile.
-     *
-     * @return The two-letter String for the card at the top of the waste pile, or null if no card is there.
-     */
-    public String cardAtWaste() {
-        return cardAtRegion(regions.waste);
     }
 
     /**
@@ -215,60 +185,22 @@ public class PyramidWindow {
     }
 
     /**
-
-    /**
      * Load and store all images in the resource directory - ranks, suits, Draw, Undo Board, and OK.
      */
     private void loadImages() {
         suitImages = new HashMap<>();
         for (char suit : "cdhs".toCharArray()) {
-            Image image = loadResourceImage("" + suit);
+            Image image = loadResourceImage(suit + ".png");
             suitImages.put(suit, image);
         }
         rankImages = new HashMap<>();
         for (char rank : "A23456789TJQK".toCharArray()) {
-            Image image = loadResourceImage("" + rank);
+            Image image = loadResourceImage(rank + ".png");
             rankImages.put(rank, image);
         }
-        drawImage = loadResourceImage("Draw");
-        undoBoardImage = loadResourceImage("UndoBoard");
-        okImage = loadResourceImage("OK");
-    }
-
-    /**
-     * Click on the Draw button to draw a card from the deck to the waste pile, or recycle the
-     * waste pile.
-     *
-     * @throws PlayException when there's a problem clicking on the Draw button
-     */
-    private void clickDrawButton() throws PlayException {
-        if (drawImageMatch == null) {
-            drawImageMatch = findImageMatch(drawImage);
-        }
-        drawImageMatch.click();
-    }
-
-    /**
-     * Find and return the best matching location for the image on the window region.
-     *
-     * @param image the image to look for on the app window
-     * @return the best match for the image
-     * @throws PlayException if there's a problem finding the image on the screen
-     */
-    private Match findImageMatch(Image image) throws PlayException {
-        Match bestMatch = null;
-        try {
-            Iterator<Match> iterator = appRegion.findAll(image);
-            while (iterator.hasNext()) {
-                Match m = iterator.next();
-                if ((bestMatch == null) || (m.getScore() > bestMatch.getScore())) {
-                    bestMatch = m;
-                }
-            }
-        } catch (FindFailed ex) {
-            throw new PlayException("Unable to find \"" + image.getImageName() + "\" on the screen", ex);
-        }
-        return bestMatch;
+        drawImage = loadResourceImage("Draw.png");
+        undoBoardImage = loadResourceImage("UndoBoard.png");
+        okImage = loadResourceImage("OK.png");
     }
 
     /**
@@ -278,7 +210,28 @@ public class PyramidWindow {
      * @return the Sikuli Image object
      */
     private Image loadResourceImage(String filename) {
-        return Image.create(ClassLoader.getSystemResource(resourceDir + filename + ".png"));
+        return Image.create(ClassLoader.getSystemResource(resourceDir + filename));
+    }
+
+    /**
+     * Click on an image if it exists on the screen, but return immediately without doing anything if not found.
+     * @param image the image to search for and click on
+     * @return true if the image was found and clicked on, false otherwise (no click occurred)
+     */
+    private boolean clickIfExists(Image image) {
+        return click(image, 0.0d);
+    }
+
+    /**
+     * Search for the image and click on it if it is found on screen.  If not found, wait up to timeout seconds
+     * for it the image.
+     * @param image   the image to search for and click on
+     * @param timeout the number of seconds to wait for the image to appear if not found immediately
+     * @return true if the image was found and clicked on, false otherwise (no click occurred)
+     */
+    private boolean click(Image image, double timeout) {
+        Match match = appRegion.exists(image, timeout);
+        return (match != null) && (match.click() > 0);
     }
 
     /**
@@ -318,23 +271,6 @@ public class PyramidWindow {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
             // do nothing
-        }
-    }
-
-    /**
-     * Resize the Sikuli input text size to adjust for the scaling factor.
-     */
-    private void adjustFontSettings() throws PlayException {
-        switch (MSCWindow.getPercentScaling()) {
-            case 100:
-                Settings.InputFontSize = 14;
-                break;
-            case 200:
-                Settings.InputFontSize = 28;
-                break;
-            case 250:
-                Settings.InputFontSize = 35;
-                break;
         }
     }
 

@@ -71,20 +71,6 @@ public abstract class SolitairePlayer {
     }
 
     /**
-     * Utility method to let players sleep for a number of milliseconds without having
-     * to handle InterruptedException
-     *
-     * @param milliseconds the number of milliseconds to sleep
-     */
-    protected void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException ex) {
-            // do nothing
-        }
-    }
-
-    /**
      * Subclasses implement this method to automate playing a solitaire game that has just started.
      */
     public abstract void play() throws PlayException;
