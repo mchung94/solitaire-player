@@ -44,5 +44,5 @@ The command line arguments should be one of the following:
      c. If the solution with clearing the board removes more (or equal) number
         of cards of the goal rank than the solution that doesn't clear the
         board, it will just do that.
-     d. If clearing the table removes fewer cards of the goal rank, it will
+     d. If clearing the pyramid removes fewer cards of the goal rank, it will
         ask you in a popup which one you want it to play.

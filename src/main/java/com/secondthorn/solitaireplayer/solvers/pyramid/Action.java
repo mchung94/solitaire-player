@@ -60,7 +60,7 @@ public class Action {
      * For Actions involving removing cards, return the card positions to remove.
      * If the card is in the deck, the value is "Deck".
      * If the card is in the waste pile, the value is "Waste".
-     * Otherwise, the card is in the table/pyramid and is the integer table index as a String.
+     * Otherwise, the card is in the pyramid and is the integer pyramid index as a String.
      *
      * @return a list of positions to remove
      */

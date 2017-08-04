@@ -29,6 +29,6 @@
     {"x": 941,  "y": 552, "width": 28, "height": 58},
     {"x": 1124, "y": 552, "width": 28, "height": 58}
   ],
-  "deck"  : {"x": 421, "y": 806, "width": 28, "height": 58},
+  "stock"  : {"x": 421, "y": 806, "width": 28, "height": 58},
   "waste" : {"x": 733, "y": 806, "width": 28, "height": 58}
 }

@@ -86,23 +86,23 @@ class PyramidWindow {
     }
 
     /**
-     * Click on a card in the table/board at the given table index.  You have to click on a King or a
+     * Click on a card in the pyramid at the given pyramid index.  You have to click on a King or a
      * pair of cards to actually remove them but this clicks on one of the cards you want to remove.
      *
-     * @param tableIndex The index 0-27 of one of the cards on the table (the "pyramid").
+     * @param pyramidIndex The index 0-27 of one of the cards on the pyramid.
      */
-    void clickTableCardIndex(int tableIndex) {
+    void clickPyramidCardIndex(int pyramidIndex) {
         sleep(250);
-        regions.pyramid[tableIndex].click();
+        regions.pyramid[pyramidIndex].click();
     }
 
     /**
-     * Click on the deck to remove the card.  You have to click on a King or a
+     * Click on the stock pile to remove the card.  You have to click on a King or a
      * pair of cards to actually remove them but this clicks on one of the cards you want to remove.
      */
-    void clickDeckCard() {
+    void clickStockCard() {
         sleep(250);
-        regions.deck.click();
+        regions.stock.click();
     }
 
     /**
@@ -125,10 +125,10 @@ class PyramidWindow {
     }
 
     /**
-     * Return the card at the given table card index.
+     * Return the card at the given pyramid card index.
      *
-     * @param pyramidIndex the table index to look at
-     * @return The two-letter String for the card at the table pyramid index, or null if no card is there.
+     * @param pyramidIndex the pyramid card index to look at
+     * @return The two-letter String for the card at the pyramid index, or null if no card is there.
      */
     String cardAtPyramid(int pyramidIndex) {
         return cardAtRegion(regions.pyramid[pyramidIndex]);
@@ -140,7 +140,7 @@ class PyramidWindow {
      * @return The two-letter String for the card at the top of the deck, or null if no card is there.
      */
     String cardAtDeck() {
-        return cardAtRegion(regions.deck);
+        return cardAtRegion(regions.stock);
     }
 
     /**

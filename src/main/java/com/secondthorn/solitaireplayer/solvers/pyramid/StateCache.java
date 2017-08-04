@@ -43,7 +43,7 @@ class StateCache {
     /**
      * Return true if the state of the game is unwinnable.
      * This is only used for Board Challenges where the player needs to clear the board,
-     * so it's checking if there exists a card on the table that can't be removed, because
+     * so it's checking if there exists a card on the pyramid that can't be removed, because
      * there is no matching card to remove it with that isn't covering or covered by the card.
      * <p>
      * When this method returns true, the board definitely can't be cleared.  But returning false

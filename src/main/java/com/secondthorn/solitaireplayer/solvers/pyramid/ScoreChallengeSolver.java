@@ -21,8 +21,8 @@ import java.util.Map;
 public class ScoreChallengeSolver implements PyramidSolver {
     /**
      * The maximum possible score if you remove every card in the whole deck before
-     * clearing the table.  Note: I think if you clear the table you don't get to play anymore
-     * to remove any more cards in the deck or waste piles.
+     * clearing the pyramid.  Note: If you clear the pyramid, you can no longer continue
+     * playing to remove any more cards in the deck or waste piles.
      */
     private static final int MAX_POSSIBLE_SCORE = 1290;
 
@@ -102,7 +102,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
 
     /**
      * Search for the solution that gives the maximum score (not the shortest solution).
-     * But if we can reach the goal score before clearing the table or reaching a dead end,
+     * But if we can reach the goal score before clearing the pyramid or reaching a dead end,
      * the solution returned will stop at the goal score.
      * This uses Breadth-First Search without unwinnable state detection, it will search exhaustively
      * because it wants to maximize score.

@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class Regions {
     public Region[] pyramid;
-    public Region deck;
+    public Region stock;
     public Region waste;
 
     /**

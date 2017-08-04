@@ -9,8 +9,8 @@ import java.util.List;
 
 /**
  * A Deck is a standard deck of 52 cards containing the suits c d h s, and the ranks A 2 3 4 5 6 7 8 9 T J Q K.
- * In Pyramid Solitaire, the first 28 cards will be the table cards and the remaining 24 will be the deck.
- * Card index 28 is the top of the deck at the start of the game and index 51 will be the bottom.
+ * In Pyramid Solitaire, the first 28 cards will be the pyramid cards and the remaining 24 will be the stock/waste.
+ * Card index 28 is the top of the stock pile at the start of the game and index 51 will be the bottom.
  * <p>
  * Cards are represented as two-letter strings containing rank and suit, for example Kc or 7s.
  * <p>

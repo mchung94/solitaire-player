@@ -30,7 +30,7 @@ public class PyramidPlayer extends SolitairePlayer {
      * When a board can't be cleared at all, the fastest list of steps to follow is to
      * just Draw/Recycle cards until you can't anymore.  One interesting thing to note is that
      * in Microsoft Solitaire Collection on Windows 10, if you keep drawing/recycling cards until you can't
-     * draw or recycle anymore, the game can end, even if there's still cards on the table you can still
+     * draw or recycle anymore, the game can end, even if there's still cards on the pyramid you can still
      * remove (at least as of June 2017).
      */
     private static List<Action> loseQuickly;
@@ -52,7 +52,7 @@ public class PyramidPlayer extends SolitairePlayer {
     /**
      * Create a new PyramidPlayer instance based on command line args.
      * It will throw IllegalArgumentException if the args don't make sense.
-     * The player can specialize in either clearing the board/table, maximizing score, or
+     * The player can specialize in either clearing the pyramid/board, maximizing score, or
      * clearing cards of a certain rank.
      *
      * @param args command line args
@@ -233,13 +233,13 @@ public class PyramidPlayer extends SolitairePlayer {
                         String position = action.getPositions().get(i);
                         switch (position) {
                             case "Deck":
-                                window.clickDeckCard();
+                                window.clickStockCard();
                                 break;
                             case "Waste":
                                 window.clickWasteCard();
                                 break;
                             default:
-                                window.clickTableCardIndex(Integer.parseInt(position));
+                                window.clickPyramidCardIndex(Integer.parseInt(position));
                         }
                     }
                     break;
@@ -309,7 +309,7 @@ public class PyramidPlayer extends SolitairePlayer {
     /**
      * Given a list of cards, return a single String containing the cards dealt out
      * in a Pyramid Solitaire pattern.  It contains the 28 card pyramid, and a list
-     * of the rest of the cards starting from the top of the deck pile to the bottom.
+     * of the rest of the cards starting from the top of the stock pile to the bottom.
      * It expects a full deck of 52 or close to it.
      *
      * @param cards a list of cards
