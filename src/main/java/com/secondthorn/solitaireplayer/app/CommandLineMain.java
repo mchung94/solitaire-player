@@ -1,9 +1,6 @@
 package com.secondthorn.solitaireplayer.app;
 
-import com.secondthorn.solitaireplayer.players.MSCWindow;
-import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
-import org.sikuli.basics.Settings;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,7 +31,6 @@ public class CommandLineMain {
             System.exit(2);
         }
         try {
-            adjustFontSettings();
             player.play();
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
@@ -68,11 +64,4 @@ public class CommandLineMain {
         }
     }
 
-    /**
-     * Adjust Sikuli's font settings to be a readable size and use a monospace font for displaying cards.
-     */
-    private static void adjustFontSettings() throws PlayException {
-        Settings.InputFontMono = true;
-        Settings.InputFontSize = (int) (14 * (MSCWindow.getPercentScaling() / 100.0));
-    }
 }

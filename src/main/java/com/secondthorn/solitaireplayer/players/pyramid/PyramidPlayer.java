@@ -9,7 +9,11 @@ import com.secondthorn.solitaireplayer.solvers.pyramid.CardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.Deck;
 import com.secondthorn.solitaireplayer.solvers.pyramid.PyramidSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.ScoreChallengeSolver;
+import org.sikuli.basics.Settings;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,7 +27,8 @@ import static org.sikuli.script.Sikulix.popSelect;
 
 /**
  * A class that uses Sikuli to automate playing a game of Pyramid Solitaire in
- * Windows 10's Microsoft Solitaire Collection.
+ * Windows 10's Microsoft Solitaire Collection.  It can also just print out the solution
+ * without playing, when given a filename containing cards to solve.
  */
 public class PyramidPlayer extends SolitairePlayer {
     /**
@@ -47,7 +52,17 @@ public class PyramidPlayer extends SolitairePlayer {
         }
     }
 
+    /**
+     * A Pyramid Solitaire solver - figures out the solution given a deck of cards.
+     */
     private PyramidSolver solver;
+
+    /**
+     * If a file containing a deck of cards consisting of two-letter strings of
+     * rank (A23456789TJQK) and suit (cdhs) is passed in through the command line, then
+     * just print the solution for that deck of cards without doing any GUI automation.
+     */
+    private String deckFilename;
 
     /**
      * Create a new PyramidPlayer instance based on command line args.
@@ -60,6 +75,10 @@ public class PyramidPlayer extends SolitairePlayer {
     public PyramidPlayer(String[] args) {
         if (args.length < 1) {
             throw new IllegalArgumentException("Missing goal for Pyramid Solitaire");
+        }
+        deckFilename = getDeckFilenameFromArgs(args);
+        if (deckFilename != null) {
+            args = removeDeckFilenameFromArgs(args);
         }
         String goalType = args[0];
         switch (goalType) {
@@ -98,25 +117,128 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
+     * Look for a [-f filename] in the command line and return the filename.
+     *
+     * @param args command line arguments
+     * @return the filename if found, otherwise null
+     */
+    private String getDeckFilenameFromArgs(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-f")) {
+                return args[i + 1];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Remove a [-f filename] from the command line args if it exists.
+     * Here, "[-f filename]" means two optional args, a "-f" followed directly by a filename.
+     *
+     * @param args command line arguments
+     * @return the command line arguments with [-f filename] removed
+     */
+    private String[] removeDeckFilenameFromArgs(String[] args) {
+        String[] newArgs = new String[args.length - 2];
+        int newArgsOffset = 0;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-f")) {
+                i++;
+            } else {
+                newArgs[newArgsOffset++] = args[i];
+            }
+        }
+        return newArgs;
+    }
+
+    /**
+     * Return true if we're just solving a given deck from a filename, and printing out
+     * the solution instead of actually automatically playing the game.
+     *
+     * @return true if we should just print a solution and not take over the GUI to play the game
+     */
+    private boolean isPreview() {
+        return deckFilename != null;
+    }
+
+    /**
      * Play a Pyramid Solitaire game.
      */
     public void play() throws PlayException {
+        Settings.InputFontMono = true;
+        if (isPreview()) {
+            preview();
+        } else {
+            autoPlay();
+        }
+    }
+
+    /**
+     * Given a deck of cards in a file, just print out the solution(s) but don't do
+     * any Sikuli-based automation to play the game for you.
+     *
+     * @throws PlayException if the user cancels while the program is verifying the deck of cards
+     */
+    private void preview() throws PlayException {
+        List<String> cards = readCardsFromFile(deckFilename);
+        Deck deck = buildDeck(cards);
+        Map<String, List<Action>> solutions = solver.solve(deck);
+        printSolutions(solutions);
+    }
+
+    /**
+     * Automatically solve the currently displayed Microsoft Solitaire Collection
+     * Pyramid Solitaire game, using Sikuli to automate the actions and scan the screen.
+     *
+     * @throws PlayException if there's a problem while playing the game
+     */
+    private void autoPlay() throws PlayException {
+        // Each time we call positionForPlay(), we're making sure the MSC window is
+        // in a known state and in the foreground so no weird stuff happens when Sikuli
+        // is doing its work.
         MSCWindow.positionForPlay();
+        Settings.InputFontSize = (int) (14 * (MSCWindow.getPercentScaling() / 100.0));
         PyramidWindow window = new PyramidWindow();
         window.undoBoard();
         MSCWindow.positionForPlay();
         List<String> cards = scanCardsOnScreen(window);
         Deck deck = buildDeck(cards);
         Map<String, List<Action>> solutions = solver.solve(deck);
-        solver = null;
-        System.gc();
+        printSolutions(solutions);
         List<Action> solutionToPlay = chooseSolution(solutions);
-        System.out.println("Solution to play: " + solutionToPlay.size() + " steps");
-        for (Action action : solutionToPlay) {
-            System.out.println(action);
-        }
         MSCWindow.positionForPlay();
         playSolution(solutionToPlay, window);
+    }
+
+    /**
+     * Given a filename containing cards, read the cards into a list of cards,
+     * which are two-letter strings.
+     *
+     * @param filename the filename containing a deck of cards
+     * @return a list of the cards in the file
+     */
+    private List<String> readCardsFromFile(String filename) throws PlayException {
+        try {
+            return Arrays.asList(new String(Files.readAllBytes(Paths.get(filename))).trim().split("\\s+"));
+        } catch (IOException ex) {
+            throw new PlayException("Unable to read " + filename, ex);
+        }
+    }
+
+    /**
+     * Print all solutions to the given deck, according to the solver.
+     * There may be more than one solution when playing a Card Challenge, so the interface is
+     * always a mapping from solution description string to a list of Actions.
+     *
+     * @param solutions the results from the Pyramid Solitaire solver
+     */
+    private void printSolutions(Map<String, List<Action>> solutions) {
+        for (Map.Entry<String, List<Action>> entry : solutions.entrySet()) {
+            System.out.println("Solution: " + entry.getKey());
+            for (Action action : entry.getValue()) {
+                System.out.println("    " + action);
+            }
+        }
     }
 
     /**

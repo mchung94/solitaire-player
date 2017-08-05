@@ -215,6 +215,7 @@ class PyramidWindow {
 
     /**
      * Click on an image if it exists on the screen, but return immediately without doing anything if not found.
+     *
      * @param image the image to search for and click on
      * @return true if the image was found and clicked on, false otherwise (no click occurred)
      */
@@ -225,6 +226,7 @@ class PyramidWindow {
     /**
      * Search for the image and click on it if it is found on screen.  If not found, wait up to timeout seconds
      * for it the image.
+     *
      * @param image   the image to search for and click on
      * @param timeout the number of seconds to wait for the image to appear if not found immediately
      * @return true if the image was found and clicked on, false otherwise (no click occurred)
