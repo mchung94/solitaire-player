@@ -1,48 +1,23 @@
-Usage: solitaire-player.bat <Game> <Goal> [additional args for goal]
-Before running this program, the solitaire game must be running and at the
-start of a game.  This program will play one game, and must be re-run each
-time you start a new game.
-The command line arguments should be one of the following:
+Usage: solitaire-player.bat <Game> <Goal> [args for goal] [-f filename]
+
+When using [-f filename], the file must contain all the cards in a 52-card
+deck using two-letter cards of rank (A23456789TJQK) and suit (cdhs), separated
+by whitespace.  Then it will print out the solutions without playing the game.
+
+Otherwise, start Microsoft Solitaire Collection on Windows 10 and begin
+a game before running this program.  It will scan the cards on screen and
+play the solution.
+
+The other command line arguments should be one of the following:
 1. Pyramid Board
-   This solves Pyramid Solitaire board challenges, such as "Clear 3 board(s)
-   in 2 deal(s)".  That would be run with: Pyramid Board.  It ignores the
-   number of deals because it only plays one game.
-   - If it can clear the board, it will do so in the minimum number of steps.
-   - If it's impossible to clear the board, it will Draw/Recycle until the
-     game is over, setting you up for the next board.
-2. Pyramid Score <Goal Score> <Current Score>
-   This solves Pyramid Solitaire Score challenges, such as "Earn a score of
-   2400".  That would be run with: Pyramid Score 2400 0.  If you already have
-   a score of 350, it would be run with: Pyramid Score 2400 350.
-   - If it can reach the goal score, it will do so in the minimum number of
-     steps.
-   - If it can't reach the goal score, it will find the minimum number of
-     steps to reach the maximum possible score for the game.  If it's possible
-     to clear the board, it will, because doing so gets the highest score.
-3. Pyramid Score
-   This plays Pyramid Solitaire for maximum score without a target score in
-   mind.  Given that the maximum possible score for a single game is 1290,
-   this is a shortcut for playing with: Pyramid Score 1290 0.
+   Solve Pyramid Board Challenges, such as "Clear 3 board(s) in 2 deal(s)".
+2. Pyramid Score
+   Solve Pyramid Solitaire for maximum score.
+3. Pyramid Score <Goal Score> <Current Score>
+   Solve Pyramid Score Challenges, such as "Earn a score of 2400".
+   This will know to stop playing if the goal score is reached.
 4. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
-   This solves Pyramid Solitaire Card challenges, such as "Clear 12 Aces in 2
-   deals".  That would be run with: Pyramid Card 12 A 0.  If you already
-   cleared 5 Aces, it would be run with: Pyramid Card 12 A 5.  It ignores the
-   number of deals because it only plays one game.
-   - The card ranks are: A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, and K
-   - If it can reach the goal, it will do so in the minimum number of steps.
-   - If it can't reach the goal, it will do something complicated because
-     there might not be one correct solution.  Explained below:
-     a. First it will look for two possible solutions: one where you clear the
-        board if possible, and one where you don't.  In both cases it will be
-        the minimum number of moves to maximize the maximum number of cards of
-        the goal rank.  This is in case you can remove 3 Aces while clearing
-        the board, but you could also clear 4 Aces but get stuck and unable to
-        clear the board.  We don't know what the right thing to do is, because
-        you'd have to know what the future boards are in order to decide.
-     b. If you can't clear the board, then it will remove as many cards of the
-        goal rank as possible.
-     c. If the solution with clearing the board removes more (or equal) number
-        of cards of the goal rank than the solution that doesn't clear the
-        board, it will just do that.
-     d. If clearing the pyramid removes fewer cards of the goal rank, it will
-        ask you in a popup which one you want it to play.
+   Solve Pyramid Card challenges, such as "Clear 12 Aces in 2 deals".
+   - The card ranks to input are: A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, and K
+   - This can potentially have two solutions, one where you clear the board
+     and one where you don't (if this removes more cards of the given Rank).
