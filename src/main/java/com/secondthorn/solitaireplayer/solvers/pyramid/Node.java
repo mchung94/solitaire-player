@@ -41,7 +41,7 @@ class Node {
             if (cycleDiff != 0) {
                 action = Action.newRecycleAction();
             } else if (existFlagsDiff != 0) {
-                int deckIndex = State.getStockIndex(parent.state);
+                int stockIndex = State.getStockIndex(parent.state);
                 List<String> cardsToRemove = new ArrayList<>();
                 List<String> positionsToRemove = new ArrayList<>();
                 long flag = 1L;
@@ -50,8 +50,8 @@ class Node {
                         cardsToRemove.add(deck.cardAt(i));
                         if (i < 28) {
                             positionsToRemove.add(String.valueOf(i));
-                        } else if (i == deckIndex) {
-                            positionsToRemove.add("Deck");
+                        } else if (i == stockIndex) {
+                            positionsToRemove.add("Stock");
                         } else {
                             positionsToRemove.add("Waste");
                         }

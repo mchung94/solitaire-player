@@ -354,7 +354,7 @@ public class PyramidPlayer extends SolitairePlayer {
                     for (int i = 0; i < action.getPositions().size(); i++) {
                         String position = action.getPositions().get(i);
                         switch (position) {
-                            case "Deck":
+                            case "Stock":
                                 window.clickStockCard();
                                 break;
                             case "Waste":
