@@ -19,8 +19,10 @@ solitaire-player is a Java program that can quickly find an optimal solution to 
 - Can solve a deck of cards you give it, printing the solutions without automatically playing anything.
 
 ### Performance
+The following performance measurements were done on an Intel i7-4770k CPU (3.5GHz, 3.9GHz max) running Windows 10.
+
 #### Board Challenges
-Here are timings for clearing the board on 1500 random decks of cards.  502 of them have no possible way to clear the board.
+Here are timings for clearing the board on 1500 random decks of cards.  502 of them have no possible way to clear the board and the timing measurement is how long the program takes to find out there's no solution.
 
 | Decks                | Mean (ms) | Median (ms) | Maximum (ms) | Total (hrs:min:sec) |
 |:-------------------- | ---------:| -----------:| ------------:| -------------------:|
@@ -88,3 +90,4 @@ In the example above, the 3s is the initial card at the top of the stock pile an
 
 ### Source Code
 This is a standard gradle project so you can run things like "gradlew distZip" and run the program using the distribution.  The only unusual thing is the Windows version of the SikuliX jar in the lib/ directory.
+There is also a [Programming Guide](programming.md) with details for developers.
