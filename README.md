@@ -56,15 +56,15 @@ Here are timings for finding out how to remove as many Aces as possible from the
 2. Go to solitaire-player/bin.
 3. Start Microsoft Solitaire Collection on Windows 10.
 4. In Microsoft Solitaire Collection start a Pyramid Solitaire game - either a regular game or a challenge game.
-5. Run solitaire-player.bat with one of the following command line options:
-  - solitaire-player.bat Pyramid Board
+5. Run solitaire-player.bat with one of the following set of command line options:
+  - `solitaire-player.bat Pyramid Board`
     - This runs the Board Challenge solver - clear the board in as few steps as possible.
-  - solitaire-player.bat Pyramid Score
+  - `solitaire-player.bat Pyramid Score`
     - This runs the Score Challenge solver - maximize the score in as few steps as possible.
-  - solitaire-player.bat Pyramid Score <goal score> <current score>
+  - `solitaire-player.bat Pyramid Score <goal score> <current score>`
     - For example: "solitaire-player.bat Pyramid Score 2400 2240" means your current score is 2240 and if you reach 2400 points you win.
     - This runs the Score Challenge solver but knows it can stop playing if it reaches the goal score.
-  - solitaire-player.bat Pyramid Card <number of cards to remove> <card rank to remove> <current cards of that rank removed>
+  - `solitaire-player.bat Pyramid Card <number of cards to remove> <card rank to remove> <current cards of that rank removed>`
     - Card ranks are one of the letters/numbers A 2 3 4 5 6 7 8 9 T J Q K.
     - For example: "solitaire-player.bat Pyramid Card 12 A 9" means the goal is to remove 12 Aces, and you've removed 9 so far in previous games.
     - This runs the Card Challenge solver which tries to find the shortest way to remove a number of cards of a given rank.
@@ -84,7 +84,7 @@ Here are timings for finding out how to remove as many Aces as possible from the
 ```
 In the example above, the 3s is the initial card at the top of the stock pile and the Jc is the bottom of the stock pile.
 
-2. Follow steps 1, 2, and 5 from the Steps for automatically playing Pyramid Solitaire instructions, except in step 5, always add -f <filename> to give the program the deck of cards to solve.  It will skip any automation and just print out the solutions it finds.
+2. Follow steps 1, 2, and 5 from the Steps for automatically playing Pyramid Solitaire instructions, except in step 5, always add `-f <filename>` to give the program the deck of cards to solve.  It will skip any automation and just print out the solutions it finds.
 
 ### Source Code
 This is a standard gradle project so you can run things like "gradlew distZip" and run the program using the distribution.  The only unusual thing is the Windows version of the SikuliX jar in the lib/ directory.
