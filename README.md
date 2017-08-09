@@ -8,7 +8,7 @@ solitaire-player is a Java program that can quickly find an optimal solution to 
 
 ### Features
 - Always finds a solution with the shortest possible number of steps, if there exists any solution at all.
-- Supports 3 types of Pyramid Solitaire challenges
+- Supports 3 types of Pyramid Solitaire challenges:
   - Board Challenges: clear the board (remove the 28 cards in the pyramid layout in the game), even if there are still cards remaining in the stock or waste piles.
   - Card Challenges: remove a number of cards of a given rank.  For example, "Clear 12 Aces in 2 deals".
   - Score Challenges: reach a given score, or just maximize the score.
@@ -83,7 +83,8 @@ Here are timings for finding out how to remove as many Aces as possible from the
 3s 9c As 5d Qh Ts 4h 7s Td 9h Th 7c 8h 2c 7d Tc 2d 6h 2s Js Qd 3d Qs Jc
 ```
 In the example above, the 3s is the initial card at the top of the stock pile and the Jc is the bottom of the stock pile.
+
 2. Follow steps 1, 2, and 5 from the Steps for automatically playing Pyramid Solitaire instructions, except in step 5, always add -f <filename> to give the program the deck of cards to solve.  It will skip any automation and just print out the solutions it finds.
 
 ### Source Code
-This is a standard gradle project so you can run things like "gradlew distZip" and run the program using the distribution.
+This is a standard gradle project so you can run things like "gradlew distZip" and run the program using the distribution.  The only unusual thing is the Windows version of the SikuliX jar in the lib/ directory.
