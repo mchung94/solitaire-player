@@ -31,12 +31,12 @@ class PyramidWindow {
     /**
      * The collection of rank images for the game being played (A23456789TJQK).
      */
-    private Map<Character, Image> rankImages;
+    private Map<Image, Character> rankImages;
 
     /**
      * The collection of suit images for the game being played (cdhs).
      */
-    private Map<Character, Image> suitImages;
+    private Map<Image, Character> suitImages;
 
     /**
      * The image of the Draw button to click on for drawing a card from the deck to the waste pile
@@ -131,7 +131,7 @@ class PyramidWindow {
      * @return The two-letter String for the card at the pyramid index, or null if no card is there.
      */
     String cardAtPyramid(int pyramidIndex) {
-        return cardAtRegion(regions.pyramid[pyramidIndex]);
+        return cardAt(regions.pyramid[pyramidIndex]);
     }
 
     /**
@@ -140,7 +140,7 @@ class PyramidWindow {
      * @return The two-letter String for the card at the top of the deck, or null if no card is there.
      */
     String cardAtDeck() {
-        return cardAtRegion(regions.stock);
+        return cardAt(regions.stock);
     }
 
     /**
@@ -181,23 +181,15 @@ class PyramidWindow {
      */
     private boolean pyramidImageExists(String imageFilename) {
         Image image = Image.create(ClassLoader.getSystemResource(imageFilename));
-        return appRegion.exists(image, 0) != null;
+        return appRegion.exists(image, 0.0d) != null;
     }
 
     /**
      * Load and store all images in the resource directory - ranks, suits, Draw, Undo Board, and OK.
      */
     private void loadImages() {
-        suitImages = new HashMap<>();
-        for (char suit : "cdhs".toCharArray()) {
-            Image image = loadResourceImage(suit + ".png");
-            suitImages.put(suit, image);
-        }
-        rankImages = new HashMap<>();
-        for (char rank : "A23456789TJQK".toCharArray()) {
-            Image image = loadResourceImage(rank + ".png");
-            rankImages.put(rank, image);
-        }
+        suitImages = loadCharImages("cdhs");
+        rankImages = loadCharImages("A23456789TJQK");
         drawImage = loadResourceImage("Draw.png");
         undoBoardImage = loadResourceImage("UndoBoard.png");
         okImage = loadResourceImage("OK.png");
@@ -237,29 +229,58 @@ class PyramidWindow {
     }
 
     /**
+     * Given a set of characters, load the image for each character's .png file and return
+     * a mapping between them.  This is for loading card suit and rank images.
+     *
+     * @param chars    A sequence of chars, each being the name of a .png file
+     * @return a mapping between the char and the image for that char
+     */
+    private Map<Image, Character> loadCharImages(CharSequence chars) {
+        Map<Image, Character> charImages = new HashMap<>();
+        for (int i = 0; i < chars.length(); i++) {
+            char c = chars.charAt(i);
+            Image image = loadResourceImage(c + ".png");
+            charImages.put(image, c);
+        }
+        return charImages;
+    }
+
+    /**
      * Determine the most likely card to be at the region, or null if there isn't a card there or
      * if it can't figure out what card is there.
      *
      * @param region a region to check for a card (upper left corner containing rank and suit)
      * @return A two-letter card representation (rank and suit) or null if no card found
      */
-    private String cardAtRegion(Region region) {
+    private String cardAt(Region region) {
+        String card = null;
+        Character rank = findBestCardCharacter(region, rankImages);
+        Character suit = findBestCardCharacter(region, suitImages);
+        if ((rank != null) && (suit != null)) {
+            card = rank.toString() + suit.toString();
+        }
+        return card;
+    }
+
+    /**
+     * Given a region and a map between image to suit/rank Characters, find the best matching
+     * suit or rank in that region.
+     *
+     * @param region             a region to check for a suit or rank image
+     * @param imagesToCharacters a mapping between Images and Characters for suit/rank
+     * @return the Character value of the best matching Image in the mapping
+     */
+    private Character findBestCardCharacter(Region region, Map<Image, Character> imagesToCharacters) {
+        Character rank = null;
         try {
-            Match m = region.findBest(rankImages.values().toArray());
-            String card = "";
+            Match m = region.findBest(imagesToCharacters.keySet().toArray());
             if (m != null) {
-                card += m.getImageFilename().charAt(m.getImageFilename().length() - 5);
-                m = region.findBest(suitImages.values().toArray());
-                if (m != null) {
-                    card += m.getImageFilename().charAt(m.getImageFilename().length() - 5);
-                    return card;
-                }
+                rank = imagesToCharacters.get(m.getImage());
             }
         } catch (IndexOutOfBoundsException ex) {
             // if findBest doesn't find any matches it throws IndexOutOfBoundsException
-            return null;
         }
-        return null;
+        return rank;
     }
 
     /**
