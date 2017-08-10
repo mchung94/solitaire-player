@@ -227,7 +227,7 @@ possible values for some information we need for each state.
 
 ### Precalculations that are not specific to a deck of cards
 The following information is known before the program runs and is stored in
-the com.secondthorn.solitaireplayer.solvers.pyramid.Pyramid class.
+the `com.secondthorn.solitaireplayer.solvers.pyramid.Pyramid` class.
 - `Pyramid.COVER_MASKS` - Hardcoded masks for each pyramid card, indicating
   which pyramid card indexes cover it from below.  The tests show how to
   calculate it.  These masks are used to check if a pyramid card is uncovered.
@@ -236,25 +236,30 @@ the com.secondthorn.solitaireplayer.solvers.pyramid.Pyramid class.
   The tests show how to calculate it.  These masks are used to exclude cards
   which can't be removed with the pyramid card because they are blocking each
   other.
-- `Pyramid.flags` - The 1430 possible values for pyramid flags.  This is read
-  from resources/pyramid/Pyramid.json.
-- `Pyramid.uncoveredIndexes` - For each value in `Pyramid.flags`, a list of all
-  the uncovered pyramid cards' indexes.
-- `Pyramid.allIndexes` - For each value in `Pyramid.flags`, a list of all the
-  remaining pyramid cards' indexes.
+- `Pyramid.ALL` contains 1430 instances of the Pyramid class created from the
+  pyramid data loaded from resources/pyramid/Pyramid.json:
+  - `Pyramid.flags` - The 24 bits of pyramid flags.
+  - `Pyramid.uncoveredIndexes` - For the given pyramid flags, an array of the 
+    uncovered pyramid cards' indexes.
+  - `Pyramid.allIndexes` - For the given pyramid flags, an array of all the
+    remaining pyramid cards' indexes.
 
 ### Precalculations that happen for each deck of cards
-These are in the com.secondthorn.solitaireplayer.solvers.pyramid.Deck class.
-- `Deck.values` - Create a vector of each card's numeric value.  This can be
+These are in the `com.secondthorn.solitaireplayer.solvers.pyramid.Deck` class.
+One useful tip to understand what's going on here is to imagine that the cards
+themselves are not the fundamental objects in the game - it's actually the deck
+of 52 cards and indexes into it that the solver thinks with. 
+- `Deck.values` - An array of each card's numeric value.  This can be
   used to check if a card index refers to a king, or if two card indexes add up
   to 13 and can be removed together.
-- `Deck.cardRankMasks` - create a vector for each card value (1 - 13), holding
+- `Deck.cardRankMasks` - An array indexed by card rank value (1 - 13), holding
   a mask with bits set for each card in the deck with that value.  So index 1
   would contain a mask showing the position of each Ace in the deck.
 
 The four functions we need from a state are assisted by the following
 precalculations which are stored in
-com.secondthorn.solitaireplayer.solvers.pyramid.StateCache objects.
+`com.secondthorn.solitaireplayer.solvers.pyramid.StateCache` objects.  There
+are 1430 `StateCache` objects, one for each value of the 24 bit pyramid flags.
 1. Check if the state is a goal state
    - Precalculation: only the pyramid flags value of 0 is a goal state.
    - At runtime: look up the value for the given state.
@@ -270,11 +275,10 @@ com.secondthorn.solitaireplayer.solvers.pyramid.StateCache objects.
      `Pyramid.allIndexes` and `Deck.values`.
    - At runtime: just look up the value for the given state.
 4. Calculate successor states for each possible action from the state
-   - Precalculation: for each of the 1430 pyramid flag values of
-     `Pyramid.uncoveredIndexes`, generate a 2D array indexed by stock index and
-     waste index.  For each combination of all 3 values, look for all
-     combinations of cards that can be removed and generate a list of card
-     removal masks.
+   - Precalculation: for each value of `Pyramid.uncoveredIndexes`, generate a
+     2D array indexed by stock index and waste index.  For each combination of
+     all 3 values, look for all combinations of cards that can be removed and
+     generate a list of card removal masks.
    - At runtime: when we generate successor states for each state, we have to
      handle drawing a card and recycling the waste pile, but the successor
      state for every other action we can take is created by removing the cards
@@ -288,12 +292,13 @@ the following fields:
 - Action: the action taken from the previous state to reach this state
 - Depth: the number of nodes from the initial state's node to this node
 
-For memory usage improvements, com.secondthorn.solitaireplayer.solvers.pyramid
-has the classes Node and NodeWithDepth to represent linked lists of states
-starting with the current state and going back to the initial state (so the
-same parent node is shared by each successor state's node).  But also as a
-speed optimization, NodeWithDepth contains the depth as well as the node it's
-for.  So the fields can be generated like this:
+For memory usage improvements,
+`com.secondthorn.solitaireplayer.solvers.pyramid` has the classes `Node` and
+`NodeWithDepth` to represent linked lists of states starting with the current
+state and going back to the initial state (so the same parent node is shared by
+each successor state's node).  But also as a speed optimization, NodeWithDepth
+contains the depth as well as the node it's for.  So the fields can be
+generated like this:
 - State: `NodeWithDepth.node.state`
 - Parent State: `NodeWithDepth.node.parent.state`
 - Action: Derive this by diffing the state and parent state with a logical
@@ -309,9 +314,15 @@ A general purpose
 [priority queue](https://en.wikipedia.org/wiki/Priority_queue) is unnecessary.
 A [bucket queue](https://en.wikipedia.org/wiki/Bucket_queue) is very fast and
 makes sense for solving Pyramid Solitaire, since we only need to insert nodes,
-remove the minimum priority node, and check if the queue is empty.
+remove the minimum priority node, and check if the queue is empty.  The bucket
+queue is implemented at
+`com.secondthorn.solitaireplayer.solvers.pyramid.BucketQueue`.
 
 #### Minimum and Maximum Solution Lengths
+In order to create the bucket queue with the correct number of buckets, we need
+to know at least the maximum possible solution length - this would be the
+highest valued bucket in the bucket queue.
+
 The shortest possible solution to Pyramid Solitaire is 15 steps.  This happens
 if each step removes two table cards, except the last two which can't be
 removed together since one covers the other.  13 pairs of table cards + 2 more
