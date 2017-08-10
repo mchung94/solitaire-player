@@ -44,7 +44,7 @@ in this program.
 The game's internal image of the table and cards is very large, but then it
 is scaled down to fit into the Microsoft Solitaire Collection window.
 
-In com.secondthorn.solitaireplayer.players.MSCWindow, solitaire-player uses
+In `com.secondthorn.solitaireplayer.players.MSCWindow`, solitaire-player uses
 Win32 functions to activate the window, move it to the upper left corner,
 resize it to 1024x768, and move it to the foreground.  This happens at several
 points during the program runtime in case some activity has happened in
