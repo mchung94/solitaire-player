@@ -19,7 +19,7 @@ solitaire-player is a Java program that can quickly find an optimal solution to 
 - Can solve a deck of cards you give it, printing the solutions without automatically playing anything.
 
 ### Performance
-The following performance measurements were done on an Intel i7-4770k CPU (3.5GHz, 3.9GHz max) running Windows 10.
+The following performance measurements were done on an Intel i7-4770k CPU (3.5GHz, 3.9GHz max) running Windows 10.  They measure the time it takes to find a solution given a deck of cards, but do not include the time it takes to play the game.
 
 #### Board Challenges
 Here are timings for clearing the board on 1500 random decks of cards.  502 of them have no possible way to clear the board and the timing measurement is how long the program takes to find out there's no solution.
