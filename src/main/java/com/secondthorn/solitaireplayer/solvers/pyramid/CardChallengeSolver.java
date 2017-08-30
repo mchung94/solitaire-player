@@ -159,24 +159,35 @@ public class CardChallengeSolver implements PyramidSolver {
         return numCardsRemoved;
     }
 
+    /**
+     * Generate a solution description message fragment with proper pluralization.
+     *
+     * @param numCardsCleared number of cards of goal rank cleared by a solution
+     * @param numSteps        number of steps in the solution
+     * @return a description of how many goal cards removed in how many steps
+     */
+    private String removeMessage(int numCardsCleared, int numSteps) {
+        String cards = (numCardsCleared == 1) ? "card" : "cards";
+        String steps = (numSteps == 1) ? "step" : "steps";
+        return "remove " + numCardsCleared + " " + cards + " of rank " + cardRankToClear + " in " + numSteps +
+                " " + steps + ".";
+    }
+
     private void addGoalReachedNode(Deck deck, Map<String, List<Action>> solutions) {
         List<Action> solution = goalReachedNode.actions(deck);
-        String description = "Reach goal, remove " + goalReachedNodeScore +
-                " cards of rank " + cardRankToClear + " in " + solution.size() + " steps.";
+        String description = "Reach goal, " + removeMessage(goalReachedNodeScore, solution.size());
         solutions.put(description, solution);
     }
 
     private void addNonClearNode(Deck deck, Map<String, List<Action>> solutions) {
         List<Action> solution = bestNonClearNode.actions(deck);
-        String description = "Without clearing the board, remove " + bestNonClearNodeScore +
-                " cards of rank " + cardRankToClear + " in " + solution.size() + " steps.";
+        String description = "Without clearing the board, " + removeMessage(bestNonClearNodeScore, solution.size());
         solutions.put(description, solution);
     }
 
     private void addClearNode(Deck deck, Map<String, List<Action>> solutions) {
         List<Action> solution = bestClearNode.actions(deck);
-        String description = "Clear the board, remove " + bestClearNodeScore +
-                " cards of rank " + cardRankToClear + " in " + solution.size() + " steps.";
+        String description = "Clear the board, " + removeMessage(bestClearNodeScore, solution.size());
         solutions.put(description, solution);
     }
 

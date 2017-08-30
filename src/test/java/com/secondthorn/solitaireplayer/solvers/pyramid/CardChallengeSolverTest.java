@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CardChallengeSolverTest {
 
@@ -33,6 +34,7 @@ public class CardChallengeSolverTest {
         Map<String, List<Action>> solutions = solver.solve(deck);
         assertEquals(1, solutions.size());
         assertEquals(1, solutions.values().iterator().next().size());
+        assertTrue(solutions.containsKey("Reach goal, remove 1 card of rank A in 1 step."));
     }
 
     @Test
@@ -43,5 +45,7 @@ public class CardChallengeSolverTest {
         Deck deck = new Deck(cards);
         Map<String, List<Action>> solutions = solver.solve(deck);
         assertEquals(1, solutions.size());
+        assertTrue(solutions.containsKey("Without clearing the board, remove 3 cards of rank J in 46 steps."));
     }
+
 }
