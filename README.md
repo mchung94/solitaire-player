@@ -1,5 +1,6 @@
 # solitaire-player
-Solve and automatically play Pyramid Solitaire.
+Solve and automatically play Pyramid Solitaire.  Watch the [demonstration video](https://youtu.be/2fs49YDfUR4).
+
 
 ## Introduction
 
