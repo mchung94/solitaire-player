@@ -2,6 +2,8 @@ package com.secondthorn.solitaireplayer.players.pyramid;
 
 import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
+import org.sikuli.basics.Settings;
+import org.sikuli.script.IRobot;
 import org.sikuli.script.Image;
 import org.sikuli.script.Match;
 import org.sikuli.script.Region;
@@ -93,7 +95,7 @@ class PyramidWindow {
      */
     void clickPyramidCardIndex(int pyramidIndex) {
         sleep(250);
-        regions.pyramid[pyramidIndex].click();
+        clickRegion(regions.pyramid[pyramidIndex]);
     }
 
     /**
@@ -102,7 +104,7 @@ class PyramidWindow {
      */
     void clickStockCard() {
         sleep(250);
-        regions.stock.click();
+        clickRegion(regions.stock);
     }
 
     /**
@@ -111,7 +113,7 @@ class PyramidWindow {
      */
     void clickWasteCard() {
         sleep(250);
-        regions.waste.click();
+        clickRegion(regions.waste);
     }
 
     /**
@@ -225,14 +227,34 @@ class PyramidWindow {
      */
     private boolean click(Image image, double timeout) {
         Match match = appRegion.exists(image, timeout);
-        return (match != null) && (match.click() > 0);
+        if (match != null) {
+            return clickRegion(match);
+        }
+        return false;
+    }
+
+    /**
+     * This is a temporary workaround for issues moving the mouse in Windows 10.  Normally this would just be
+     * region.click() but we move the mouse using an alternative method and then perform the mouse click.
+     *
+     * @param region Move the mouse to the center of this region and click.
+     * @return true if the click was successful
+     */
+    private boolean clickRegion(Region region) {
+        MSCWindow.moveMouseSmoothly(region.getCenter().x, region.getCenter().y);
+        IRobot r = region.getCenter().getScreen().getRobot();
+        r.mouseDown(16);
+        r.delay(Settings.ClickDelay > 1.0D ? 1 : (int) (Settings.ClickDelay * 1000.0D));
+        r.mouseUp(16);
+        r.waitForIdle();
+        return true;
     }
 
     /**
      * Given a set of characters, load the image for each character's .png file and return
      * a mapping between them.  This is for loading card suit and rank images.
      *
-     * @param chars    A sequence of chars, each being the name of a .png file
+     * @param chars A sequence of chars, each being the name of a .png file
      * @return a mapping between the char and the image for that char
      */
     private Map<Image, Character> loadCharImages(CharSequence chars) {
