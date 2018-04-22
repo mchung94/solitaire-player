@@ -8,7 +8,7 @@ Solve and automatically play Pyramid Solitaire.  Watch the [demonstration video]
 solitaire-player is a Java program that can quickly find an optimal solution to Pyramid Solitaire for any deck of cards you give it, if a solution exists.  Also, it can automatically play Pyramid Solitaire in Windows 10's Microsoft Solitaire Collection.
 
 ### Features
-- Always finds a solution with the shortest possible number of steps, if there exists any solution at all.
+- Always finds a solution with the fewest possible number of steps, if there exists any solution at all.
 - Supports 3 types of Pyramid Solitaire challenges:
   - Board Challenges: clear the board (remove the 28 cards in the pyramid layout in the game), even if there are still cards remaining in the stock or waste piles.
   - Card Challenges: remove a number of cards of a given rank.  For example, "Clear 12 Aces in 2 deals".
