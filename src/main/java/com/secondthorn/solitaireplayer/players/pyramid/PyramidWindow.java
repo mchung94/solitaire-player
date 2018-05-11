@@ -8,6 +8,10 @@ import org.sikuli.script.Image;
 import org.sikuli.script.Match;
 import org.sikuli.script.Region;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -164,12 +168,10 @@ class PyramidWindow {
      */
     private String findResourceDir() throws PlayException {
         String scaleDir = "pyramid/" + MSCWindow.getPercentScaling() + "-percent-scaling/";
-        if (pyramidImageExists(scaleDir + "goal/Pyramid.png")) {
-            return scaleDir + "goal/";
-        } else if (pyramidImageExists(scaleDir + "regular/Pyramid.png")) {
-            return scaleDir + "regular/";
+        if (pyramidImageExists(scaleDir + "Pyramid.png")) {
+            return scaleDir;
         } else {
-            throw new PlayException("Unable to detect if we're playing a Regular or Goal game of Pyramid Solitaire");
+            throw new PlayException("Unable to detect if we're playing a game of Pyramid Solitaire");
         }
     }
 
@@ -189,7 +191,7 @@ class PyramidWindow {
     /**
      * Load and store all images in the resource directory - ranks, suits, Draw, Undo Board, and OK.
      */
-    private void loadImages() {
+    private void loadImages() throws PlayException {
         suitImages = loadCharImages("cdhs");
         rankImages = loadCharImages("A23456789TJQK");
         drawImage = loadResourceImage("Draw.png");
@@ -250,19 +252,52 @@ class PyramidWindow {
         return true;
     }
 
+    private ArrayList<String> characterImageFilenames(char c) throws PlayException {
+        ArrayList<String> filenames = new ArrayList<>();
+        String imageDirectory = resourceDir + c;
+        try {
+            java.net.URI uri = ClassLoader.getSystemResource(imageDirectory).toURI();
+            if (uri.getScheme().equals("jar")) {
+                try (FileSystem fs = FileSystems.newFileSystem(uri, java.util.Collections.emptyMap(), null)) {
+                    try (DirectoryStream<Path> ds = Files.newDirectoryStream(fs.getPath(imageDirectory))) {
+                        for (Path path : ds) {
+                            int nameCount = path.getNameCount();
+                            filenames.add(path.subpath(nameCount - 2, nameCount).toString());
+                        }
+                    }
+                }
+            } else {
+                try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get(uri))) {
+                    for (Path path : ds) {
+                        int nameCount = path.getNameCount();
+                        filenames.add(path.subpath(nameCount - 2, nameCount).toString());
+                    }
+                }
+
+            }
+        } catch (URISyntaxException ex) {
+            throw new PlayException("Unable to find resource directory for card-related character " + c);
+        } catch (IOException ex) {
+            throw new PlayException("Unable to find image files for the card-related character " + c);
+        }
+        return filenames;
+    }
+
     /**
-     * Given a set of characters, load the image for each character's .png file and return
+     * Given a set of characters, load the images for each character's .png files and return
      * a mapping between them.  This is for loading card suit and rank images.
      *
-     * @param chars A sequence of chars, each being the name of a .png file
-     * @return a mapping between the char and the image for that char
+     * @param chars A sequence of chars, each being the name of directory containing .png files
+     * @return a mapping between the image and the char it represents
      */
-    private Map<Image, Character> loadCharImages(CharSequence chars) {
+    private Map<Image, Character> loadCharImages(CharSequence chars) throws PlayException {
         Map<Image, Character> charImages = new HashMap<>();
         for (int i = 0; i < chars.length(); i++) {
             char c = chars.charAt(i);
-            Image image = loadResourceImage(c + ".png");
-            charImages.put(image, c);
+            for (String filename : characterImageFilenames(c)) {
+                Image image = loadResourceImage(filename);
+                charImages.put(image, c);
+            }
         }
         return charImages;
     }
