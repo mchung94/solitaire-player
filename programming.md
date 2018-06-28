@@ -58,10 +58,12 @@ Microsoft Solitaire Collection window:
   - 100% - the window size becomes 1024x768
   - 200% - the window size becomes 1026x977
   - 250% - the window size becomes 1282x1221
-- If the game is a goal challenge, the goal is displayed in a bar on the
-  bottom of the game window, squashing the rest of the cards into a smaller
-  space.  So in goal-based games, the cards are in different positions and
-  drawn in different sizes than in regular games without a goal.
+- In goal challenges (as opposed to regular games), the goal is displayed in
+  a bar on the bottom of the game window.  This used to squash the rest of the
+  cards into a smaller space, and the program had to adjust its expectations of
+  the cards' size and location.  But as of the April 2018 Windows 10 update,
+  this is no longer the case - the cards look the same and are in the same
+  positions of the screen regardless of whether or not the goal bar is there.
 - The cards themselves look slightly different not only based on the window
   size, but also their positions on screen.  If the top of the pyramid is a
   three of clubs, the 3 would look slightly different than if it was at the
@@ -70,20 +72,14 @@ Microsoft Solitaire Collection window:
 
 ### Key Ideas for SikuliX Usage
 To deal with these issues, there are different images in the resource directory
-for each of the three scaling sizes, and for goal/regular games within each
-scaling size.
+for each of the three scaling sizes.
 
 There are also JSON files containing the locations of where each card in the
 the game should be at.
 
-For card recognition, we can't just take a screenshot of each card ahead of
-time and search for those, because the cards look slightly different depending
-on screen location.  It's very bad at guessing the cards this way.  So it uses
-images of each rank and suit that exaggerate the differences between them.
-
-The images of ranks and suits we use are just black on white backgrounds.  On
-white backgrounds, red or black makes almost no difference to the image
-recognition algorithms.
+For each card rank and suit, there is a subdirectory for containing multiple
+images of each rank/suit when necessary due to the differences based on
+location on-screen.
 
 When searching for the Draw button, solitaire-player just searches for the
 image, but when trying to figure out what card is at a given location, it
@@ -117,10 +113,10 @@ This section discusses the Pyramid Solitaire solving algorithm.
 ### Memory Usage
 States are just long values, so for reduced memory usage, we use the
 [Trove library](http://trove.starlight-systems.com/) for its collections
-on unboxed primitives.
+on unboxed primitives.  
 
 ### Algorithms
-- Board Challenge Solver - A* algorithm with unwinnable state detection.  The
+- Board Challenge Solver - A\* algorithm with unwinnable state detection.  The
   goal state is when all 28 pyramid cards have been removed, so we can skip all
   states that are found to be unwinnable (impossible to remove one of the cards
   on the pyramid).
@@ -285,7 +281,7 @@ are 1430 `StateCache` objects, one for each value of the 24 bit pyramid flags.
      indicated by each mask and then updating the stock index if necessary.
 
 ### Search Node Representation
-In general, nodes for search algorithms like Breadth-First Search or A* have
+In general, nodes for search algorithms like Breadth-First Search or A\* have
 the following fields:
 - State: the state represented by the search node
 - Parent Node: the node with the previous state
