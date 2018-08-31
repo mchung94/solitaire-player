@@ -1,18 +1,22 @@
 package com.secondthorn.solitaireplayer.solvers.pyramid;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CardChallengeSolverTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void constructorAlreadyPastGoal() {
-        new CardChallengeSolver(3, 'A', 4);
+        Throwable t = assertThrows(IllegalArgumentException.class, () -> {
+            new CardChallengeSolver(3, 'A', 4);
+        });
+        assertEquals("The current number of cards cleared must be smaller than the goal", t.getMessage());
     }
 
     @Test

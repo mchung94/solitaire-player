@@ -1,16 +1,20 @@
 package com.secondthorn.solitaireplayer.solvers.pyramid;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ScoreChallengeSolverTest {
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void currentScoreHigherThanGoalScore() {
-        new ScoreChallengeSolver(1290, 2580);
+        Throwable t = assertThrows(IllegalArgumentException.class, () -> {
+            new ScoreChallengeSolver(1290, 2580);
+        });
+        assertEquals("The current score must be smaller than the goal score", t.getMessage());
     }
 
     @Test

@@ -1,13 +1,14 @@
 package com.secondthorn.solitaireplayer.solvers.pyramid;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DeckTest {
     static Deck deck;
@@ -46,17 +47,23 @@ public class DeckTest {
         assertDeckCardsMatch(orderedCards, new Deck(cards));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void constructorThrowsExceptionWithTooFewCards() {
-        List<String> cards = orderedCards.subList(0, 51);
-        new Deck(cards);
+        Throwable t = assertThrows(IllegalArgumentException.class, () -> {
+            List<String> cards = orderedCards.subList(0, 51);
+            new Deck(cards);
+        });
+        assertEquals("A Deck must be 52 cards, 51 sent in instead.", t.getMessage());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void constructorThrowsExceptionWithTooManyCards() {
-        List<String> cards = new ArrayList<>(orderedCards);
-        cards.add("Kc");
-        new Deck(cards);
+        Throwable t = assertThrows(IllegalArgumentException.class, () -> {
+            List<String> cards = new ArrayList<>(orderedCards);
+            cards.add("Kc");
+            new Deck(cards);
+        });
+        assertEquals("A Deck must be 52 cards, 53 sent in instead.", t.getMessage());
     }
 
     @Test

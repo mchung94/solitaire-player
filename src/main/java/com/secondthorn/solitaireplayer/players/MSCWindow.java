@@ -114,6 +114,7 @@ public final class MSCWindow {
         if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
             throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
         }
+        moveMouse(0, 0);
     }
 
     /**

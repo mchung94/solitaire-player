@@ -3,21 +3,25 @@ apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
-}
-
 repositories {
     jcenter()
+    maven {
+        url "http://oss.sonatype.org/content/groups/public"
+    }
 }
 
 dependencies {
-    compile files('lib/sikulixapi.jar')
-    compile 'net.java.dev.jna:jna:4.4.0'
-    compile 'net.java.dev.jna:jna-platform:4.4.0'
+    compile 'com.sikulix:sikulixapi:1.1.4-SNAPSHOT'
+    compile 'net.java.dev.jna:jna:4.5.2'
+    compile 'net.java.dev.jna:jna-platform:4.5.2'
     compile 'net.sf.trove4j:trove4j:3.0.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
-    testCompile 'junit:junit:4.12'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
+	testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+}
+
+test {
+	useJUnitPlatform()
 }
 
 applicationDefaultJvmArgs = ["-Xmx8G", "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=5000"]
