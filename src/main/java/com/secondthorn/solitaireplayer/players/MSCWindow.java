@@ -13,6 +13,7 @@ import org.sikuli.basics.AnimatorTimeBased;
 
 import java.awt.*;
 
+import static com.sun.jna.platform.win32.WinUser.SW_MAXIMIZE;
 import static com.sun.jna.platform.win32.WinUser.SW_RESTORE;
 
 /**
@@ -37,23 +38,6 @@ public final class MSCWindow {
     private MSCWindow() {
         // do nothing, this only contains static fields/methods
     }
-
-    /**
-     * Windows GetSystemMetrics() constant to retrieve the coordinate of the left side of the virtual screen.
-     */
-    private static final int SM_XVIRTUALSCREEN = 76;
-    /**
-     * Windows GetSystemMetrics() constant to retrieve the coordinate of the top of the virtual screen.
-     */
-    private static final int SM_YVIRTUALSCREEN = 77;
-    /**
-     * Windows GetSystemMetrics() constant to retrieve the width of the virtual screen in pixels.
-     */
-    private static final int SM_CXVIRTUALSCREEN = 78;
-    /**
-     * Windows GetSystemMetrics() constant to retrieve the height of the virtual screen in pixels.
-     */
-    private static final int SM_CYVIRTUALSCREEN = 79;
 
     /**
      * Windows MOUSEINPUT flag to indicate the mouse moved.
@@ -93,6 +77,7 @@ public final class MSCWindow {
         DpiUser32 INSTANCE = (DpiUser32) Native.loadLibrary("user32", DpiUser32.class, W32APIOptions.DEFAULT_OPTIONS);
 
         DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT context);
+        WinDef.UINT GetDpiForWindow(WinDef.HWND hwnd);
     }
 
     /**
@@ -117,6 +102,16 @@ public final class MSCWindow {
         moveMouse(0, 0);
     }
 
+    private static boolean isWindowMaximized() {
+        WinUser.WINDOWPLACEMENT windowPlacement = new WinUser.WINDOWPLACEMENT();
+        User32.INSTANCE.GetWindowPlacement(getHWND(), windowPlacement);
+        return windowPlacement.showCmd == WinUser.SW_MAXIMIZE;
+    }
+
+    private static boolean isMaximized1080p() {
+        return isWindowMaximized() && getSizeString().equals("1936x1056");
+    }
+
     /**
      * Move the window to the upper left corner and resize it to 1024x768.
      * This is to make positioning as consistent as possible, although themes,
@@ -126,7 +121,7 @@ public final class MSCWindow {
      * @return true if successful
      */
     private static boolean moveWindow(WinDef.HWND hwnd) {
-        return User32.INSTANCE.MoveWindow(hwnd, 0, 0, 1024, 768, true);
+        return isMaximized1080p() || User32.INSTANCE.MoveWindow(hwnd, 0, 0, 1024, 768, true);
     }
 
     /**
@@ -136,7 +131,7 @@ public final class MSCWindow {
      * @return true if successful
      */
     private static boolean showWindow(WinDef.HWND hwnd) {
-        return User32.INSTANCE.ShowWindow(hwnd, SW_RESTORE);
+        return isMaximized1080p() || User32.INSTANCE.ShowWindow(hwnd, SW_RESTORE);
     }
 
     /**
@@ -149,29 +144,31 @@ public final class MSCWindow {
         return User32.INSTANCE.SetForegroundWindow(hwnd);
     }
 
+    public static String getSizeString() {
+        WinDef.HWND hwnd = getHWND();
+        WinDef.RECT rect = new WinDef.RECT();
+        User32.INSTANCE.GetWindowRect(hwnd, rect);
+        return (rect.right - rect.left) + "x" + (rect.bottom - rect.top);
+    }
+
     /**
-     * Based on the actual window size retrieved after trying to resize it to 1024x768,
-     * determine the Windows 10 scaling size (Display Settings -> Scale and Layout).
-     * This works because even though we ask the window size to be set to 1024x768, the actual window size
-     * afterwards is different depending on the user's scaling size setting.
+     * Determine the Windows 10 scaling size (Display Settings -> Scale and Layout).
      *
      * @return The percentage scaling size in Windows 10 display settings
      * @throws PlayException if there's an issue determining the scaling size
      */
     public static int getPercentScaling() throws PlayException {
         positionForPlay();
-        WinDef.RECT rect = new WinDef.RECT();
-        User32.INSTANCE.GetWindowRect(getHWND(), rect);
-        String size = (rect.right - rect.left) + "x" + (rect.bottom - rect.top);
         int percentScaling;
-        switch (size) {
-            case "1024x768":
+        WinDef.UINT dpi = DpiUser32.INSTANCE.GetDpiForWindow(getHWND());
+        switch (dpi.intValue()) {
+            case 96:
                 percentScaling = 100;
                 break;
-            case "1026x977":
+            case 192:
                 percentScaling = 200;
                 break;
-            case "1282x1221":
+            case 240:
                 percentScaling = 250;
                 break;
             default:
@@ -200,10 +197,10 @@ public final class MSCWindow {
     public static void moveMouse(int x, int y) {
         DPI_AWARENESS_CONTEXT oldContext = DpiUser32.INSTANCE.SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT.PER_MONITOR_AWARE);
 
-        int left = User32.INSTANCE.GetSystemMetrics(SM_XVIRTUALSCREEN);
-        int top = User32.INSTANCE.GetSystemMetrics(SM_YVIRTUALSCREEN);
-        int width = User32.INSTANCE.GetSystemMetrics(SM_CXVIRTUALSCREEN);
-        int height = User32.INSTANCE.GetSystemMetrics(SM_CYVIRTUALSCREEN);
+        int left = User32.INSTANCE.GetSystemMetrics(WinUser.SM_XVIRTUALSCREEN);
+        int top = User32.INSTANCE.GetSystemMetrics(WinUser.SM_YVIRTUALSCREEN);
+        int width = User32.INSTANCE.GetSystemMetrics(WinUser.SM_CXVIRTUALSCREEN);
+        int height = User32.INSTANCE.GetSystemMetrics(WinUser.SM_CYVIRTUALSCREEN);
 
         WinUser.INPUT input = new WinUser.INPUT();
         input.type = new WinDef.DWORD(WinUser.INPUT.INPUT_MOUSE);
