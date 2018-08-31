@@ -51,6 +51,10 @@ points during the program runtime in case some activity has happened in
 between.  This helps the rest of the code make some assumptions about the size
 and location of cards on screen.
 
+SikuliX sometimes guesses cards incorrectly when the window is so small, so
+if the window is maximized on a 1920x1080 monitor and there's a normal sized
+taskbar, the program will play the game without resizing it.
+
 But there are still some things to be aware of when using SikuliX on the
 Microsoft Solitaire Collection window:
 - Even though the window should be 1024x768, the Windows Display Settings
