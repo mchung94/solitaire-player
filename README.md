@@ -1,5 +1,5 @@
 # solitaire-player
-Solve and automatically play Pyramid Solitaire.  Watch the [demonstration video](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 is here for download at [version 1.2.0](https://github.com/mchung94/solitaire-player/releases/download/v1.2.0/solitaire-player-v1.2.0.zip).
+Solve and automatically play Pyramid Solitaire.  Watch the [demonstration video](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 1.2.0](https://github.com/mchung94/solitaire-player/releases/download/v1.2.0/solitaire-player-v1.2.0.zip), but you must install the [64 bit JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) first.
 
 
 ## Introduction
