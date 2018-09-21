@@ -90,5 +90,5 @@ In the example above, the 3s is the initial card at the top of the stock pile an
 2. Follow steps 1, 2, and 5 from the `Steps for automatically playing Pyramid Solitaire` instructions, except in step 5, always add `-f <filename>` to give the program the deck of cards to solve.  It will skip any automation and just print out the solutions it finds.
 
 ### Source Code
-This is a standard gradle project so you can run things like "gradlew distZip" and run the program using the distribution.  The only unusual thing is the Windows version of the SikuliX jar in the lib/ directory.
+This is a standard gradle project so you can run things like "gradlew distZip" and run the program using the distribution.
 There is also a [Programming Guide](programming.md) with details for developers.
