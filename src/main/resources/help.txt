@@ -9,15 +9,16 @@ a game before running this program.  It will scan the cards on screen and
 play the solution.
 
 The other command line arguments should be one of the following:
-1. Pyramid Board
-   Solve Pyramid Board Challenges, such as "Clear 3 board(s) in 2 deal(s)".
-2. Pyramid Score
-   Solve Pyramid Solitaire for maximum score.
-3. Pyramid Score <Goal Score> <Current Score>
-   Solve Pyramid Score Challenges, such as "Earn a score of 2400".
-   This will know to stop playing if the goal score is reached.
-4. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
-   Solve Pyramid Card challenges, such as "Clear 12 Aces in 2 deals".
-   - The card ranks to input are: A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, and K
-   - This can potentially have two solutions, one where you clear the board
-     and one where you don't (if this removes more cards of the given Rank).
+1. Pyramid Solitaire:
+   a. Pyramid Board
+      Solve Pyramid Board Challenges, such as "Clear 3 board(s) in 2 deal(s)".
+   b. Pyramid Score
+      Solve Pyramid Solitaire for maximum score.
+   c. Pyramid Score <Goal Score> <Current Score>
+      Solve Pyramid Score Challenges, such as "Earn a score of 2400".
+      This will know to stop playing if the goal score is reached.
+   d. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
+      Solve Pyramid Card challenges, such as "Clear 12 Aces in 2 deals".
+      - The card ranks to input are: A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, and K
+      - This can potentially have two solutions, one where you clear the board
+        and one where you don't (if this removes more cards of the given Rank).

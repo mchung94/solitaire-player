@@ -2,6 +2,7 @@ package com.secondthorn.solitaireplayer.players.pyramid;
 
 import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
+import com.secondthorn.solitaireplayer.players.RegionDeserializer;
 import org.sikuli.basics.Settings;
 import org.sikuli.script.IRobot;
 import org.sikuli.script.Image;
@@ -68,7 +69,7 @@ class PyramidWindow {
     PyramidWindow() throws PlayException {
         appRegion = org.sikuli.script.App.focusedWindow();
         resourceDir = findResourceDir();
-        regions = Regions.newInstance(resourceDir + "regions.json");
+        regions = RegionDeserializer.createRegions(resourceDir + "regions.json", Regions.class);
         loadImages();
     }
 
@@ -99,7 +100,7 @@ class PyramidWindow {
      */
     void clickPyramidCardIndex(int pyramidIndex) {
         sleep(250);
-        clickRegion(regions.pyramid[pyramidIndex]);
+        clickRegion(regions.getPyramid()[pyramidIndex]);
     }
 
     /**
@@ -108,7 +109,7 @@ class PyramidWindow {
      */
     void clickStockCard() {
         sleep(250);
-        clickRegion(regions.stock);
+        clickRegion(regions.getStock());
     }
 
     /**
@@ -117,7 +118,7 @@ class PyramidWindow {
      */
     void clickWasteCard() {
         sleep(250);
-        clickRegion(regions.waste);
+        clickRegion(regions.getWaste());
     }
 
     /**
@@ -137,7 +138,7 @@ class PyramidWindow {
      * @return The two-letter String for the card at the pyramid index, or null if no card is there.
      */
     String cardAtPyramid(int pyramidIndex) {
-        return cardAt(regions.pyramid[pyramidIndex]);
+        return cardAt(regions.getPyramid()[pyramidIndex]);
     }
 
     /**
@@ -146,7 +147,7 @@ class PyramidWindow {
      * @return The two-letter String for the card at the top of the deck, or null if no card is there.
      */
     String cardAtDeck() {
-        return cardAt(regions.stock);
+        return cardAt(regions.getStock());
     }
 
     /**

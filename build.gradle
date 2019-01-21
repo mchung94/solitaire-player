@@ -12,10 +12,10 @@ repositories {
 
 dependencies {
     compile 'com.sikulix:sikulixapi:1.1.4-SNAPSHOT'
-    compile 'net.java.dev.jna:jna:4.5.2'
-    compile 'net.java.dev.jna:jna-platform:4.5.2'
+    compile 'net.java.dev.jna:jna:5.2.0'
+    compile 'net.java.dev.jna:jna-platform:5.2.0'
     compile 'net.sf.trove4j:trove4j:3.0.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
 	testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
 }
