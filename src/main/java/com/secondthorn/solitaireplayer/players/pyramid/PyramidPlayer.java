@@ -342,6 +342,7 @@ public class PyramidPlayer extends SolitairePlayer {
      * @param window   the Pyramid Window to perform the actions on
      */
     private void playSolution(List<Action> solution, PyramidWindow window) {
+        window.undoBoard();
         for (Action action : solution) {
             switch (action.getCommand()) {
                 case DRAW:
