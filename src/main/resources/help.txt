@@ -1,24 +1,72 @@
 Usage: solitaire-player.bat <Game> <Goal> [args for goal] [-f filename]
 
-When using [-f filename], the file must contain all the cards in a 52-card
-deck using two-letter cards of rank (A23456789TJQK) and suit (cdhs), separated
-by whitespace.  Then it will print out the solutions without playing the game.
+<Game> can be either Pyramid or TriPeaks.
+<Goal> can either be Board, Score, or Card.
+[args for goal] depends, see below for details.
+[-f filename] is to pass in a deck of cards and print out a solution instead of
+trying to play the game.  See below for examples.  If you don't use this, the
+program will assume Microsoft Solitaire Collection is running and will try to
+interact with it.
 
-Otherwise, start Microsoft Solitaire Collection on Windows 10 and begin
-a game before running this program.  It will scan the cards on screen and
-play the solution.
+Card Ranks are A 2 3 4 5 6 7 8 9 T J Q K (always upper case).
+Card Suits are c d h s (always lower case).
 
-The other command line arguments should be one of the following:
-1. Pyramid Solitaire:
-   a. Pyramid Board
-      Solve Pyramid Board Challenges, such as "Clear 3 board(s) in 2 deal(s)".
-   b. Pyramid Score
-      Solve Pyramid Solitaire for maximum score.
-   c. Pyramid Score <Goal Score> <Current Score>
-      Solve Pyramid Score Challenges, such as "Earn a score of 2400".
-      This will know to stop playing if the goal score is reached.
-   d. Pyramid Card <Number of Cards to Clear> <Rank> <Number Currently Cleared>
-      Solve Pyramid Card challenges, such as "Clear 12 Aces in 2 deals".
-      - The card ranks to input are: A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, and K
-      - This can potentially have two solutions, one where you clear the board
-        and one where you don't (if this removes more cards of the given Rank).
+For Pyramid Solitaire:
+1. Pyramid Board
+   - Solve board challenges, clearing all cards from the board.
+2. Pyramid Score
+   - Find the way to get the maximum possible score.
+3. Pyramid Score <Goal Score> <Current Score>
+   - "Pyramid Score 2400 1500" means you currently have 1500 points and the
+     goal is to get 2400 points.
+   - Find the way to reach the goal score given the current score, or if
+     impossible, find the way to get the maximum possible score.
+4. Pyramid Card <Goal number of cards> <Card Rank> <number currently cleared>
+   - "Pyramid Card 12 A 9" means the goal is to remove 12 Aces, and you have
+     currently removed 9.  So you need 3 more Aces to reach the goal.
+   - This finds the best way to reach the goal or otherwise maximize the number
+     of goal cards to remove.  There may be two solutions: one where you clear
+     the board, and one where you don't clear the board but remove more goal
+     cards than the board-clearing solution.
+
+Pyramid Solitaire Example Deck:
+When passing in a filename, create a text file that looks like this:
+            Kd
+          Kc  Qh
+        Ah  7d  6d
+      8d  5d  9d  4d
+    Td  3d  Jd  2d  Qd
+  Ad  7c  6c  8c  5c  9c
+4c  Tc  3c  Jc  2c  Qc  Ac
+6h 7h 5h 8h 4h 9h 3h Th 2h Jh Kh As 2s 3s 4s 5s 6s 7s 8s 9s Ts Js Qs Ks
+
+6h is the top of the stock pile, and Ks is the bottom.
+
+For TriPeaks Solitaire:
+1. TriPeaks Board
+   - Solve board challenges, clearing all cards from the board.
+2. TriPeaks Score
+   - Find the way to get the maximum possible score.
+3. TriPeaks Score <Goal Score> <Current Score>
+   - "TriPeaks Score 90000 38000" means you currently have 38000 points and the
+     goal is to get 90000 points.
+   - Find the way to reach the goal score given the current score, or if
+     impossible, find the way to get the maximum possible score.
+4. TriPeaks Card <Goal number of cards> <Card Rank> <number currently cleared>
+   - "TriPeaks Card 11 A 2" means the goal is to remove 11 Aces, and you have
+     currently removed 2.  So you need 9 more Aces to reach the goal.
+   - This finds the best way to reach the goal or otherwise maximize the number
+     of goal cards to remove.  There may be two solutions: one where you clear
+     the board, and one where you don't clear the board but remove more goal
+     cards than the board-clearing solution.
+
+TriPeaks Solitaire Example Deck:
+When passing in a filename, create a text file that looks like this:
+      Kd          Kc          Qh
+    Ah  7d      6d  8d      5d  9d
+  4d  Td  3d  Jd  2d  Qd  Ad  7c  6c
+8c  5c  9c  4c  Tc  3c  Jc  2c  Qc  Ac
+6h 7h 5h 8h 4h 9h 3h Th 2h Jh Kh As 2s 3s 4s 5s 6s 7s 8s 9s Ts Js Qs Ks
+
+6h is the top of the waste pile, 7h is the top of the stock pile, and Ks is the
+bottom of the stock pile.

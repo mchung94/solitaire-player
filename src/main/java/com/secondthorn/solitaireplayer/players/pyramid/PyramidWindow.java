@@ -31,7 +31,7 @@ class PyramidWindow {
     private String resourceDir;
 
     /**
-     * The Sikuli region of the Microsoft Solitaire Collection window (x, y, width, height)
+     * The SikuliX region of the Microsoft Solitaire Collection window (x, y, width, height)
      */
     private Region appRegion;
 
@@ -62,7 +62,7 @@ class PyramidWindow {
     private Image okImage;
 
     /**
-     * The Sikuli Regions (x, y, width, height) of all the cards as well as the stock and waste piles.
+     * The SikuliX Regions (x, y, width, height) of all the cards as well as the stock and waste piles.
      */
     private Regions regions;
 
@@ -201,10 +201,10 @@ class PyramidWindow {
     }
 
     /**
-     * Given an image filename, load and return the image for use by Sikuli.
+     * Given an image filename, load and return the image for use by SikuliX.
      *
      * @param filename the image filename
-     * @return the Sikuli Image object
+     * @return the SikuliX Image object
      */
     private Image loadResourceImage(String filename) {
         return Image.create(ClassLoader.getSystemResource(resourceDir + filename));

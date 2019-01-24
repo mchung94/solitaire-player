@@ -11,22 +11,17 @@ import com.secondthorn.solitaireplayer.solvers.pyramid.PyramidSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.ScoreChallengeSolver;
 import org.sikuli.basics.Settings;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.sikuli.script.Sikulix.inputText;
 import static org.sikuli.script.Sikulix.popAsk;
 import static org.sikuli.script.Sikulix.popSelect;
 
 /**
- * A class that uses Sikuli to automate playing a game of Pyramid Solitaire in
+ * A class that uses SikuliX to automate playing a game of Pyramid Solitaire in
  * Windows 10's Microsoft Solitaire Collection.  It can also just print out the solution
  * without playing, when given a filename containing cards to solve.
  */
@@ -58,13 +53,6 @@ public class PyramidPlayer extends SolitairePlayer {
     private PyramidSolver solver;
 
     /**
-     * If a file containing a deck of cards consisting of two-letter strings of
-     * rank (A23456789TJQK) and suit (cdhs) is passed in through the command line, then
-     * just print the solution for that deck of cards without doing any GUI automation.
-     */
-    private String deckFilename;
-
-    /**
      * Create a new PyramidPlayer instance based on command line args.
      * It will throw IllegalArgumentException if the args don't make sense.
      * The player can specialize in either clearing the pyramid/board, maximizing score, or
@@ -76,8 +64,8 @@ public class PyramidPlayer extends SolitairePlayer {
         if (args.length < 1) {
             throw new IllegalArgumentException("Missing goal for Pyramid Solitaire");
         }
-        deckFilename = getDeckFilenameFromArgs(args);
-        if (deckFilename != null) {
+        setDeckFilename(getDeckFilenameFromArgs(args));
+        if (getDeckFilename() != null) {
             args = removeDeckFilenameFromArgs(args);
         }
         String goalType = args[0];
@@ -117,53 +105,9 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Look for a [-f filename] in the command line and return the filename.
-     *
-     * @param args command line arguments
-     * @return the filename if found, otherwise null
-     */
-    private String getDeckFilenameFromArgs(String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-f")) {
-                return args[i + 1];
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Remove a [-f filename] from the command line args if it exists.
-     * Here, "[-f filename]" means two optional args, a "-f" followed directly by a filename.
-     *
-     * @param args command line arguments
-     * @return the command line arguments with [-f filename] removed
-     */
-    private String[] removeDeckFilenameFromArgs(String[] args) {
-        String[] newArgs = new String[args.length - 2];
-        int newArgsOffset = 0;
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-f")) {
-                i++;
-            } else {
-                newArgs[newArgsOffset++] = args[i];
-            }
-        }
-        return newArgs;
-    }
-
-    /**
-     * Return true if we're just solving a given deck from a filename, and printing out
-     * the solution instead of actually automatically playing the game.
-     *
-     * @return true if we should just print a solution and not take over the GUI to play the game
-     */
-    private boolean isPreview() {
-        return deckFilename != null;
-    }
-
-    /**
      * Play a Pyramid Solitaire game.
      */
+    @Override
     public void play() throws PlayException {
         Settings.InputFontMono = true;
         if (isPreview()) {
@@ -175,12 +119,12 @@ public class PyramidPlayer extends SolitairePlayer {
 
     /**
      * Given a deck of cards in a file, just print out the solution(s) but don't do
-     * any Sikuli-based automation to play the game for you.
+     * any SikuliX-based automation to play the game for you.
      *
      * @throws PlayException if the user cancels while the program is verifying the deck of cards
      */
     private void preview() throws PlayException {
-        List<String> cards = readCardsFromFile(deckFilename);
+        List<String> cards = readCardsFromFile(getDeckFilename());
         Deck deck = buildDeck(cards);
         Map<String, List<Action>> solutions = solver.solve(deck);
         printSolutions(solutions);
@@ -188,13 +132,13 @@ public class PyramidPlayer extends SolitairePlayer {
 
     /**
      * Automatically solve the currently displayed Microsoft Solitaire Collection
-     * Pyramid Solitaire game, using Sikuli to automate the actions and scan the screen.
+     * Pyramid Solitaire game, using SikuliX to automate the actions and scan the screen.
      *
      * @throws PlayException if there's a problem while playing the game
      */
     private void autoPlay() throws PlayException {
         // Each time we call positionForPlay(), we're making sure the MSC window is
-        // in a known state and in the foreground so no weird stuff happens when Sikuli
+        // in a known state and in the foreground so no weird stuff happens when SikuliX
         // is doing its work.
         MSCWindow.positionForPlay();
         Settings.InputFontSize = (int) (14 * (MSCWindow.getPercentScaling() / 100.0));
@@ -208,21 +152,6 @@ public class PyramidPlayer extends SolitairePlayer {
         List<Action> solutionToPlay = chooseSolution(solutions);
         MSCWindow.positionForPlay();
         playSolution(solutionToPlay, window);
-    }
-
-    /**
-     * Given a filename containing cards, read the cards into a list of cards,
-     * which are two-letter strings.
-     *
-     * @param filename the filename containing a deck of cards
-     * @return a list of the cards in the file
-     */
-    private List<String> readCardsFromFile(String filename) throws PlayException {
-        try {
-            return Arrays.asList(new String(Files.readAllBytes(Paths.get(filename))).trim().split("\\s+"));
-        } catch (IOException ex) {
-            throw new PlayException("Unable to read " + filename, ex);
-        }
     }
 
     /**
@@ -314,7 +243,7 @@ public class PyramidPlayer extends SolitairePlayer {
                 solution = solutions.get(solutionDescription);
                 break;
             default:
-                String[] keys = solutions.keySet().toArray(new String[solutions.keySet().size()]);
+                String[] keys = solutions.keySet().toArray(new String[0]);
                 Arrays.sort(keys);
                 String message = "Select a solution, Cancel to exit without automatically playing.";
                 String title = "Multiple Solutions Found";
@@ -368,65 +297,6 @@ public class PyramidPlayer extends SolitairePlayer {
                     break;
             }
         }
-    }
-
-    /**
-     * Check if a a list of cards is missing any of the standard 52 cards.
-     *
-     * @param cards a list of cards being played in Pyramid Solitaire
-     * @return a list (possibly empty) of the cards missing in the Deck
-     */
-    private List<String> missingCards(List<String> cards) {
-        List<String> missingCards = new ArrayList<>();
-        Set<String> cardSet = new HashSet<>(cards);
-        for (char suit : "cdhs".toCharArray()) {
-            for (char rank : "A23456789TJQK".toCharArray()) {
-                String card = "" + rank + suit;
-                if (!cardSet.contains(card)) {
-                    missingCards.add(card);
-                }
-            }
-        }
-        return missingCards;
-    }
-
-    /**
-     * Return a list of duplicate cards found in the list of cards
-     *
-     * @param cards a list of cards
-     * @return a list of the duplicate cards in the given card list
-     */
-    private List<String> duplicateCards(List<String> cards) {
-        List<String> duplicateCards = new ArrayList<>();
-        Set<String> cardSet = new HashSet<>();
-        for (String card : cards) {
-            if (cardSet.contains(card)) {
-                duplicateCards.add(card);
-            } else {
-                cardSet.add(card);
-            }
-        }
-        return duplicateCards;
-    }
-
-    /**
-     * Return a list of malformed cards, that aren't two letter strings with a
-     * rank character (A23456789TJQK) and a suit character (cdhs).
-     *
-     * @param cards a list of cards
-     * @return a list of the malformed cards in the given card list
-     */
-    private List<String> malformedCards(List<String> cards) {
-        List<String> malformedCards = new ArrayList<>();
-        for (String card : cards) {
-            if ((card == null) ||
-                    (card.length() != 2) ||
-                    ("A23456789TJQK".indexOf(card.charAt(0)) == -1) ||
-                    ("cdhs".indexOf(card.charAt(1)) == -1)) {
-                malformedCards.add(card);
-            }
-        }
-        return malformedCards;
     }
 
     /**
