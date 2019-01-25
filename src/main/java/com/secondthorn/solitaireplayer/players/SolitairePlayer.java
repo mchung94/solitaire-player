@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * An abstract base class to represent Sikuli-automated solitaire players. Each subclass should
- * use Sikuli to automatically play a running instance of Microsoft Solitaire Collection on Windows 10.
+ * An abstract base class to represent SikuliX-automated solitaire players. Each subclass should
+ * use SikuliX to automatically play a running instance of Microsoft Solitaire Collection on Windows 10.
  * They should not implement game-solving logic themselves, but instead consult solvers in the solvers package
  * to find out what to look for and click on.
  */
@@ -21,14 +21,12 @@ public abstract class SolitairePlayer {
     /**
      * Subclasses implement this method to automate playing a solitaire game that has just started.
      */
-    public abstract void play() throws PlayException;
+    public abstract void autoplay() throws PlayException;
 
     /**
-     * If a file containing a deck of cards consisting of two-letter strings of
-     * rank (A23456789TJQK) and suit (cdhs) is passed in through the command line, then
-     * just print the solution for that deck of cards without doing any GUI automation.
+     * Subclasses implement this method to read the filename and print out steps to follow without automation.
      */
-    private String deckFilename;
+    public abstract void preview(String filename) throws PlayException;
 
     /**
      * A static factory method to instantiate Solitaire Players.
@@ -42,7 +40,7 @@ public abstract class SolitairePlayer {
             throw new IllegalArgumentException("Too few arguments to create a solitaire player.");
         }
         String game = args[0];
-        String[] remainingArgs = Arrays.copyOfRange(args, 1, args.length);
+        args = Arrays.copyOfRange(args, 1, args.length);
         SolitairePlayer player;
         switch (game) {
             case "Klondike":
@@ -51,7 +49,7 @@ public abstract class SolitairePlayer {
             case "TriPeaks":
                 throw new IllegalArgumentException(game + " is not implemented yet.");
             case "Pyramid":
-                player = new PyramidPlayer(remainingArgs);
+                player = new PyramidPlayer(args);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown game: " + game);
@@ -86,51 +84,6 @@ public abstract class SolitairePlayer {
         } else {
             throw new IllegalArgumentException("The command line arg \"" + s + "\" must be a card rank.");
         }
-    }
-
-    /**
-     * Look for a [-f filename] in the command line and return the filename.
-     *
-     * @param args command line arguments
-     * @return the filename if found, otherwise null
-     */
-    protected String getDeckFilenameFromArgs(String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-f")) {
-                return args[i + 1];
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Remove a [-f filename] from the command line args if it exists.
-     * Here, "[-f filename]" means two optional args, a "-f" followed directly by a filename.
-     *
-     * @param args command line arguments
-     * @return the command line arguments with [-f filename] removed
-     */
-    protected String[] removeDeckFilenameFromArgs(String[] args) {
-        String[] newArgs = new String[args.length - 2];
-        int newArgsOffset = 0;
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-f")) {
-                i++;
-            } else {
-                newArgs[newArgsOffset++] = args[i];
-            }
-        }
-        return newArgs;
-    }
-
-    /**
-     * Return true if we're just solving a given deck from a filename, and printing out
-     * the solution instead of actually automatically playing the game.
-     *
-     * @return true if we should just print a solution and not take over the GUI to play the game
-     */
-    protected boolean isPreview() {
-        return deckFilename != null;
     }
 
     /**
@@ -205,13 +158,5 @@ public abstract class SolitairePlayer {
         } catch (IOException ex) {
             throw new PlayException("Unable to read " + filename, ex);
         }
-    }
-
-    public String getDeckFilename() {
-        return deckFilename;
-    }
-
-    public void setDeckFilename(String deckFilename) {
-        this.deckFilename = deckFilename;
     }
 }

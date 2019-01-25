@@ -168,8 +168,8 @@ class PyramidWindow {
      * @throws PlayException if there's a problem determining the correct resource directory
      */
     private String findResourceDir() throws PlayException {
-        String scaleDir = "pyramid/" + MSCWindow.getSizeString() + "/";
-        if (pyramidImageExists(scaleDir + "Pyramid.png")) {
+        String scaleDir = "Pyramid/" + MSCWindow.getSizeString() + "/";
+        if (pyramidImageExists(scaleDir + "Game.png")) {
             return scaleDir;
         } else {
             throw new PlayException("Unable to detect if we're playing a game of Pyramid Solitaire");

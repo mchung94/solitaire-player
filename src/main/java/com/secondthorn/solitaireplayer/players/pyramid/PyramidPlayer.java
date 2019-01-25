@@ -61,34 +61,15 @@ public class PyramidPlayer extends SolitairePlayer {
      * @param args command line args
      */
     public PyramidPlayer(String[] args) {
-        if (args.length < 1) {
-            throw new IllegalArgumentException("Missing goal for Pyramid Solitaire");
-        }
-        setDeckFilename(getDeckFilenameFromArgs(args));
-        if (getDeckFilename() != null) {
-            args = removeDeckFilenameFromArgs(args);
-        }
         String goalType = args[0];
         switch (goalType) {
             case "Board":
-                if (args.length != 1) {
-                    throw new IllegalArgumentException("Wrong number of args for Pyramid Solitaire Board Challenge");
-                }
                 solver = new BoardChallengeSolver();
                 break;
             case "Score":
-                switch (args.length) {
-                    case 1:
-                        solver = new ScoreChallengeSolver();
-                        break;
-                    case 3:
-                        int goalScore = parseInt(args[1]);
-                        int currentScore = parseInt(args[2]);
-                        solver = new ScoreChallengeSolver(goalScore, currentScore);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Wrong number of args for Pyramid Solitaire Score Challenge");
-                }
+                int goalScore = (args.length > 1) ? parseInt(args[1]) : ScoreChallengeSolver.MAX_POSSIBLE_SCORE;
+                int currentScore = (args.length > 2) ? parseInt(args[2]) : 0;
+                solver = new ScoreChallengeSolver(goalScore, currentScore);
                 break;
             case "Card":
                 if (args.length != 4) {
@@ -105,26 +86,14 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Play a Pyramid Solitaire game.
-     */
-    @Override
-    public void play() throws PlayException {
-        Settings.InputFontMono = true;
-        if (isPreview()) {
-            preview();
-        } else {
-            autoPlay();
-        }
-    }
-
-    /**
      * Given a deck of cards in a file, just print out the solution(s) but don't do
      * any SikuliX-based automation to play the game for you.
      *
      * @throws PlayException if the user cancels while the program is verifying the deck of cards
      */
-    private void preview() throws PlayException {
-        List<String> cards = readCardsFromFile(getDeckFilename());
+    @Override
+    public void preview(String filename) throws PlayException {
+        List<String> cards = readCardsFromFile(filename);
         Deck deck = buildDeck(cards);
         Map<String, List<Action>> solutions = solver.solve(deck);
         printSolutions(solutions);
@@ -136,7 +105,8 @@ public class PyramidPlayer extends SolitairePlayer {
      *
      * @throws PlayException if there's a problem while playing the game
      */
-    private void autoPlay() throws PlayException {
+    @Override
+    public void autoplay() throws PlayException {
         // Each time we call positionForPlay(), we're making sure the MSC window is
         // in a known state and in the foreground so no weird stuff happens when SikuliX
         // is doing its work.

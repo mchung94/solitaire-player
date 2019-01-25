@@ -24,7 +24,7 @@ public class ScoreChallengeSolver implements PyramidSolver {
      * clearing the pyramid.  Note: If you clear the pyramid, you can no longer continue
      * playing to remove any more cards in the deck or waste piles.
      */
-    private static final int MAX_POSSIBLE_SCORE = 1290;
+    public static final int MAX_POSSIBLE_SCORE = 1290;
 
     /**
      * Bit masks to apply to a state to see if a row has been cleared, starting from
@@ -67,14 +67,6 @@ public class ScoreChallengeSolver implements PyramidSolver {
      * after it finds a solution in the solve method.
      */
     private int bestScore;
-
-    /**
-     * Create a ScoreChallengeSolver to find the maximum scoring solution without a goal
-     * score - just get the highest score possible.
-     */
-    public ScoreChallengeSolver() {
-        pointsNeeded = MAX_POSSIBLE_SCORE;
-    }
 
     /**
      * Create a ScoreChallengeSolver to find the maximum scoring solution or the solution

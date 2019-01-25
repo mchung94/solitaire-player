@@ -1,6 +1,7 @@
 package com.secondthorn.solitaireplayer.app;
 
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
+import org.sikuli.basics.Settings;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,16 +23,22 @@ public class CommandLineMain {
             printHelp();
             System.exit(0);
         }
-        SolitairePlayer player = null;
+        Settings.InputFontMono = true;
+        String filename = getFilenameFromArgs(args);
+        if (filename != null) {
+            args = removeFilenameFromArgs(args);
+        }
         try {
-            player = SolitairePlayer.newInstance(args);
+            SolitairePlayer player = SolitairePlayer.newInstance(args);
+            if (filename != null) {
+                player.preview(filename);
+            } else {
+                player.autoplay();
+            }
         } catch (IllegalArgumentException ex) {
             System.err.println("Command Line Argument Problem: " + ex.getMessage());
             printUsage();
             System.exit(2);
-        }
-        try {
-            player.play();
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
@@ -64,4 +71,38 @@ public class CommandLineMain {
         }
     }
 
+    /**
+     * Look for a [-f filename] in the command line and return the filename.
+     *
+     * @param args command line arguments
+     * @return the filename if found, otherwise null
+     */
+    private static String getFilenameFromArgs(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-f")) {
+                return args[i + 1];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Remove a [-f filename] from the command line args if it exists.
+     * Here, "[-f filename]" means two optional args, a "-f" followed directly by a filename.
+     *
+     * @param args command line arguments
+     * @return the command line arguments with [-f filename] removed
+     */
+    private static String[] removeFilenameFromArgs(String[] args) {
+        String[] newArgs = new String[args.length - 2];
+        int newArgsOffset = 0;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-f")) {
+                i++;
+            } else {
+                newArgs[newArgsOffset++] = args[i];
+            }
+        }
+        return newArgs;
+    }
 }

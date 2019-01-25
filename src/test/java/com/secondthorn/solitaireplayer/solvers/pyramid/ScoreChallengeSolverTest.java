@@ -32,7 +32,7 @@ public class ScoreChallengeSolverTest {
 
     @Test
     public void testForDeadEndAnswer() {
-        ScoreChallengeSolver solver = new ScoreChallengeSolver();
+        ScoreChallengeSolver solver = new ScoreChallengeSolver(ScoreChallengeSolver.MAX_POSSIBLE_SCORE, 0);
         String cards = "4s 4d 4h Ah As 4c Qh Qd Qc Ad Th Ts 3s Ac Qs Jc Jd Jh Js Tc Td 2c 2d 2h 2s 3c " +
                        "3d 3h Kc Kd Kh Ks 5c 6c 7c 8c 9c 5d 6d 7d 8d 9d 5h 6h 7h 8h 9h 5s 6s 7s 8s 9s";
         Deck deck = new Deck(cards);
