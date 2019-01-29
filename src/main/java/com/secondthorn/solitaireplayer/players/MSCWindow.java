@@ -108,6 +108,9 @@ public abstract class MSCWindow {
      * Instantly move the mouse cursor to the given (X, Y) virtual screen coordinates. The virtual screen is a
      * bounding box around all the monitors, where (0, 0) is the top left corner of the primary monitor, not the
      * virtual screen.  So virtual screen coordinates can be negative.
+     * <p>
+     * Cursor movement already exists in the java.awt.Robot class but with JDK 8 it has issues with multi-monitor and
+     * HiDPI setups.  This is a workaround until we can require users to have JDK 11.
      * @param x the virtual screen X coordinate to move the mouse cursor to
      * @param y the virtual screen Y coordinate to move the mouse cursor to
      */
@@ -161,6 +164,10 @@ public abstract class MSCWindow {
 
     /**
      * Clicks the primary mouse button on the center of the SikuliX region.
+     * <p>
+     * SikuliX already has a region click but due to mouse movement issues with JDK 8 and multi-monitor / HiDPI setups,
+     * it is currently re-implemented here using a custom mouse movement method.  This may be revisited after we begin
+     * to require JDK 11.
      * @param region the region to click on
      * @throws InterruptedException if the thread is interrupted
      */
