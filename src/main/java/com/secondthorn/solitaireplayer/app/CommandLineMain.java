@@ -9,8 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * A command line app to automatically solve and play Microsoft Solitaire
- * Collection games on Windows 10.
+ * A command line app to automatically solve and play Microsoft Solitaire Collection games on Windows 10.
  */
 public class CommandLineMain {
     /**
@@ -46,8 +45,8 @@ public class CommandLineMain {
     }
 
     /**
-     * Print a short and simple usage message.  The command line args are complicated,
-     * so it emphasizes how to print out more detailed help.
+     * Print a short and simple usage message. The command line args are complicated, so it emphasizes how to print
+     * out more detailed help.
      */
     private static void printUsage() {
         System.err.println("Usage: solitaire-player.bat <Game> <Goal> [additional args for goal]");

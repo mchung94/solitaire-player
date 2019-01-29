@@ -1,4 +1,4 @@
-package com.secondthorn.solitaireplayer.players.tripeaks;
+package com.secondthorn.solitaireplayer.players;
 
 import org.sikuli.script.Region;
 
@@ -10,6 +10,7 @@ import org.sikuli.script.Region;
 public class Regions {
     private Region[] tableau;
     private Region waste;
+    private Region stock;
 
     /**
      * Return the regions for the 28 tableau cards (also known as the board or TriPeaks).
@@ -24,5 +25,11 @@ public class Regions {
     public Region getWaste() {
         return waste;
     }
-}
 
+    /**
+     * Return the region for the stock pile.
+     */
+    public Region getStock() {
+        return stock;
+    }
+}

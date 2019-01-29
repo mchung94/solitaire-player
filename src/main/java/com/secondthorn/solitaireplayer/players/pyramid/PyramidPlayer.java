@@ -1,6 +1,5 @@
 package com.secondthorn.solitaireplayer.players.pyramid;
 
-import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
 import com.secondthorn.solitaireplayer.solvers.pyramid.Action;
@@ -9,7 +8,6 @@ import com.secondthorn.solitaireplayer.solvers.pyramid.CardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.Deck;
 import com.secondthorn.solitaireplayer.solvers.pyramid.PyramidSolver;
 import com.secondthorn.solitaireplayer.solvers.pyramid.ScoreChallengeSolver;
-import org.sikuli.basics.Settings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,17 +19,12 @@ import static org.sikuli.script.Sikulix.popAsk;
 import static org.sikuli.script.Sikulix.popSelect;
 
 /**
- * A class that uses SikuliX to automate playing a game of Pyramid Solitaire in
- * Windows 10's Microsoft Solitaire Collection.  It can also just print out the solution
- * without playing, when given a filename containing cards to solve.
+ * Guides the user through a game of Pyramid Solitaire. It interacts with the Microsoft Solitaire Collection window as
+ * well as the user, from the start of the game until a solution is played or reported.
  */
 public class PyramidPlayer extends SolitairePlayer {
     /**
-     * When a board can't be cleared at all, the fastest list of steps to follow is to
-     * just Draw/Recycle cards until you can't anymore.  One interesting thing to note is that
-     * in Microsoft Solitaire Collection on Windows 10, if you keep drawing/recycling cards until you can't
-     * draw or recycle anymore, the game can end, even if there's still cards on the pyramid you can still
-     * remove (at least as of June 2017).
+     * A list of steps to lose quickly for Board Challenges that can't be cleared.
      */
     private static List<Action> loseQuickly;
 
@@ -48,17 +41,22 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * A Pyramid Solitaire solver - figures out the solution given a deck of cards.
+     * Figures out the steps to take to reach the solitaire goal.
      */
     private PyramidSolver solver;
 
     /**
-     * Create a new PyramidPlayer instance based on command line args.
-     * It will throw IllegalArgumentException if the args don't make sense.
-     * The player can specialize in either clearing the pyramid/board, maximizing score, or
-     * clearing cards of a certain rank.
+     * Creates a new PyramidPlayer instance based on command line args for Board, Score, or Card Challenges.
+     * The args can be:
+     * <ul>
+     *     <li>Board</li>
+     *     <li>Score</li>
+     *     <li>Score [goal score] [current score]</li>
+     *     <li>Card [goal number of cards to clear] [goal card rank] [current number of cards cleared]</li>
+     * </ul>
      *
-     * @param args command line args
+     * @param args command line args describing the goal for the solution
+     * @throws IllegalArgumentException if the args don't properly describe a challenge
      */
     public PyramidPlayer(String[] args) {
         String goalType = args[0];
@@ -86,8 +84,29 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Given a deck of cards in a file, just print out the solution(s) but don't do
-     * any SikuliX-based automation to play the game for you.
+     * Plays the currently displayed Microsoft Solitaire Collection Pyramid Solitaire game, using SikuliX to automate
+     * the actions and scan the cards on the screen.
+     *
+     * @throws InterruptedException if the thread is interrupted
+     * @throws PlayException        if there's a problem while playing the game
+     */
+    @Override
+    public void autoplay() throws InterruptedException, PlayException {
+        PyramidWindow window = new PyramidWindow();
+        window.undoBoard();
+        window.moveMouse(0, 0);
+        List<String> cards = scanCardsOnScreen(window);
+        Deck deck = buildDeck(cards);
+        Map<String, List<Action>> solutions = solver.solve(deck);
+        printSolutions(solutions);
+        List<Action> solutionToPlay = chooseSolution(solutions);
+        window.undoBoard();
+        window.moveMouse(0, 0);
+        playSolution(solutionToPlay, window);
+    }
+
+    /**
+     * Prints out the solution(s) but doesn't do any SikuliX-based automation to play the game.
      *
      * @throws PlayException if the user cancels while the program is verifying the deck of cards
      */
@@ -100,34 +119,8 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Automatically solve the currently displayed Microsoft Solitaire Collection
-     * Pyramid Solitaire game, using SikuliX to automate the actions and scan the screen.
-     *
-     * @throws PlayException if there's a problem while playing the game
-     */
-    @Override
-    public void autoplay() throws PlayException {
-        // Each time we call positionForPlay(), we're making sure the MSC window is
-        // in a known state and in the foreground so no weird stuff happens when SikuliX
-        // is doing its work.
-        MSCWindow.positionForPlay();
-        Settings.InputFontSize = (int) (14 * (MSCWindow.getPercentScaling() / 100.0));
-        PyramidWindow window = new PyramidWindow();
-        window.undoBoard();
-        MSCWindow.positionForPlay();
-        List<String> cards = scanCardsOnScreen(window);
-        Deck deck = buildDeck(cards);
-        Map<String, List<Action>> solutions = solver.solve(deck);
-        printSolutions(solutions);
-        List<Action> solutionToPlay = chooseSolution(solutions);
-        MSCWindow.positionForPlay();
-        playSolution(solutionToPlay, window);
-    }
-
-    /**
-     * Print all solutions to the given deck, according to the solver.
-     * There may be more than one solution when playing a Card Challenge, so the interface is
-     * always a mapping from solution description string to a list of Actions.
+     * Prints all solutions to the given deck, according to the solver. There may be more than one solution when playing
+     * a Card Challenge, so the input is a mapping from solution description string to a list of Actions.
      *
      * @param solutions the results from the Pyramid Solitaire solver
      */
@@ -141,17 +134,17 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Build and return the Deck of cards currently being played.
-     * Ask the user to verify and fix if necessary.
+     * Returns the Deck of cards currently being played. Asks the user to verify and fix if necessary.
      *
      * @param cards a list of cards (a rough draft to be verified and corrected by the user)
      * @return A 52 card Deck object
-     * @throws PlayException if we're unable to read 52 cards, regardless of mistakes while reading
+     * @throws PlayException if the user cancels verification and wants to exit
      */
     private Deck buildDeck(List<String> cards) throws PlayException {
         List<String> missing = missingCards(cards);
         List<String> duplicates = duplicateCards(cards);
         List<String> malformed = malformedCards(cards);
+        long numUnknownCards = numUnknownCards(cards);
         do {
             String message = "Please verify the list of cards is correct and edit if necessary.";
             message += "\nClick Cancel to quit.";
@@ -159,6 +152,7 @@ public class PyramidPlayer extends SolitairePlayer {
             message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
             message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
             message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
+            message += "\nUnknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
             String newDeckText = inputText(message, "Deck Verification", 8, 72, pyramidString(cards));
             if (newDeckText == null) {
                 throw new PlayException("User cancelled verification of deck cards and the program will quit.");
@@ -167,19 +161,21 @@ public class PyramidPlayer extends SolitairePlayer {
             missing = missingCards(cards);
             duplicates = duplicateCards(cards);
             malformed = malformedCards(cards);
+            numUnknownCards = numUnknownCards(cards);
         } while ((cards.size() != 52) || (missing.size() > 0) || (duplicates.size() > 0) || (malformed.size() > 0));
         return new Deck(cards);
     }
 
     /**
-     * Look through all the cards in the game and return a list of the cards seen.
-     * Basically, we scan through all the cards on the Pyramid, then flip through all the cards
-     * in the deck looking at each one.
+     * Looks through all the cards in the game and returns a list of the cards seen.
+     * The cards may be wrong and must be verified and corrected by the user.
      *
      * @param window the PyramidWindow to help read cards on the screen
-     * @return A List of all the cards found on the screen
+     * @return a list of all the cards found on the screen
+     * @throws InterruptedException if the thread is interrupted
+     * @throws PlayException if there's a problem looking for cards in the Microsoft Solitaire Collection window
      */
-    private List<String> scanCardsOnScreen(PyramidWindow window) {
+    private List<String> scanCardsOnScreen(PyramidWindow window) throws InterruptedException, PlayException {
         List<String> cards = new ArrayList<>();
         for (int i = 0; i < 28; i++) {
             cards.add(window.cardAtPyramid(i));
@@ -194,11 +190,11 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Out of a list of solutions returned by the solver, figure out which one to play and return it.
+     * Given zero or more solutions from the solver, have the user select one, or cancel and exit.
      *
      * @param solutions a list of solutions generated by the solver
      * @return one of the solutions, a list of Actions
-     * @throws PlayException if the number of solutions is unexpected (not one or two solutions)
+     * @throws PlayException if the user cancels and wants to exit without automatically playing the game
      */
     private List<Action> chooseSolution(Map<String, List<Action>> solutions) throws PlayException {
         List<Action> solution;
@@ -235,13 +231,14 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Given a list of actions by the solver, perform them on the game window.
+     * Performs a list of actions generated by the solver on the game window.
      *
      * @param solution a list of Actions to perform
-     * @param window   the Pyramid Window to perform the actions on
+     * @param window   the PyramidWindow to perform the actions on
+     * @throws InterruptedException if the thread is interrupted
+     * @throws PlayException        if there's a problem clicking on cards
      */
-    private void playSolution(List<Action> solution, PyramidWindow window) {
-        window.undoBoard();
+    private void playSolution(List<Action> solution, PyramidWindow window) throws InterruptedException, PlayException {
         for (Action action : solution) {
             switch (action.getCommand()) {
                 case DRAW:
@@ -270,38 +267,24 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Given a list of cards, return a single String containing the cards dealt out
-     * in a Pyramid Solitaire pattern.  It contains the 28 card pyramid, and a list
-     * of the rest of the cards starting from the top of the stock pile to the bottom.
-     * It expects a full deck of 52 or close to it.
+     * Returns a String containing the cards in a Pyramid Solitaire pattern. It contains the 28 card pyramid, and a
+     * list of the rest of the cards starting from the top of the stock pile to the bottom.
+     * The argument must be a list of 52 cards (some may be unknown, represented by ??)
      *
      * @param cards a list of cards
      * @return a String representation of the cards laid out in a Pyramid Solitaire game setup
      */
     String pyramidString(List<String> cards) {
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        for (int i = 0; i < 7; i++) {
-            for (int j = 0; j < 12 - (i * 2); j++) {
-                sb.append(" ");
-            }
-            for (int j = 0; j < i + 1; j++) {
-                sb.append(cards.get(count));
-                if (j < i) {
-                    sb.append("  ");
-                }
-                count++;
-            }
-            sb.append("\n");
-        }
-        while (count < cards.size()) {
-            sb.append(cards.get(count));
-            count++;
-            if (count < 52) {
-                sb.append(" ");
-            }
-        }
-        return sb.toString();
+        return String.format(
+                "            %s\n" +
+                        "          %s  %s\n" +
+                        "        %s  %s  %s\n" +
+                        "      %s  %s  %s  %s\n" +
+                        "    %s  %s  %s  %s  %s\n" +
+                        "  %s  %s  %s  %s  %s  %s\n" +
+                        "%s  %s  %s  %s  %s  %s  %s\n" +
+                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+                cards.toArray());
     }
 
 }

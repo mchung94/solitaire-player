@@ -17,16 +17,16 @@ import java.io.IOException;
  * classes involved too.  So far I think this is the simplest way to create Region objects based on JSON data.
  */
 public class RegionDeserializer extends StdDeserializer<Region> {
-    public RegionDeserializer(Class<?> vc) {
+    private RegionDeserializer(Class<?> vc) {
         super(vc);
     }
 
-    public static <T> T createRegions(String regionsJsonFilename, Class<T> valueType) throws PlayException {
+    static Regions createRegions(String regionsJsonFilename) throws PlayException {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule().addDeserializer(Region.class, new RegionDeserializer(null));
         mapper.registerModule(module);
         try {
-            return mapper.readValue(ClassLoader.getSystemResource(regionsJsonFilename), valueType);
+            return mapper.readValue(ClassLoader.getSystemResource(regionsJsonFilename), Regions.class);
         } catch (IOException ex) {
             throw new PlayException("Unable to load " + regionsJsonFilename, ex);
         }
