@@ -2,7 +2,6 @@ package com.secondthorn.solitaireplayer.players.tripeaks;
 
 import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
-import org.sikuli.basics.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +15,29 @@ public class TriPeaksPlayer extends SolitairePlayer {
         String challenge = args[0];
         switch (challenge) {
             case "Board":
+                System.out.println("Starting a TriPeaks Solitaire Board Challenge...");
                 break;
             case "Score":
+                int goalScore = (args.length > 1) ? parseInt(args[1]) : 84900;
+                int currentScore = (args.length > 2) ? parseInt(args[2]) : 0;
+                System.out.print("Starting a TriPeaks Solitaire Score Challenge: ");
+                if (args.length == 1) {
+                    System.out.println("find the maximum possible score...");
+                } else {
+                    System.out.println("go from " + currentScore + " to " + goalScore + " points...");
+                }
                 break;
             case "Card":
+                if (args.length != 4) {
+                    throw new IllegalArgumentException("Wrong number of args for TriPeaks Solitaire Card Challenge");
+                }
+                int goalNumCardsToClear = parseInt(args[1]);
+                char cardRankToClear = parseCardRank(args[2]);
+                int currentNumCardsCleared = parseInt(args[3]);
+                System.out.print("Starting a TriPeaks Solitaire Card Challenge: ");
+                System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear );
+                System.out.println(", with " + currentNumCardsCleared + " cleared so far");
+
                 break;
             default:
                 throw new IllegalArgumentException("Unknown challenge type for TriPeaks Solitaire: " + challenge);

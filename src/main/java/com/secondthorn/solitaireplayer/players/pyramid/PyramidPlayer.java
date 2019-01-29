@@ -63,11 +63,18 @@ public class PyramidPlayer extends SolitairePlayer {
         switch (goalType) {
             case "Board":
                 solver = new BoardChallengeSolver();
+                System.out.println("Starting a Pyramid Solitaire Board Challenge...");
                 break;
             case "Score":
                 int goalScore = (args.length > 1) ? parseInt(args[1]) : ScoreChallengeSolver.MAX_POSSIBLE_SCORE;
                 int currentScore = (args.length > 2) ? parseInt(args[2]) : 0;
                 solver = new ScoreChallengeSolver(goalScore, currentScore);
+                System.out.print("Starting a Pyramid Solitaire Score Challenge: ");
+                if (args.length == 1) {
+                    System.out.println("find the maximum possible score...");
+                } else {
+                    System.out.println("go from " + currentScore + " to " + goalScore + " points...");
+                }
                 break;
             case "Card":
                 if (args.length != 4) {
@@ -77,6 +84,9 @@ public class PyramidPlayer extends SolitairePlayer {
                 char cardRankToClear = parseCardRank(args[2]);
                 int currentNumCardsCleared = parseInt(args[3]);
                 solver = new CardChallengeSolver(goalNumCardsToClear, cardRankToClear, currentNumCardsCleared);
+                System.out.print("Starting a Pyramid Solitaire Card Challenge: ");
+                System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear );
+                System.out.println(", with " + currentNumCardsCleared + " cleared so far");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown goal for Pyramid Solitaire: " + goalType);
