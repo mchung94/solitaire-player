@@ -288,7 +288,7 @@ public abstract class MSCWindow {
     /**
      * Represents Windows DPI awareness contexts - here it is used to see the true resolution of the display.
      */
-    private static class DPI_AWARENESS_CONTEXT extends WinNT.HANDLE {
+    public static class DPI_AWARENESS_CONTEXT extends WinNT.HANDLE {
         static final DPI_AWARENESS_CONTEXT PER_MONITOR_AWARE_V2 = new DPI_AWARENESS_CONTEXT(-4);
 
         public DPI_AWARENESS_CONTEXT() {
