@@ -2,6 +2,7 @@ package com.secondthorn.solitaireplayer.players.tripeaks;
 
 import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.Deck;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
                 char cardRankToClear = parseCardRank(args[2]);
                 int currentNumCardsCleared = parseInt(args[3]);
                 System.out.print("Starting a TriPeaks Solitaire Card Challenge: ");
-                System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear );
+                System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear);
                 System.out.println(", with " + currentNumCardsCleared + " cleared so far");
 
                 break;
@@ -56,6 +57,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
         TriPeaksWindow window = new TriPeaksWindow();
         window.moveMouse(0, 0);
         List<String> cards = scanCardsOnScreen(window);
+        Deck deck = new Deck(cards);
     }
 
     /**
@@ -76,7 +78,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
      * @param window the TriPeaksWindow to help read cards on the screen
      * @return a list of all the cards found on the screen
      * @throws InterruptedException if the thread is interrupted
-     * @throws PlayException if there's a problem looking for cards in the Microsoft Solitaire Collection window
+     * @throws PlayException        if there's a problem looking for cards in the Microsoft Solitaire Collection window
      */
     private List<String> scanCardsOnScreen(TriPeaksWindow window) throws InterruptedException, PlayException {
         window.undoBoard();
@@ -105,11 +107,12 @@ public class TriPeaksPlayer extends SolitairePlayer {
     private String cardsToString(List<String> cards) {
         return String.format(
                 "      %s          %s          %s\n" +
-                        "    %s  %s      %s  %s      %s  %s\n" +
-                        "  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
-                        "%s  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
-                        "%s\n" +
-                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
-                cards.toArray());
+                "    %s  %s      %s  %s      %s  %s\n" +
+                "  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
+                "%s  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
+                "%s\n" +
+                "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+                cards.toArray()
+        );
     }
 }
