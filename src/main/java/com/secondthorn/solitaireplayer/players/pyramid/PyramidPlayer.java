@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.sikuli.script.Sikulix.inputText;
 import static org.sikuli.script.Sikulix.popAsk;
 import static org.sikuli.script.Sikulix.popSelect;
 
@@ -49,10 +48,10 @@ public class PyramidPlayer extends SolitairePlayer {
      * Creates a new PyramidPlayer instance based on command line args for Board, Score, or Card Challenges.
      * The args can be:
      * <ul>
-     *     <li>Board</li>
-     *     <li>Score</li>
-     *     <li>Score [goal score] [current score]</li>
-     *     <li>Card [goal number of cards to clear] [goal card rank] [current number of cards cleared]</li>
+     * <li>Board</li>
+     * <li>Score</li>
+     * <li>Score [goal score] [current score]</li>
+     * <li>Card [goal number of cards to clear] [goal card rank] [current number of cards cleared]</li>
      * </ul>
      *
      * @param args command line args describing the goal for the solution
@@ -85,7 +84,7 @@ public class PyramidPlayer extends SolitairePlayer {
                 int currentNumCardsCleared = parseInt(args[3]);
                 solver = new CardChallengeSolver(goalNumCardsToClear, cardRankToClear, currentNumCardsCleared);
                 System.out.print("Starting a Pyramid Solitaire Card Challenge: ");
-                System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear );
+                System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear);
                 System.out.println(", with " + currentNumCardsCleared + " cleared so far");
                 break;
             default:
@@ -106,7 +105,7 @@ public class PyramidPlayer extends SolitairePlayer {
         window.undoBoard();
         window.moveMouse(0, 0);
         List<String> cards = scanCardsOnScreen(window);
-        Deck deck = buildDeck(cards);
+        Deck deck = new Deck(verifyCards(cards));
         Map<String, List<Action>> solutions = solver.solve(deck);
         printSolutions(solutions);
         List<Action> solutionToPlay = chooseSolution(solutions);
@@ -123,9 +122,55 @@ public class PyramidPlayer extends SolitairePlayer {
     @Override
     public void preview(String filename) throws PlayException {
         List<String> cards = readCardsFromFile(filename);
-        Deck deck = buildDeck(cards);
+        Deck deck = new Deck(verifyCards(cards));
         Map<String, List<Action>> solutions = solver.solve(deck);
         printSolutions(solutions);
+    }
+
+    /**
+     * Returns true if the list of cards works for playing Pyramid Solitaire.  It must be a standard deck of 52 cards
+     * without any unknown cards.
+     *
+     * @param cards           a list of cards to check
+     * @param missing         the cards in the list that are missing from the standard 52 card deck
+     * @param duplicates      the cards in the list that are duplicates, not including unknown cards
+     * @param malformed       the cards in the list that are not cards and not unknown cards (garbage input)
+     * @param numUnknownCards the number of unknown cards, represented by "??""
+     * @return true if the list of cards is suitable for playing Pyramid Solitaire.
+     */
+    @Override
+    protected boolean isValidCards(List<String> cards,
+                                   List<String> missing,
+                                   List<String> duplicates,
+                                   List<String> malformed,
+                                   long numUnknownCards) {
+        return ((cards.size() == 52) &&
+                (missing.size() == 0) &&
+                (duplicates.size() == 0) &&
+                (malformed.size() == 0) &&
+                (numUnknownCards == 0));
+    }
+
+    /**
+     * Returns a String containing the cards in a Pyramid Solitaire pattern. It contains the 28 card pyramid, and a
+     * list of the rest of the cards starting from the top of the stock pile to the bottom.
+     * The argument must be a list of 52 cards (some may be unknown, represented by ??)
+     *
+     * @param cards a list of cards
+     * @return a String representation of the cards laid out in a Pyramid Solitaire game setup
+     */
+    @Override
+    protected String cardsToString(List<String> cards) {
+        return String.format(
+                "            %s\n" +
+                        "          %s  %s\n" +
+                        "        %s  %s  %s\n" +
+                        "      %s  %s  %s  %s\n" +
+                        "    %s  %s  %s  %s  %s\n" +
+                        "  %s  %s  %s  %s  %s  %s\n" +
+                        "%s  %s  %s  %s  %s  %s  %s\n" +
+                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+                cards.toArray());
     }
 
     /**
@@ -144,46 +189,13 @@ public class PyramidPlayer extends SolitairePlayer {
     }
 
     /**
-     * Returns the Deck of cards currently being played. Asks the user to verify and fix if necessary.
-     *
-     * @param cards a list of cards (a rough draft to be verified and corrected by the user)
-     * @return A 52 card Deck object
-     * @throws PlayException if the user cancels verification and wants to exit
-     */
-    private Deck buildDeck(List<String> cards) throws PlayException {
-        List<String> missing = missingCards(cards);
-        List<String> duplicates = duplicateCards(cards);
-        List<String> malformed = malformedCards(cards);
-        long numUnknownCards = numUnknownCards(cards);
-        do {
-            String message = "Please verify the list of cards is correct and edit if necessary.";
-            message += "\nClick Cancel to quit.";
-            message += "\nNumber of cards (should be 52): " + cards.size();
-            message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
-            message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
-            message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
-            message += "\nUnknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
-            String newDeckText = inputText(message, "Deck Verification", 8, 72, pyramidString(cards));
-            if (newDeckText == null) {
-                throw new PlayException("User cancelled verification of deck cards and the program will quit.");
-            }
-            cards = new ArrayList<>(Arrays.asList(newDeckText.trim().split("\\s+")));
-            missing = missingCards(cards);
-            duplicates = duplicateCards(cards);
-            malformed = malformedCards(cards);
-            numUnknownCards = numUnknownCards(cards);
-        } while ((cards.size() != 52) || (missing.size() > 0) || (duplicates.size() > 0) || (malformed.size() > 0));
-        return new Deck(cards);
-    }
-
-    /**
      * Looks through all the cards in the game and returns a list of the cards seen.
      * The cards may be wrong and must be verified and corrected by the user.
      *
      * @param window the PyramidWindow to help read cards on the screen
      * @return a list of all the cards found on the screen
      * @throws InterruptedException if the thread is interrupted
-     * @throws PlayException if there's a problem looking for cards in the Microsoft Solitaire Collection window
+     * @throws PlayException        if there's a problem looking for cards in the Microsoft Solitaire Collection window
      */
     private List<String> scanCardsOnScreen(PyramidWindow window) throws InterruptedException, PlayException {
         List<String> cards = new ArrayList<>();
@@ -275,26 +287,4 @@ public class PyramidPlayer extends SolitairePlayer {
             }
         }
     }
-
-    /**
-     * Returns a String containing the cards in a Pyramid Solitaire pattern. It contains the 28 card pyramid, and a
-     * list of the rest of the cards starting from the top of the stock pile to the bottom.
-     * The argument must be a list of 52 cards (some may be unknown, represented by ??)
-     *
-     * @param cards a list of cards
-     * @return a String representation of the cards laid out in a Pyramid Solitaire game setup
-     */
-    String pyramidString(List<String> cards) {
-        return String.format(
-                "            %s\n" +
-                        "          %s  %s\n" +
-                        "        %s  %s  %s\n" +
-                        "      %s  %s  %s  %s\n" +
-                        "    %s  %s  %s  %s  %s\n" +
-                        "  %s  %s  %s  %s  %s  %s\n" +
-                        "%s  %s  %s  %s  %s  %s  %s\n" +
-                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
-                cards.toArray());
-    }
-
 }

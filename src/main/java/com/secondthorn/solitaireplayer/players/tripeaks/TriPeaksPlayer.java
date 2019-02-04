@@ -57,7 +57,8 @@ public class TriPeaksPlayer extends SolitairePlayer {
         TriPeaksWindow window = new TriPeaksWindow();
         window.moveMouse(0, 0);
         List<String> cards = scanCardsOnScreen(window);
-        Deck deck = new Deck(cards);
+        Deck deck = new Deck(verifyCards(cards));
+        deck.toString();
     }
 
     /**
@@ -67,7 +68,57 @@ public class TriPeaksPlayer extends SolitairePlayer {
      */
     @Override
     public void preview(String filename) throws PlayException {
+        List<String> cards = readCardsFromFile(filename);
+        Deck deck = new Deck(verifyCards(cards));
 
+    }
+
+    /**
+     * Returns true if the list of cards works for playing TriPeaks Solitaire.  It must be a standard 52 card deck,
+     * but the first 18 tableau cards may be unknown.  The stock pile should be known before the game starts.
+     *
+     * @param cards           a list of cards to check
+     * @param missing         the cards in the list that are missing from the standard 52 card deck
+     * @param duplicates      the cards in the list that are duplicates, not including unknown cards
+     * @param malformed       the cards in the list that are not cards and not unknown cards (garbage input)
+     * @param numUnknownCards the number of unknown cards, represented by "??""
+     * @return true if the list of cards is suitable for playing TriPeaks Solitaire.
+     */
+    @Override
+    protected boolean isValidCards(List<String> cards,
+                                   List<String> missing,
+                                   List<String> duplicates,
+                                   List<String> malformed,
+                                   long numUnknownCards) {
+        return ((cards.size() == 52) &&
+                (0 <= missing.size()) &&
+                (missing.size() <= 18) &&
+                (duplicates.size() == 0) &&
+                (malformed.size() == 0) &&
+                (0 <= numUnknownCards) &&
+                (numUnknownCards <= 18));
+    }
+
+    /**
+     * Returns a String containing the cards in a TriPeaks Solitaire pattern. It contains the 28 card tableau,
+     * followed by the top card of the waste pile on the next line, then a list of the rest of the cards starting from
+     * the top of the stock pile to the bottom.
+     * The argument must be a list of 52 cards (some may be unknown, represented by ??)
+     *
+     * @param cards a list of cards
+     * @return a String representation of the cards laid out in a TriPeaks Solitaire game setup
+     */
+    @Override
+    protected String cardsToString(List<String> cards) {
+        return String.format(
+                "      %s          %s          %s\n" +
+                        "    %s  %s      %s  %s      %s  %s\n" +
+                        "  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
+                        "%s  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
+                        "%s\n" +
+                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+                cards.toArray()
+        );
     }
 
     /**
@@ -93,26 +144,5 @@ public class TriPeaksPlayer extends SolitairePlayer {
         }
         window.undoBoard();
         return cards;
-    }
-
-    /**
-     * Returns a String containing the cards in a TriPeaks Solitaire pattern. It contains the 28 card tableau,
-     * followed by the top card of the waste pile on the next line, then a list of the rest of the cards starting from
-     * the top of the stock pile to the bottom.
-     * The argument must be a list of 52 cards (some may be unknown, represented by ??)
-     *
-     * @param cards a list of cards
-     * @return a String representation of the cards laid out in a TriPeaks Solitaire game setup
-     */
-    private String cardsToString(List<String> cards) {
-        return String.format(
-                "      %s          %s          %s\n" +
-                "    %s  %s      %s  %s      %s  %s\n" +
-                "  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
-                "%s  %s  %s  %s  %s  %s  %s  %s  %s  %s\n" +
-                "%s\n" +
-                "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
-                cards.toArray()
-        );
     }
 }

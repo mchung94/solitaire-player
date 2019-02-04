@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.sikuli.script.Sikulix.inputText;
+
 /**
  * An abstract base class to represent SikuliX-automated solitaire players. Each subclass should
  * use SikuliX to automatically play a running instance of Microsoft Solitaire Collection on Windows 10.
@@ -20,14 +22,28 @@ import java.util.Set;
  */
 public abstract class SolitairePlayer {
     /**
-     * Subclasses implement this method to automate playing a solitaire game that has just started.
+     * Automates playing a solitaire game that has just started.
      */
     public abstract void autoplay() throws PlayException, InterruptedException;
 
     /**
-     * Subclasses implement this method to read the filename and print out steps to follow without automation.
+     * Reads the filename and prints out steps to follow without automation.
      */
     public abstract void preview(String filename) throws PlayException, InterruptedException;
+
+    /**
+     * Returns true if the list of cards is valid for the game of Solitaire being played.
+     */
+    protected abstract boolean isValidCards(List<String> cards,
+                                         List<String> missing,
+                                         List<String> duplicates,
+                                         List<String> malformed,
+                                         long numUnknownCards);
+
+    /**
+     * Returns a string representation of the cards in the Solitaire game.
+     */
+    protected abstract String cardsToString(List<String> cards);
 
     /**
      * Instantiates and returns supported Solitaire Players.
@@ -58,6 +74,39 @@ public abstract class SolitairePlayer {
                 throw new IllegalArgumentException("Unknown game: " + game);
         }
         return player;
+    }
+
+    /**
+     * Ask the user to verify and edit the list of cards being used for the game.
+     * @param cards a list of cards
+     * @return an updated list of cards that passes verification checks
+     * @throws PlayException if the user cancels verification and wants to exit
+     */
+    public List<String> verifyCards(List<String> cards) throws PlayException {
+        List<String> missing = missingCards(cards);
+        List<String> duplicates = duplicateCards(cards);
+        List<String> malformed = malformedCards(cards);
+        long numUnknownCards = numUnknownCards(cards);
+        do {
+            String message = "Please verify the list of cards is correct and edit if necessary.";
+            message += "\nClick Cancel to quit.";
+            message += "\nNumber of Cards: " + cards.size();
+            message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
+            message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
+            message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
+            message += "\nNumber of Unknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
+            String newDeckText = inputText(message, "Deck Verification", 8, 72, cardsToString(cards));
+            if (newDeckText == null) {
+                throw new PlayException("User cancelled verification of deck cards and the program will quit.");
+            }
+            cards = new ArrayList<>(Arrays.asList(newDeckText.trim().split("\\s+")));
+            missing = missingCards(cards);
+            duplicates = duplicateCards(cards);
+            malformed = malformedCards(cards);
+            numUnknownCards = numUnknownCards(cards);
+
+        } while (!isValidCards(cards, missing, duplicates, malformed, numUnknownCards));
+        return cards;
     }
 
     /**

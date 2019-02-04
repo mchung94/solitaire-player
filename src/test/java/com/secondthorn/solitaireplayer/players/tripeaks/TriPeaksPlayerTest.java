@@ -1,4 +1,4 @@
-package com.secondthorn.solitaireplayer.players.pyramid;
+package com.secondthorn.solitaireplayer.players.tripeaks;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,11 +7,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PyramidPlayerTest {
+public class TriPeaksPlayerTest {
     @Test
     void cardsToString() {
         String[] args = {"Board"};
-        PyramidPlayer player = new PyramidPlayer(args);
+        TriPeaksPlayer player = new TriPeaksPlayer(args);
         List<String> cards = new ArrayList<>();
         for (char suit : "cdhs".toCharArray()) {
             for (char rank : "A23456789TJQK".toCharArray()) {
@@ -19,14 +19,13 @@ public class PyramidPlayerTest {
             }
         }
         String expectedString =
-                "            Ac\n" +
-                "          2c  3c\n" +
-                "        4c  5c  6c\n" +
-                "      7c  8c  9c  Tc\n" +
-                "    Jc  Qc  Kc  Ad  2d\n" +
-                "  3d  4d  5d  6d  7d  8d\n" +
-                "9d  Td  Jd  Qd  Kd  Ah  2h\n" +
-                "3h 4h 5h 6h 7h 8h 9h Th Jh Qh Kh As 2s 3s 4s 5s 6s 7s 8s 9s Ts Js Qs Ks";
+                        "      Ac          2c          3c\n" +
+                        "    4c  5c      6c  7c      8c  9c\n" +
+                        "  Tc  Jc  Qc  Kc  Ad  2d  3d  4d  5d\n" +
+                        "6d  7d  8d  9d  Td  Jd  Qd  Kd  Ah  2h\n" +
+                        "3h\n" +
+                        "4h 5h 6h 7h 8h 9h Th Jh Qh Kh As 2s 3s 4s 5s 6s 7s 8s 9s Ts Js Qs Ks";
         assertEquals(expectedString, player.cardsToString(cards));
     }
+
 }
