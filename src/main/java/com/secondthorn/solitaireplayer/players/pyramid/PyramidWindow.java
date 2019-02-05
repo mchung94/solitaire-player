@@ -14,7 +14,7 @@ class PyramidWindow extends MSCWindow {
      */
     private Image drawImage;
 
-    PyramidWindow() throws PlayException {
+    PyramidWindow() throws InterruptedException, PlayException {
         super("Pyramid");
         drawImage = loadImage(resourceDir("Pyramid") + "Draw.png");
     }

@@ -71,8 +71,14 @@ public class TriPeaksPlayer extends SolitairePlayer {
     public void autoplay() throws InterruptedException, PlayException {
         TriPeaksWindow window = new TriPeaksWindow();
         CardRevealingSolver cardRevealingSolver = new CardRevealingSolver();
+        System.out.println("Looking up which cards are on the board and in the stock pile.");
+        System.out.println("Afterwards, please check and verify the cards it detected.");
         Deck deck = fillLastCard(verifyCards(scanCardsOnScreen(window)));
         int state = State.INITIAL_STATE;
+        if (deck.hasUnknownCards()) {
+            System.out.println("Now the program will play to reveal face down cards until it knows all the cards.");
+        }
+        window.undoBoard();
         while (deck.hasUnknownCards()) {
             Thread.sleep(1000);
             Solution solution = cardRevealingSolver.solve(deck, state).get(0);
@@ -80,9 +86,10 @@ public class TriPeaksPlayer extends SolitairePlayer {
             deck = updateDeck(deck, window);
             state = solution.getEndingState();
         }
+        System.out.println("The program knows all the cards in the game.  Now it will look for a solution.");
         List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
         Solution solution = chooseSolution(solutions);
-        window.positionForPlay();
+        printSolution(solution);
         window.undoBoard();
         playSolution(solution, window);
     }
@@ -240,6 +247,24 @@ public class TriPeaksPlayer extends SolitairePlayer {
             return chosenSolution;
         } else {
             throw new PlayException("User cancelled selecting and playing a solution.");
+        }
+    }
+
+    private void printSolution(Solution solution) {
+        System.out.println(solution.getDescription());
+        for (Action action : solution.getActions()) {
+            switch (action.getCommand()) {
+                case REMOVE:
+                    System.out.println(String.format("Move the tableau card %s (index=%d) to the waste pile",
+                            action.getCard(), action.getDeckIndex()));
+                    break;
+                case DRAW:
+                    System.out.println("Draw a card from the stock pile");
+                    break;
+                case UNDO_BOARD:
+                    System.out.println("Undo the Board");
+                    break;
+            }
         }
     }
 }

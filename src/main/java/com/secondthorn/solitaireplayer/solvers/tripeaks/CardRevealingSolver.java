@@ -30,7 +30,8 @@ public class CardRevealingSolver implements TriPeaksSolver {
                 int[] faceUpUnknowns = State.faceUpUnknowns(state, deck);
                 int[] nextStates = State.successors(state, deck);
                 if (faceUpUnknowns.length > 0) {
-                    String description = Arrays.toString(faceUpUnknowns);
+                    String description = String.format("Reveal the tableau cards at index(es): %s",
+                            Arrays.toString(faceUpUnknowns));
                     List<Action> cards = TriPeaksSolver.actions(state, seenStates, deck);
                     solutions.add(new Solution(description, true, cards, state));
                     break;

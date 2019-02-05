@@ -7,7 +7,7 @@ import com.secondthorn.solitaireplayer.players.PlayException;
  * Methods for a TriPeaksPlayer to interact with the Microsoft Solitaire Collection window.
  */
 class TriPeaksWindow extends MSCWindow {
-    TriPeaksWindow() throws PlayException {
+    TriPeaksWindow() throws InterruptedException, PlayException {
         super("TriPeaks");
     }
 

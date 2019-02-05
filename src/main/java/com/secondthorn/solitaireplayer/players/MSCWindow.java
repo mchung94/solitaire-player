@@ -75,7 +75,7 @@ public abstract class MSCWindow {
      * @param gameName the directory under src/main/resources/ for the game being played
      * @throws PlayException if there is a problem during resource loading or interaction with the game window
      */
-    protected MSCWindow(String gameName) throws PlayException {
+    protected MSCWindow(String gameName) throws InterruptedException, PlayException {
         positionForPlay();
         Settings.InputFontSize = (int) (14 * (getPercentScaling() / 100.0));
         String commonResourceDir = resourceDir("Common");
@@ -145,11 +145,12 @@ public abstract class MSCWindow {
      * Moves the Microsoft Solitaire Collection window to the foreground, undo minimize/maximize, and resize it to
      * 1024x768.
      */
-    public void positionForPlay() throws PlayException {
+    public void positionForPlay() throws InterruptedException, PlayException {
         WinDef.HWND hwnd = getHWND();
         if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
             throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
         }
+        Thread.sleep(500);
     }
 
     /**
@@ -195,7 +196,7 @@ public abstract class MSCWindow {
         robot.mouseDown(InputEvent.BUTTON1_DOWN_MASK);
         robot.mouseUp(InputEvent.BUTTON1_DOWN_MASK);
         robot.waitForIdle();
-        Thread.sleep(250);
+        Thread.sleep(500);
     }
 
     /**
@@ -246,7 +247,7 @@ public abstract class MSCWindow {
     /**
      * Return the SikuliX region representing the Microsoft Solitaire Collection window location.
      */
-    private Region appRegion() throws PlayException {
+    private Region appRegion() throws InterruptedException, PlayException {
         positionForPlay();
         return App.focusedWindow();
     }

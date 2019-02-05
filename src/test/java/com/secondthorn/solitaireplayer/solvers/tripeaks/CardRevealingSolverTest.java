@@ -25,7 +25,7 @@ public class CardRevealingSolverTest {
         List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
         assertEquals(1, solutions.size());
         Solution solution = solutions.get(0);
-        assertEquals("[16]", solution.getDescription());
+        assertEquals("Reveal the tableau cards at index(es): [16]", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(3, solution.getActions().size());
     }
@@ -63,7 +63,7 @@ public class CardRevealingSolverTest {
         List<Solution> solutions = solver.solve(deck, State.create(20313, 51, 52));
         assertEquals(1, solutions.size());
         Solution solution = solutions.get(0);
-        assertEquals("[16]", solution.getDescription());
+        assertEquals("Reveal the tableau cards at index(es): [16]", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(State.create(19333, 25, 30), solution.getEndingState());
         List<Action> actions = solution.getActions();
