@@ -5,7 +5,6 @@ import gnu.trove.map.TIntIntMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An interface for TriPeaks Solitaire solvers.
@@ -13,27 +12,43 @@ import java.util.Map;
 public interface TriPeaksSolver {
     /**
      * Evaluates a deck for TriPeaks Solitaire (some cards may be unknown) and returns lists of steps to take to play
-     * the game towards a goal. There may be no solution or there may be multiple solutions, so each solution is keyed
-     * by a description of the solution.
-     * @param deck a deck of cards for TriPeaks Solitaire
-     * @return a mapping from solution descriptions to lists of cards to move to the waste pile
+     * the game towards a goal. There may be one or more solutions, even if there's nothing that can be done there
+     * will be a Solution object that says that.
+     *
+     * @param deck          a deck of cards for TriPeaks Solitaire
+     * @param startingState the starting state for the solver to begin at (might not be the beginning of the game)
+     * @return a list of one or more Solution objects (some may indicate there is nothing possible to do)
      */
-    Map<String, List<String>> solve(Deck deck);
+    List<Solution> solve(Deck deck, int startingState);
 
     /**
-     * Given a state and a mapping from state to previous state, return a list of cards to click from the start of the
-     * game to reach the given state.
-     * @param state the resulting state
+     * Given a state and a mapping from state to previous state, return a list of Actions to go from the start of the
+     * game to the given state.
+     *
+     * @param state      the resulting state
      * @param seenStates a mapping from state to previous state
-     * @param deck a deck of cards for TriPeaks Solitaire
-     * @return a list of cards to click to get from the start of the game to the resulting state
+     * @param deck       a deck of cards for TriPeaks Solitaire
+     * @return a list of Actions to go from the start of the game to the resulting state
      */
-    static List<String> cards(int state, TIntIntMap seenStates, Deck deck) {
-        ArrayDeque<String> cardsToClick = new ArrayDeque<>();
+    static List<Action> actions(int state, TIntIntMap seenStates, Deck deck) {
+        ArrayDeque<Action> actions = new ArrayDeque<>();
         while (seenStates.containsKey(state)) {
-            cardsToClick.push(deck.cardAt(State.getWasteIndex(state)));
+            actions.push(new Action(deck.cardAt(State.getWasteIndex(state)), deck));
             state = seenStates.get(state);
         }
-        return new ArrayList<>(cardsToClick);
+        return new ArrayList<>(actions);
+    }
+
+    /**
+     * Returns a list of Actions in order to lose the game quickly, when there is no solution.
+     * @param deck a deck of cards for TriPeaks Solitaire
+     * @return a list of Actions to lose quickly in TriPeaks Solitaire
+     */
+    static List<Action> loseQuicklyActions(Deck deck) {
+        List<Action> actions = new ArrayList<>();
+        for (int i=29; i<52; i++) {
+            actions.add(new Action(deck.cardAt(i), deck));
+        }
+        return actions;
     }
 }

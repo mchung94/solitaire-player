@@ -39,6 +39,7 @@ public class IntFIFOQueue {
 
     /**
      * Removes and returns the first item in the queue.
+     *
      * @return the first item in the queue
      * @throws NoSuchElementException if the queue is empty
      */
@@ -53,6 +54,7 @@ public class IntFIFOQueue {
 
     /**
      * Increases the size of the queue.  The size is always a power of two.
+     *
      * @throws IllegalStateException if the queue can't grow any bigger
      */
     private void doubleCapacity() {

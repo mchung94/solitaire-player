@@ -108,7 +108,7 @@ public class State {
     }
 
     /**
-     * Return an array of successor states for the given state. These represent all the valid moves the player can
+     * Returns an array of successor states for the given state. These represent all the valid moves the player can
      * make from the given state.
      *
      * @param state a TriPeaks Solitaire state
@@ -134,6 +134,26 @@ public class State {
             }
         }
         return nextStates.toArray();
+    }
+
+    /**
+     * Returns an array of face up cards on the tableau (by their index 0 - 17) that are unknown cards.
+     * Indexes 18-27 on the tableau start out face up so they're always known.
+     * This is used when a tableau card is moved to the waste pile and new cards are turned face up.  Solvers may need
+     * to know when this happens, to scan the new cards and ask the user to verify them.
+     *
+     * @param state a TriPeaks Solitaire state
+     * @param deck  a deck of cards, some of which may be unknown
+     * @return an array of tableau card indexes that are face up but currently unknown.
+     */
+    public static int[] faceUpUnknowns(int state, Deck deck) {
+        TIntList results = new TIntArrayList();
+        for (int index : TABLEAU_FACE_UP_INDEXES[getTableauIndex(state)]) {
+            if (deck.isUnknownCard(index)) {
+                results.add(index);
+            }
+        }
+        return results.toArray();
     }
 
     /**

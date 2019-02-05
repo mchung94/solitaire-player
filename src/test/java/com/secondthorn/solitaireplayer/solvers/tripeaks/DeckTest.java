@@ -117,12 +117,9 @@ public class DeckTest {
     }
 
     @Test
-    void knownDeckHasNoUnknownCards() {
+    void unknownCardIndexes() {
         assertFalse(orderedDeck.hasUnknownCards());
-    }
-
-    @Test
-    void deckHasUnknownCards() {
         assertTrue(startingOrderedDeck.hasUnknownCards());
     }
+
 }

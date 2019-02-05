@@ -71,6 +71,7 @@ public abstract class MSCWindow {
     /**
      * Common setup for subclasses - since this class is abstract and cannot be instantiated, the subclasses must call
      * super to run this initialization code.
+     *
      * @param gameName the directory under src/main/resources/ for the game being played
      * @throws PlayException if there is a problem during resource loading or interaction with the game window
      */
@@ -92,8 +93,9 @@ public abstract class MSCWindow {
 
     /**
      * Resets the game to the beginning if the option is available, otherwise do nothing.
+     *
      * @throws InterruptedException if the thread is interrupted
-     * @throws PlayException if there's a problem clicking on the Undo Board / OK buttons
+     * @throws PlayException        if there's a problem clicking on the Undo Board / OK buttons
      */
     public void undoBoard() throws InterruptedException, PlayException {
         if (undoBoardImage != null && clickImage(undoBoardImage, 0.0d)) {
@@ -111,6 +113,7 @@ public abstract class MSCWindow {
      * <p>
      * Cursor movement already exists in the java.awt.Robot class but with JDK 8 it has issues with multi-monitor and
      * HiDPI setups.  This is a workaround until we can require users to have JDK 11.
+     *
      * @param x the virtual screen X coordinate to move the mouse cursor to
      * @param y the virtual screen Y coordinate to move the mouse cursor to
      */
@@ -139,7 +142,19 @@ public abstract class MSCWindow {
     }
 
     /**
+     * Moves the Microsoft Solitaire Collection window to the foreground, undo minimize/maximize, and resize it to
+     * 1024x768.
+     */
+    public void positionForPlay() throws PlayException {
+        WinDef.HWND hwnd = getHWND();
+        if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
+            throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
+        }
+    }
+
+    /**
      * Guesses the card at the given region.  It may be wrong and it may return "??" to represent an unknown card.
+     *
      * @param region the region containing the card rank and suit images (upper left corner)
      * @return a guess at what the card is at the region of the screen
      */
@@ -155,6 +170,7 @@ public abstract class MSCWindow {
     /**
      * Returns an image from inside the src/main/resources directory.  This will work for both loading the file from
      * the filesystem or from a jar file.
+     *
      * @param filename the path within the src/main/resources directory for the image file to load
      * @return an Image from the file
      */
@@ -168,6 +184,7 @@ public abstract class MSCWindow {
      * SikuliX already has a region click but due to mouse movement issues with JDK 8 and multi-monitor / HiDPI setups,
      * it is currently re-implemented here using a custom mouse movement method.  This may be revisited after we begin
      * to require JDK 11.
+     *
      * @param region the region to click on
      * @throws InterruptedException if the thread is interrupted
      */
@@ -185,11 +202,12 @@ public abstract class MSCWindow {
      * If the image exists on the Microsoft Solitaire Collection window, click on it.  The timeout a time limit on how
      * many seconds to wait for the image to appear.  Using zero timeout for example will do nothing unless the image
      * already exists on the screen.
-     * @param image an image to search for and click on within the game window
+     *
+     * @param image   an image to search for and click on within the game window
      * @param timeout a time limit to wait for the image to appear if it isn't already there
      * @return true or false to indicate if it successfully found and clicked on the image
      * @throws InterruptedException if the thread is interrupted
-     * @throws PlayException if there was a problem searching for the image clicking on it
+     * @throws PlayException        if there was a problem searching for the image clicking on it
      */
     protected boolean clickImage(Image image, double timeout) throws InterruptedException, PlayException {
         Match match = appRegion().exists(image, timeout);
@@ -203,6 +221,7 @@ public abstract class MSCWindow {
     /**
      * Gets the main src/main/resources subdirectory for the given game and display scaling factor.
      * For example in Pyramid Solitaire on a display with 100% scaling factor, will return "Pyramid/1024x768/".
+     *
      * @param topLevelDir the directory under src/main/resources indicating which solitaire game is being played
      * @return the directory containing images and other resources for the current game and display scaling factor
      */
@@ -326,17 +345,6 @@ public abstract class MSCWindow {
     }
 
     /**
-     * Moves the Microsoft Solitaire Collection window to the foreground, undo minimize/maximize, and resize it to
-     * 1024x768.
-     */
-    private void positionForPlay() throws PlayException {
-        WinDef.HWND hwnd = getHWND();
-        if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
-            throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
-        }
-    }
-
-    /**
      * Returns the handle to the Microsoft Solitaire Collection window, so other actions can be performed on it.
      */
     private WinDef.HWND getHWND() {
@@ -415,6 +423,7 @@ public abstract class MSCWindow {
 
     /**
      * Smoothly move the mouse to the given (X, Y) virtual screen coordinates over 500 milliseconds.
+     *
      * @param x the X coordinate to move to
      * @param y the Y coordinate to move to
      */

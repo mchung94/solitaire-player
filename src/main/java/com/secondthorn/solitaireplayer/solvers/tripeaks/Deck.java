@@ -2,6 +2,7 @@ package com.secondthorn.solitaireplayer.solvers.tripeaks;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * A Deck in TriPeaks is a list of 52 cards.  It's a standard 52 card deck, where each card is a two letter string
@@ -12,49 +13,93 @@ import java.util.List;
  * off as the top card of the waste pile, and the 30th card onward is the stock pile with the 30th card at the top.
  */
 public class Deck {
-    private String[] cards;
+    public static final String UNKNOWN_CARD = "??";
+
+    private List<String> cards;
     private int[] values;
 
     /**
-     * Creates a Deck from an array of 52 cards.
-     * @param cards an array of 52 cards, some of which may be unknown, represented by "??"
+     * Creates a Deck from a List of 52 cards.
+     *
+     * @param cards a list of 52 cards, some may be unknown
      */
-    public Deck(String[] cards) {
-        if (cards.length != 52) {
-            throw new IllegalArgumentException("A Deck must be 52 cards, " + cards.length + " sent in instead.");
+    public Deck(List<String> cards) {
+        if (cards.size() != 52) {
+            throw new IllegalArgumentException("A Deck must be 52 cards, " + cards.size() + " sent in instead.");
         }
         this.cards = cards;
-        this.values = Arrays.stream(cards).mapToInt(Deck::cardValue).toArray();
+        this.values = cards.stream().mapToInt(Deck::cardValue).toArray();
     }
 
     /**
-     * Creates a Deck from a List of 52 cards.
-     * @param cards a list of 52 cards
+     * Creates a Deck from an array of 52 cards.
+     *
+     * @param cards an array of 52 cards, some may be unknown
      */
-    public Deck(List<String> cards) {
-        this(cards.toArray(new String[0]));
+    public Deck(String[] cards) {
+        this(Arrays.asList(cards));
     }
 
     /**
      * Creates a Deck from a string containing 52 cards, separated by whitespace.
-     * @param cards a string containing 52 cards
+     *
+     * @param cards a string containing 52 cards, some may be unknown
      */
     public Deck(String cards) {
         this(cards.trim().split("\\s+"));
     }
 
     /**
+     * Returns the list of cards in the deck.
+     *
+     * @return the cards in the deck
+     */
+    public List<String> getCards() {
+        return cards;
+    }
+
+    /**
      * Returns the card at the given deck index.
+     *
      * @param index an integer from 0 to 51
      * @return the card at the location in the deck
      */
     public String cardAt(int index) {
-        return cards[index];
+        return cards.get(index);
+    }
+
+    /**
+     * Returns the deck index of the card.
+     *
+     * @param card a card to find the deck index of
+     * @return the deck index of the card in the deck
+     */
+    public int indexOf(String card) {
+        return cards.indexOf(card);
+    }
+
+    /**
+     * Returns true if the card at the deck index is unknown, represented by "??".
+     *
+     * @param index an integer from 0 to 51
+     * @return true if the card at location in the deck is unknown
+     */
+    public boolean isUnknownCard(int index) {
+        return cardAt(index).equals(UNKNOWN_CARD);
+    }
+
+    /**
+     * Returns an array of deck indexes of all the unknown cards in the deck.
+     * @return an array of deck indexes (0-51)
+     */
+    public boolean hasUnknownCards() {
+        return IntStream.range(0, cards.size()).anyMatch(this::isUnknownCard);
     }
 
     /**
      * Returns true if the card at deck index2 is one rank above or below the card at deck index1.
      * Ranks wrap around, so A is one above K and K is one below A.
+     *
      * @param index1 a deck index pointing to a card in the deck
      * @param index2 a deck index pointing to another card in the deck
      * @return true if the two cards are one rank apart (wrapping around for K and A)
@@ -71,14 +116,6 @@ public class Deck {
     }
 
     /**
-     * Returns true if the deck has some unknown cards.
-     * @return true if any card is unknown, represented by "??"
-     */
-    public boolean hasUnknownCards() {
-        return Arrays.stream(cards).anyMatch(c -> c.equals("??"));
-    }
-
-    /**
      * Returns a card's rank, one of A23456789TJQK.
      */
     private static char cardRank(String card) {
@@ -91,4 +128,5 @@ public class Deck {
     private static int cardValue(String card) {
         return "A23456789TJQK?".indexOf(cardRank(card));
     }
+
 }

@@ -3,9 +3,8 @@ package com.secondthorn.solitaireplayer.solvers.tripeaks;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Solves Board Challenges for TriPeaks Solitaire, which means to move all 28 tableau cards into the waste pile.
@@ -13,31 +12,41 @@ import java.util.Map;
  */
 public class BoardChallengeSolver implements TriPeaksSolver {
     /**
-     * Return at most one optimal solution for finishing a Board Challenge in TriPeaks.
-     * If there is no solution, an empty map is returned.  Otherwise it will contain one list of steps in
-     * terms of cards to move to the waste pile, where the key is a description of the solution.
+     * Return either a solution for finishing a Board Challenge in TriPeaks, a solution indicating it's impossible,
+     * or a solution indicating there are unknown cards so it's unknown whether or not it's possible.
      *
-     * @param deck the deck of cards to solve
-     * @return zero or one solutions in a map: key = description, value = list of cards to move to the waste pile
+     * @param deck          the deck of cards to solve
+     * @param startingState the starting state of the game for the solver to begin searching from
+     * @return a list containing one Solution
      */
     @Override
-    public Map<String, List<String>> solve(Deck deck) {
-        Map<String, List<String>> solutions = new HashMap<>();
-        IntFIFOQueue fringe = new IntFIFOQueue();
-        TIntIntMap seenStates = new TIntIntHashMap();
-        fringe.enqueue(State.INITIAL_STATE);
-        while (!fringe.isEmpty()) {
-            int state = fringe.dequeue();
-            if (State.isTableauEmpty(state)) {
-                List<String> cards = TriPeaksSolver.cards(state, seenStates, deck);
-                solutions.put(String.format("Clear the board in %d steps", cards.size()), cards);
-                break;
-            }
-            for (int nextState : State.successors(state, deck)) {
-                if (!seenStates.containsKey(nextState)) {
-                    seenStates.put(nextState, state);
-                    fringe.enqueue(nextState);
+    public List<Solution> solve(Deck deck, int startingState) {
+        List<Solution> solutions = new ArrayList<>();
+        if (deck.hasUnknownCards()) {
+            String description = "Lose Quickly: Unable to clear the board due to unknown cards";
+            solutions.add(new Solution(description, false, TriPeaksSolver.loseQuicklyActions(deck), startingState));
+        } else {
+            IntFIFOQueue fringe = new IntFIFOQueue();
+            TIntIntMap seenStates = new TIntIntHashMap();
+            fringe.enqueue(startingState);
+            while (!fringe.isEmpty()) {
+                int state = fringe.dequeue();
+                if (State.isTableauEmpty(state)) {
+                    List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
+                    String description = String.format("Clear the board in %d steps", actions.size());
+                    solutions.add(new Solution(description, true, actions, state));
+                    break;
                 }
+                for (int nextState : State.successors(state, deck)) {
+                    if (!seenStates.containsKey(nextState)) {
+                        seenStates.put(nextState, state);
+                        fringe.enqueue(nextState);
+                    }
+                }
+            }
+            if (solutions.size() == 0) {
+                String description = "Lose Quickly: Impossible to clear the board";
+                solutions.add(new Solution(description, true, TriPeaksSolver.loseQuicklyActions(deck), startingState));
             }
         }
         return solutions;

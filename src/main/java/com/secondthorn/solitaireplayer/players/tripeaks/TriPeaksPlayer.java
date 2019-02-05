@@ -2,20 +2,36 @@ package com.secondthorn.solitaireplayer.players.tripeaks;
 
 import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.Action;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.BoardChallengeSolver;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.CardRevealingSolver;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.Deck;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.Solution;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.State;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.TriPeaksSolver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+import static org.sikuli.script.Sikulix.popAsk;
+import static org.sikuli.script.Sikulix.popSelect;
 
 /**
  * Guides the user through a game of TriPeaks Solitaire. It interacts with the Microsoft Solitaire Collection window as
  * well as the user, from the start of the game until a solution is played or reported.
  */
 public class TriPeaksPlayer extends SolitairePlayer {
+    private TriPeaksSolver solver;
+
     public TriPeaksPlayer(String[] args) {
         String challenge = args[0];
         switch (challenge) {
             case "Board":
+                solver = new BoardChallengeSolver();
                 System.out.println("Starting a TriPeaks Solitaire Board Challenge...");
                 break;
             case "Score":
@@ -38,7 +54,6 @@ public class TriPeaksPlayer extends SolitairePlayer {
                 System.out.print("Starting a TriPeaks Solitaire Card Challenge: ");
                 System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear);
                 System.out.println(", with " + currentNumCardsCleared + " cleared so far");
-
                 break;
             default:
                 throw new IllegalArgumentException("Unknown challenge type for TriPeaks Solitaire: " + challenge);
@@ -55,10 +70,21 @@ public class TriPeaksPlayer extends SolitairePlayer {
     @Override
     public void autoplay() throws InterruptedException, PlayException {
         TriPeaksWindow window = new TriPeaksWindow();
-        window.moveMouse(0, 0);
-        List<String> cards = scanCardsOnScreen(window);
-        Deck deck = new Deck(verifyCards(cards));
-        deck.toString();
+        CardRevealingSolver cardRevealingSolver = new CardRevealingSolver();
+        Deck deck = fillLastCard(verifyCards(scanCardsOnScreen(window)));
+        int state = State.INITIAL_STATE;
+        while (deck.hasUnknownCards()) {
+            Thread.sleep(1000);
+            Solution solution = cardRevealingSolver.solve(deck, state).get(0);
+            playSolution(solution, window);
+            deck = updateDeck(deck, window);
+            state = solution.getEndingState();
+        }
+        List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
+        Solution solution = chooseSolution(solutions);
+        window.positionForPlay();
+        window.undoBoard();
+        playSolution(solution, window);
     }
 
     /**
@@ -70,7 +96,6 @@ public class TriPeaksPlayer extends SolitairePlayer {
     public void preview(String filename) throws PlayException {
         List<String> cards = readCardsFromFile(filename);
         Deck deck = new Deck(verifyCards(cards));
-
     }
 
     /**
@@ -125,11 +150,6 @@ public class TriPeaksPlayer extends SolitairePlayer {
      * Looks through all the cards in the game and returns a list of the cards seen. The cards may be wrong and must
      * be verified and corrected by the user. Initially the game starts with the first 18 cards face down and these
      * are represented by "??" for unknown card.
-     *
-     * @param window the TriPeaksWindow to help read cards on the screen
-     * @return a list of all the cards found on the screen
-     * @throws InterruptedException if the thread is interrupted
-     * @throws PlayException        if there's a problem looking for cards in the Microsoft Solitaire Collection window
      */
     private List<String> scanCardsOnScreen(TriPeaksWindow window) throws InterruptedException, PlayException {
         window.undoBoard();
@@ -144,5 +164,82 @@ public class TriPeaksPlayer extends SolitairePlayer {
         }
         window.undoBoard();
         return cards;
+    }
+
+    /**
+     * Rescan any unknown tableau cards which may now be face up, and ask the user to verify the cards.
+     */
+    private Deck updateDeck(Deck deck, TriPeaksWindow window) throws PlayException {
+        List<String> cards = new ArrayList<>(deck.getCards());
+        for (int i = 0; i < 18; i++) {
+            if (deck.isUnknownCard(i)) {
+                cards.set(i, window.cardAtTableau(i));
+            }
+        }
+        return fillLastCard(verifyCards(cards));
+    }
+
+    /**
+     * If there's only one unknown card, replace it with the last missing card if possible.
+     */
+    private Deck fillLastCard(List<String> cards) {
+        List<String> missing = missingCards(cards);
+        int[] unknownCardIndexes = unknownCardIndexes(cards);
+        if ((missing.size() == 1) && (unknownCardIndexes.length == 1)) {
+            cards.set(unknownCardIndexes[0], missing.get(0));
+        }
+        return new Deck(cards);
+    }
+
+    /**
+     * Returns the deck indexes of the unknown cards in the list of cards.
+     */
+    private int[] unknownCardIndexes(List<String> cards) {
+        return IntStream.range(0, cards.size()).filter(i -> cards.get(i).equals(Deck.UNKNOWN_CARD)).toArray();
+    }
+
+    /**
+     * Given a Solution, control the cursor and play them in the Microsoft Solitaire Collection window.
+     */
+    private void playSolution(Solution solution, TriPeaksWindow window) throws InterruptedException, PlayException {
+        window.positionForPlay();
+        for (Action action : solution.getActions()) {
+            switch (action.getCommand()) {
+                case DRAW:
+                    window.clickStockCard();
+                    break;
+                case REMOVE:
+                    window.clickTableauCard(action.getDeckIndex());
+                    break;
+                case UNDO_BOARD:
+                    window.undoBoard();
+                    break;
+            }
+        }
+    }
+
+    private Solution chooseSolution(List<Solution> solutions) throws PlayException {
+        Solution chosenSolution;
+        if (solutions.size() == 1) {
+            chosenSolution = solutions.get(0);
+        } else {
+            Map<String, Solution> descriptionToSolution = new HashMap<>();
+            for (Solution solution : solutions) {
+                descriptionToSolution.put(solution.getDescription(), solution);
+            }
+            String[] descriptions = descriptionToSolution.keySet().toArray(new String[0]);
+            Arrays.sort(descriptions);
+            String message = "Select a solution, Cancel to exit without automatically playing.";
+            String title = "Multiple Solutions Found";
+            String chosenDescription = popSelect(message, title, descriptions);
+            chosenSolution = descriptionToSolution.get(chosenDescription);
+        }
+        String confirmMessage = String.format("Press Yes to play or No to quit.\nSolution: %s\n",
+                chosenSolution.getDescription());
+        if ((chosenSolution != null) && popAsk(confirmMessage, "Play the solution?")) {
+            return chosenSolution;
+        } else {
+            throw new PlayException("User cancelled selecting and playing a solution.");
+        }
     }
 }

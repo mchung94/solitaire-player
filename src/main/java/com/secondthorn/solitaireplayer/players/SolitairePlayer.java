@@ -35,10 +35,10 @@ public abstract class SolitairePlayer {
      * Returns true if the list of cards is valid for the game of Solitaire being played.
      */
     protected abstract boolean isValidCards(List<String> cards,
-                                         List<String> missing,
-                                         List<String> duplicates,
-                                         List<String> malformed,
-                                         long numUnknownCards);
+                                            List<String> missing,
+                                            List<String> duplicates,
+                                            List<String> malformed,
+                                            long numUnknownCards);
 
     /**
      * Returns a string representation of the cards in the Solitaire game.
@@ -78,6 +78,7 @@ public abstract class SolitairePlayer {
 
     /**
      * Ask the user to verify and edit the list of cards being used for the game.
+     *
      * @param cards a list of cards
      * @return an updated list of cards that passes verification checks
      * @throws PlayException if the user cancels verification and wants to exit
@@ -95,7 +96,7 @@ public abstract class SolitairePlayer {
             message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
             message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
             message += "\nNumber of Unknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
-            String newDeckText = inputText(message, "Deck Verification", 8, 72, cardsToString(cards));
+            String newDeckText = inputText(message, "Deck Verification", 8, 120, cardsToString(cards));
             if (newDeckText == null) {
                 throw new PlayException("User cancelled verification of deck cards and the program will quit.");
             }
@@ -197,6 +198,7 @@ public abstract class SolitairePlayer {
 
     /**
      * Returns the number of unknown cards, represented by "??".
+     *
      * @param cards a list of cards
      * @return the number of unknown cards in the given card list
      */
