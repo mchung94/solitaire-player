@@ -22,32 +22,27 @@ public class BoardChallengeSolver implements TriPeaksSolver {
     @Override
     public List<Solution> solve(Deck deck, int startingState) {
         List<Solution> solutions = new ArrayList<>();
-        if (deck.hasUnknownCards()) {
-            String description = "Lose Quickly: Unable to clear the board due to unknown cards";
-            solutions.add(new Solution(description, false, TriPeaksSolver.loseQuicklyActions(deck), startingState));
-        } else {
-            IntFIFOQueue fringe = new IntFIFOQueue();
-            TIntIntMap seenStates = new TIntIntHashMap();
-            fringe.enqueue(startingState);
-            while (!fringe.isEmpty()) {
-                int state = fringe.dequeue();
-                if (State.isTableauEmpty(state)) {
-                    List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
-                    String description = String.format("Clear the board in %d steps", actions.size());
-                    solutions.add(new Solution(description, true, actions, state));
-                    break;
-                }
-                for (int nextState : State.successors(state, deck)) {
-                    if (!seenStates.containsKey(nextState)) {
-                        seenStates.put(nextState, state);
-                        fringe.enqueue(nextState);
-                    }
+        IntFIFOQueue fringe = new IntFIFOQueue();
+        TIntIntMap seenStates = new TIntIntHashMap();
+        fringe.enqueue(startingState);
+        while (!fringe.isEmpty()) {
+            int state = fringe.dequeue();
+            if (State.isTableauEmpty(state)) {
+                List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
+                String description = String.format("Clear the board in %d steps", actions.size());
+                solutions.add(new Solution(description, true, actions, state));
+                break;
+            }
+            for (int nextState : State.successors(state, deck)) {
+                if (!seenStates.containsKey(nextState)) {
+                    seenStates.put(nextState, state);
+                    fringe.enqueue(nextState);
                 }
             }
-            if (solutions.size() == 0) {
-                String description = "Lose Quickly: Impossible to clear the board";
-                solutions.add(new Solution(description, true, TriPeaksSolver.loseQuicklyActions(deck), startingState));
-            }
+        }
+        if (solutions.size() == 0) {
+            String description = "Lose Quickly: Impossible to clear the board";
+            solutions.add(new Solution(description, true, TriPeaksSolver.loseQuicklyActions(deck), startingState));
         }
         return solutions;
     }
