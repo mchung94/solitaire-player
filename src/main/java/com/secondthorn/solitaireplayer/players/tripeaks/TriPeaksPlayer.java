@@ -6,6 +6,7 @@ import com.secondthorn.solitaireplayer.solvers.tripeaks.Action;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.BoardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.CardRevealingSolver;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.Deck;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.ScoreChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.Solution;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.State;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.TriPeaksSolver;
@@ -35,8 +36,9 @@ public class TriPeaksPlayer extends SolitairePlayer {
                 System.out.println("Starting a TriPeaks Solitaire Board Challenge...");
                 break;
             case "Score":
-                int goalScore = (args.length > 1) ? parseInt(args[1]) : 84900;
+                int goalScore = (args.length > 1) ? parseInt(args[1]) : ScoreChallengeSolver.MAX_POSSIBLE_SCORE;
                 int currentScore = (args.length > 2) ? parseInt(args[2]) : 0;
+                solver = new ScoreChallengeSolver(goalScore, currentScore);
                 System.out.print("Starting a TriPeaks Solitaire Score Challenge: ");
                 if (args.length == 1) {
                     System.out.println("find the maximum possible score...");

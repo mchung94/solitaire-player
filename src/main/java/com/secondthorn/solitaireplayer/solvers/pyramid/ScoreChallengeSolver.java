@@ -76,10 +76,10 @@ public class ScoreChallengeSolver implements PyramidSolver {
      * @param currentScore the player's current score
      */
     public ScoreChallengeSolver(int goalScore, int currentScore) {
-        if (currentScore > goalScore) {
+        pointsNeeded = goalScore - currentScore;
+        if (pointsNeeded <= 0) {
             throw new IllegalArgumentException("The current score must be smaller than the goal score");
         }
-        pointsNeeded = goalScore - currentScore;
     }
 
     /**
