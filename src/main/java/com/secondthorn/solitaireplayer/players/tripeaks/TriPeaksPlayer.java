@@ -76,20 +76,25 @@ public class TriPeaksPlayer extends SolitairePlayer {
         System.out.println("Looking up which cards are on the board and in the stock pile.");
         System.out.println("Afterwards, please check and verify the cards it detected.");
         Deck deck = fillLastCard(verifyCards(scanCardsOnScreen(window)));
-        int state = State.INITIAL_STATE;
-        if (deck.hasUnknownCards()) {
-            System.out.println("Now the program will play to reveal face down cards until it knows all the cards.");
-        }
         window.undoBoard();
-        while (deck.hasUnknownCards()) {
-            Thread.sleep(1000);
-            Solution solution = cardRevealingSolver.solve(deck, state).get(0);
-            playSolution(solution, window);
-            deck = updateDeck(deck, window);
-            state = solution.getEndingState();
-        }
-        System.out.println("The program knows all the cards in the game.  Now it will look for a solution.");
+        int state = State.INITIAL_STATE;
+        System.out.println("Now searching for a solution...");
         List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
+        while (!solutions.stream().anyMatch(Solution::isDefinitiveSolution)) {
+            System.out.println("No definite solution found yet - searching for a way to reveal face down cards...");
+             List<Solution> cardRevealingSolutions = cardRevealingSolver.solve(deck, state);
+             if (cardRevealingSolutions.size() > 0) {
+                 Thread.sleep(1000);
+                 Solution solution = cardRevealingSolver.solve(deck, state).get(0);
+                 playSolution(solution, window);
+                 deck = updateDeck(deck, window);
+                 state = solution.getEndingState();
+                 solutions = solver.solve(deck, State.INITIAL_STATE);
+             } else {
+                 System.out.println("No way to turn over face down cards, try a non-definitive solution...");
+                 break;
+             }
+        }
         Solution solution = chooseSolution(solutions);
         printSolution(solution);
         window.undoBoard();

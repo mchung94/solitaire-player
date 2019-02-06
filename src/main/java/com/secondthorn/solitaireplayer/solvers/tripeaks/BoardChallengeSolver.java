@@ -42,7 +42,8 @@ public class BoardChallengeSolver implements TriPeaksSolver {
         }
         if (solutions.size() == 0) {
             String description = "Lose Quickly: Impossible to clear the board";
-            solutions.add(new Solution(description, true, TriPeaksSolver.loseQuicklyActions(deck), startingState));
+            solutions.add(new Solution(description, !deck.hasUnknownCards(),
+                    TriPeaksSolver.loseQuicklyActions(deck), startingState));
         }
         return solutions;
     }
