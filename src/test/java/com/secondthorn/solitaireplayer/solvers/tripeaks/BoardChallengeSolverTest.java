@@ -22,6 +22,7 @@ public class BoardChallengeSolverTest {
         assertTrue(solution.isDefinitiveSolution());
         assertEquals("Clear the board in 42 steps", solution.getDescription());
         assertEquals(42, solution.getActions().size());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test
@@ -38,5 +39,6 @@ public class BoardChallengeSolverTest {
         assertTrue(solution.isDefinitiveSolution());
         assertEquals("Lose Quickly: Impossible to clear the board", solution.getDescription());
         assertEquals(23, solution.getActions().size());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 }

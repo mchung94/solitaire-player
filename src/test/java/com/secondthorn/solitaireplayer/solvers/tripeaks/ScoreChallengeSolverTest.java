@@ -24,6 +24,7 @@ public class ScoreChallengeSolverTest {
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(28, solution.getActions().size());
         assertEquals("Gain 84900 points in 28 steps", solution.getDescription());
+        assertTrue(new PlayTester(orderedDeck).areActionsPlayable(solution));
     }
 
     @Test
@@ -33,6 +34,7 @@ public class ScoreChallengeSolverTest {
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(4, solution.getActions().size());
         assertEquals("Gain 1600 points in 4 steps", solution.getDescription());
+        assertTrue(new PlayTester(orderedDeck).areActionsPlayable(solution));
     }
 
     @Test
@@ -50,6 +52,7 @@ public class ScoreChallengeSolverTest {
         assertFalse(solution.isDefinitiveSolution());
         assertEquals(10, solution.getActions().size());
         assertEquals("Gain 10000 points in 10 steps", solution.getDescription());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test
@@ -67,6 +70,7 @@ public class ScoreChallengeSolverTest {
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(49, solution.getActions().size());
         assertEquals("Gain 22300 points in 49 steps", solution.getDescription());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test

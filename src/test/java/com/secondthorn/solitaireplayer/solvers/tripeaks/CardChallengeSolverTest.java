@@ -22,6 +22,7 @@ public class CardChallengeSolverTest {
         Solution solution = solver.solve(deck, State.INITIAL_STATE);
         assertEquals("Remove 3 cards of rank K in 27 steps", solution.getDescription());
         assertFalse(solution.isDefinitiveSolution());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test
@@ -38,6 +39,7 @@ public class CardChallengeSolverTest {
         Solution solution = solver.solve(deck, State.INITIAL_STATE);
         assertEquals("Remove 3 cards of rank K in 45 steps", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test

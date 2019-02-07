@@ -26,6 +26,7 @@ public class CardRevealingSolverTest {
         assertEquals("Reveal the tableau cards at index(es): [16]", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(3, solution.getActions().size());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test
@@ -43,6 +44,7 @@ public class CardRevealingSolverTest {
         assertEquals("All cards are known, can't turn over any face down cards", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(0, solution.getActions().size());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
     @Test
@@ -62,17 +64,6 @@ public class CardRevealingSolverTest {
         assertEquals(State.create(19333, 25, 30), solution.getEndingState());
         List<Action> actions = solution.getActions();
         assertEquals(4, actions.size());
-        Action action = actions.get(0);
-        assertEquals(UNDO_BOARD, action.getCommand());
-        action = actions.get(1);
-        assertEquals(DRAW, action.getCommand());
-        action = actions.get(2);
-        assertEquals(REMOVE, action.getCommand());
-        assertEquals(26, action.getDeckIndex());
-        assertEquals("2h", action.getCard());
-        action = actions.get(3);
-        assertEquals(REMOVE, action.getCommand());
-        assertEquals(25, action.getDeckIndex());
-        assertEquals("Ac", action.getCard());
+        assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 }
