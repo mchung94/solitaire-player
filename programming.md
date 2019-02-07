@@ -5,7 +5,8 @@ understand the code quickly.
 ## Background
 This program was created because I wanted to figure out the solution to
 Pyramid Solitaire games when I got stuck playing them in Microsoft Solitaire
-Collection on Windows 10.
+Collection on Windows 10.  More recently, I have added support for TriPeaks
+Solitaire.
 
 [pyramid-solver](https://github.com/mchung94/pyramid-solver) is an earlier
 project I created to investigate how to solve Pyramid Solitaire games as
@@ -29,6 +30,29 @@ The solution I chose was to create a new Java program using the following:
    APIs to find and resize the Microsoft Solitaire Collection window to a
    consistent size.  This makes using SikuliX easier.  
 
+## Package and Class Structure
+The main three categories of packages and classes are:
+1. Windows
+2. Solvers
+3. Players
+
+Window classes: `MSCWindow` and its subclasses `PyramidWindow` and
+`TriPeaksWindow` are meant to represent the Microsoft Solitaire Collection
+window and interact with it, such as looking at cards in the game and guessing
+what they are, as well as clicking on cards or buttons.
+
+Solver classes: The `com.secondthorn.solitaireplayer.solvers` package contains
+classes meant to take a deck of cards and find a solution to the solitaire
+game.  One design principle is to keep each game's solvers completely separate,
+so the pyramid package for solving Pyramid Solitaire shares no code with the
+tripeaks package for solving TriPeaks Solitaire.
+
+Players: `SolitairePlayer` and its subclasses `PyramidPlayer` and
+`TriPeaksPlayer` use the Window classes and Solver classes and guide the user
+from the beginning of the game to the end by figuring out what to do using the
+solver classes, then interacting with the Microsoft Solitaire Collection window
+to perform the actions the solvers give as the solution.
+
 ## SikuliX Usage
 This section contains information on how and why SikuliX is used the way it is
 in this program.
@@ -51,28 +75,9 @@ points during the program runtime in case some activity has happened in
 between.  This helps the rest of the code make some assumptions about the size
 and location of cards on screen.
 
-SikuliX sometimes guesses cards incorrectly when the window is so small, so
-if the window is maximized on a 1920x1080 monitor and there's a normal sized
-taskbar, the program will play the game without resizing it.
-
-But there are still some things to be aware of when using SikuliX on the
-Microsoft Solitaire Collection window:
-- Even though the window should be 1024x768, the Windows Display Settings
-  scaling size can change this:
-  - 100% - the window size becomes 1024x768
-  - 200% - the window size becomes 1026x977
-  - 250% - the window size becomes 1282x1221
-- In goal challenges (as opposed to regular games), the goal is displayed in
-  a bar on the bottom of the game window.  This used to squash the rest of the
-  cards into a smaller space, and the program had to adjust its expectations of
-  the cards' size and location.  But as of the April 2018 Windows 10 update,
-  this is no longer the case - the cards look the same and are in the same
-  positions of the screen regardless of whether or not the goal bar is there.
-- The cards themselves look slightly different not only based on the window
-  size, but also their positions on screen.  If the top of the pyramid is a
-  three of clubs, the 3 would look slightly different than if it was at the
-  bottom of the pyramid.  This is because of the algorithm used to squash a
-  large image into a smaller window.
+SikuliX sometimes guesses cards incorrectly because the images are so small.
+So the program will ask the user to verify any cards it scans to correct any
+mistakes.
 
 ### Key Ideas for SikuliX Usage
 To deal with these issues, there are different images in the resource directory
@@ -111,15 +116,153 @@ failed earlier and it might try to click on the Three of Spades.  So the
 solution also contains a reference to the location for SikuliX to click on,
 based on the verified list of cards it was given.
 
-## Solver
+## Solitaire Solver Algorithm Discussion
+It's not too complicated to create a Breadth-First Search or A\* search to
+solve these games, but there needs to be some major work on optimization or it
+will take a long time and use too much memory.  I've increased the speed of
+the Pyramid Solver by over 50x to make sure it can run in a reasonable time on
+a 8GB laptop.
+
+There's two main insights in how to improve performance on these search
+algorithms:
+1. State Representation: Representing the state of the game by using lists or
+arrays of cards, no matter how the cards are represented, is too slow.  This
+makes checking if a state has already been seen earlier in the search take too
+long.  For Pyramid and TriPeaks Solitaire, we can represent the state of the
+game using a single 64-bit long (for Pyramid) or 32-bit int (for TriPeaks).
+The optimizations are discussed later in this document.
+2. Pyramid and TriPeaks both use 28 cards on the "tableau" or board.  Both
+have the rule that a card can't be removed unless the cards blocking it from
+below are removed first.  So for a given deck of cards, there are only 1430
+possible configurations of cards remaining on the board for Pyramid Solitaire,
+and 22,932 for TriPeaks.  This gives us a huge opportunity for precalculating
+a lot of things for Pyramid Solitaire, enough so that the majority of time in
+the search process is just bit twiddling and hash table lookups.  TriPeaks
+doesn't need this however.  It's pretty fast without doing this - I tried it
+anyway but it wasn't worth it.
+
+### Card Representation
+Almost every time I see playing cards represented in code, it's as a class
+using enums for ranks and suits.  And decks of cards end up being a class
+containing a list or array of cards.
+
+When people optimize cards, they tend to represent a card using an integer or
+some bit representation.  One easy optimization is to represent a card as an
+integer from 0 to 51 inclusive and treat them as IDs - any data you'd like to
+know about the card can be encoded as arrays using the card ID as a lookup
+index.
+
+I spent a lot of time exploring ways to optimize card representation and
+realized for Pyramid and TriPeaks, it's unnecessary once we optimize the state
+representation.
+
+So in this code, there's no card class - cards are just two letter strings
+consisting of a rank character (A23456789TJQK) followed by a suit character
+(cdhs).  Unknown cards in TriPeaks are represented by the string "??".  This is
+to emphasize that they're just pieces of data we look up when we need, and that
+they aren't involved in much real work.
+
+### State Representation
+Pyramid and TriPeaks are different from other games like Klondike, Spider, or
+FreeCells because we don't build stacks of cards and move them around.  Both
+games have 28 cards on the board that just sit there until they're either
+removed from the game entirely (in Pyramid) or moved to the top of the waste
+pile (in TriPeaks).  They both have stock and waste piles too.
+
+The simple way to represent game state would be to have a State class that
+stores:
+- An array of 28 cards for the board.
+- A list of cards in the stock pile.
+- A list of cards in the waste pile.
+- Maybe some miscellaneous information like the current score or streak in
+TriPeaks.
+
+The trick to storing the entire game state in a single 32-bit or 64-bit value
+is to store the minimum possible information that is needed to derive the
+full state given the deck of cards and the path of states from the beginning
+of the game to the current state which are stored separately.  In other words,
+make the state refer to the deck of cards instead of contain the deck of cards.
+
+In Pyramid Solitaire we could represent the game with a State class using:
+- 52 bits to indicate which of the 52 cards of the deck remain in the game.
+- An integer from 28 to 52 indicating which card in the deck of cards is
+currently the top card of the stock pile.  Any cards with deck index higher
+than this is the rest of the stock pile, and any cards with deck index below
+this not including the 28 pyramid cards is the waste pile.  52 means the stock
+pile is empty.
+- The number of times the waste pile has been recycled, since the player can
+recycle the waste pile up to two times.
+
+But we can use 52 bits for the flags, 6 bits for an integer from 28 to 52 for
+the stock card index, and two bits for the number of times the waste pile was
+recycled.  That's 60 bits for the entire representation which we can pack into
+a 64-bit long.
+
+The Common Lisp version of the Pyramid Solitaire solver goes a bit further, by
+encoding the first 28 of the 52 bits as a number from 0 to 1429 (11 bits)
+because there's only 1430 possible values of the first 28 bits.  There's a few
+optimizations that follow from that but they're not necesary here.
+
+In TriPeaks Solitaire, we use:
+- 15 bits to store an integer from 0 to 22931 as an ID representing each valid
+configuration of 28 cards on the tableau.
+- 6 bits for the deck index of the card on top of the waste pile (0 to 51).
+- 6 bits for the deck index of the card on top of the stock pile (29 to 52
+where 52 means the stock pile is empty).
+
+With states being represented as unboxed ints or longs, we use the
+[Trove library](http://trove.starlight-systems.com/) for its collections
+on unboxed primitives.  I tried to see what happens if I switch to another
+library for collections but Trove still seems to be the fastest for my
+purposes.
+
+### TriPeaks Solitaire Algorithms and Data Structures
+Let's discuss TriPeaks first because it's a lot simpler.
+
+There are four solvers for TriPeaks, all of which use Breadth-First Search, and
+always return a single best list of steps to play.
+1. Board Challenge Solver: find the shortest path to clearing the board.
+2. Score Challenge Solver: find the shortest path to get the goal score if
+possible, or the maximum possible score if not.
+3. Card Challenge Solver: find the shortest path to the goal of removing a
+number of cards of a certain rank from the tableau.  If the goal can't be
+reached, try to find the shortest path to clearing the tableau.  If that can't
+be done either, just try to clear the most of the goal card rank as possible.
+4. Card Revealing Solver: find the shortest path to turn over a face down card
+that isn't known yet.  Iterate and keep turning over face down cards, undoing
+the board and starting from the beginning if necessary.
+
+The main loop in `TriPeaksPlayer.autoplay()` tries to solve the game, and
+for as long as the solution indicates that there might be a better solution if
+we reveal more of the the unknown face-down cards, it will run the card
+revealing solver.
+
+Because of the card revealing process, Solutions returned by the solver classes
+have a method called `isDefinitiveSolution()`.  A solution is a definitive
+solution when the solver determines that turning over more face down cards
+and knowing what they are can't give us a better solution, for example when
+the player can already reach a score goal without knowing any more cards.
+
+### Score and Solution Steps calculation
+The Breadth-First Search process uses a mapping from state to previous state
+which can be used to look up the steps from the beginning of the game to the
+current state.  But calculating the score uses a `ScoreCache` mapping from a
+state to a score and streak value so calculating the score for a state needs
+just one lookup to the previous state's score instead of going all the way back
+to the beginning of the game to calculate the score.
+
+### FIFO Queue
+The `IntFIFOQueue` class is a first-in, first-out queue for unboxed ints.
+Trove doesn't have this.  The implementation is similar to ArrayDeque which
+uses a common technique for queues - creating a power-of-two sized array to
+hold the data, with indexes pointing to the head and tail which can wrap
+around the ends of the underlying array.
+
+## Pyramid Solitaire Solver Algorithms and Data Structures
 This section discusses the Pyramid Solitaire solving algorithm.
 
-### Memory Usage
-States are just long values, so for reduced memory usage, we use the
-[Trove library](http://trove.starlight-systems.com/) for its collections
-on unboxed primitives.  
-
-### Algorithms
+There are three solvers for Pyramid Solitaire, which return a mapping from a
+solution description string to a list of `Actions` to perform.
 - Board Challenge Solver - A\* algorithm with unwinnable state detection.  The
   goal state is when all 28 pyramid cards have been removed, so we can skip all
   states that are found to be unwinnable (impossible to remove one of the cards
@@ -158,28 +301,6 @@ for each card on the pyramid that isn't a King:
     filter out the ones that are covering or covered by the card
     if none are left, there's no way to remove the card, so it's unwinnable
 ```
-
-### Key Ideas
-1. The solver needs to avoid revisiting states by keeping track of visited
-   states, otherwise it may take a really long time regardless of anything else
-   we do.  For example Depth-First Search sometimes finds a non-optimal
-   solution in just a few milliseconds, but there are always decks where it
-   could run for hours unless it avoids revisiting states.
-2. From initial performance testing, I learned that representing the state of
-   the game using sequences of cards (such as vectors/lists/strings), no matter
-   what card representation I used, was too slow.
-3. There are only 1430 valid arrangements of cards in the pyramid.  The rule is
-   that a card can't be removed if there are still cards covering it from
-   below.  This is small enough that it is feasible to precalculate things for
-   every possible pyramid card arrangement given a deck of cards.
-4. Cards don't really need to move in Pyramid Solitaire, unlike other games
-   like FreeCell.  Cards in the pyramid never move, they just get removed.  And
-   if the 24 stock/waste cards were in one array, just an index into the array
-   pointing to the top card of the stock pile is sufficient to simulate all the
-   card moves.  If all the cards with higher index are the rest of the stock
-   pile, and all the cards with lower index are the waste pile, then:
-   - Incrementing the index draws a card from the stock to the waste pile.
-   - Resetting the index back to the first card is recycling the waste pile.
 
 ### State Representation
 A state shows where all the cards are and which cycle through the stock cards
