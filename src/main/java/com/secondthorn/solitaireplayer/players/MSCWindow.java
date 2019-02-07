@@ -150,7 +150,7 @@ public abstract class MSCWindow {
         if ((hwnd == null) || !showWindow(hwnd) || !moveWindow(hwnd) || !setForegroundWindow(hwnd)) {
             throw new PlayException("Unable to find, move, or show the Microsoft Solitaire Collection window.");
         }
-        Thread.sleep(500);
+        Thread.sleep(250);
     }
 
     /**
@@ -196,7 +196,7 @@ public abstract class MSCWindow {
         robot.mouseDown(InputEvent.BUTTON1_DOWN_MASK);
         robot.mouseUp(InputEvent.BUTTON1_DOWN_MASK);
         robot.waitForIdle();
-        Thread.sleep(500);
+        Thread.sleep(400);
     }
 
     /**

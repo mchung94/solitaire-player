@@ -95,7 +95,7 @@ public class Pyramid {
     static {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ALL = mapper.readValue(ClassLoader.getSystemResource("pyramid/Pyramid.json"), Pyramid[].class);
+            ALL = mapper.readValue(ClassLoader.getSystemResource("Pyramid/Pyramid.json"), Pyramid[].class);
         } catch (IOException ex) {
             throw new ExceptionInInitializerError(ex);
         }
