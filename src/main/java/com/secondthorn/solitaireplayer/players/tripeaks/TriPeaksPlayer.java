@@ -4,6 +4,7 @@ import com.secondthorn.solitaireplayer.players.PlayException;
 import com.secondthorn.solitaireplayer.players.SolitairePlayer;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.Action;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.BoardChallengeSolver;
+import com.secondthorn.solitaireplayer.solvers.tripeaks.CardChallengeSolver;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.CardRevealingSolver;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.Deck;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.ScoreChallengeSolver;
@@ -53,6 +54,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
                 int goalNumCardsToClear = parseInt(args[1]);
                 char cardRankToClear = parseCardRank(args[2]);
                 int currentNumCardsCleared = parseInt(args[3]);
+                solver = new CardChallengeSolver(goalNumCardsToClear, cardRankToClear, currentNumCardsCleared);
                 System.out.print("Starting a TriPeaks Solitaire Card Challenge: ");
                 System.out.print("clear " + goalNumCardsToClear + " cards of rank " + cardRankToClear);
                 System.out.println(", with " + currentNumCardsCleared + " cleared so far");
@@ -79,24 +81,27 @@ public class TriPeaksPlayer extends SolitairePlayer {
         window.undoBoard();
         int state = State.INITIAL_STATE;
         System.out.println("Now searching for a solution...");
-        List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
-        while (!solutions.stream().anyMatch(Solution::isDefinitiveSolution)) {
+        Solution solution = solver.solve(deck, State.INITIAL_STATE);
+        while (!solution.isDefinitiveSolution()) {
             System.out.println("No definite solution found yet - searching for a way to reveal face down cards...");
-             List<Solution> cardRevealingSolutions = cardRevealingSolver.solve(deck, state);
-             if (cardRevealingSolutions.size() > 0) {
-                 Thread.sleep(1000);
-                 Solution solution = cardRevealingSolver.solve(deck, state).get(0);
-                 playSolution(solution, window);
-                 deck = updateDeck(deck, window);
-                 state = solution.getEndingState();
-                 solutions = solver.solve(deck, State.INITIAL_STATE);
-             } else {
-                 System.out.println("No way to turn over face down cards, try a non-definitive solution...");
-                 break;
-             }
+            Solution cardRevealingSolution = cardRevealingSolver.solve(deck, state);
+            if (cardRevealingSolution.getActions().size() > 0) {
+                Thread.sleep(1000);
+                playSolution(cardRevealingSolution, window);
+                deck = updateDeck(deck, window);
+                state = cardRevealingSolution.getEndingState();
+                solution = solver.solve(deck, State.INITIAL_STATE);
+            } else {
+                System.out.println("No way to turn over face down cards, try a non-definitive solution...");
+                break;
+            }
         }
-        Solution solution = chooseSolution(solutions);
         printSolution(solution);
+        String confirmMessage = String.format("Press Yes to play or No to quit.\nSolution: %s\n",
+                solution.getDescription());
+        if (!popAsk(confirmMessage, "Play the solution?")) {
+            throw new PlayException("User cancelled selecting and playing a solution.");
+        }
         window.undoBoard();
         playSolution(solution, window);
     }
@@ -229,31 +234,6 @@ public class TriPeaksPlayer extends SolitairePlayer {
                     window.undoBoard();
                     break;
             }
-        }
-    }
-
-    private Solution chooseSolution(List<Solution> solutions) throws PlayException {
-        Solution chosenSolution;
-        if (solutions.size() == 1) {
-            chosenSolution = solutions.get(0);
-        } else {
-            Map<String, Solution> descriptionToSolution = new HashMap<>();
-            for (Solution solution : solutions) {
-                descriptionToSolution.put(solution.getDescription(), solution);
-            }
-            String[] descriptions = descriptionToSolution.keySet().toArray(new String[0]);
-            Arrays.sort(descriptions);
-            String message = "Select a solution, Cancel to exit without automatically playing.";
-            String title = "Multiple Solutions Found";
-            String chosenDescription = popSelect(message, title, descriptions);
-            chosenSolution = descriptionToSolution.get(chosenDescription);
-        }
-        String confirmMessage = String.format("Press Yes to play or No to quit.\nSolution: %s\n",
-                chosenSolution.getDescription());
-        if ((chosenSolution != null) && popAsk(confirmMessage, "Play the solution?")) {
-            return chosenSolution;
-        } else {
-            throw new PlayException("User cancelled selecting and playing a solution.");
         }
     }
 

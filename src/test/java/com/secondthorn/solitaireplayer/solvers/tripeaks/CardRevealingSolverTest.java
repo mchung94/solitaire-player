@@ -22,9 +22,7 @@ public class CardRevealingSolverTest {
                 "As 9d Ad 4s Jc 2d 7s Jh 4d Kd 9c 8d 5s 2c 4h Qd Ts 5d 4c Ks 6c Tc 3s"
         );
         CardRevealingSolver solver = new CardRevealingSolver();
-        List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
-        assertEquals(1, solutions.size());
-        Solution solution = solutions.get(0);
+        Solution solution = solver.solve(deck, State.INITIAL_STATE);
         assertEquals("Reveal the tableau cards at index(es): [16]", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(3, solution.getActions().size());
@@ -41,9 +39,7 @@ public class CardRevealingSolverTest {
                 "4h 5h 6h 7h 8h 9h Th Jh Qh Kh As 2s 3s 4s 5s 6s 7s 8s 9s Ts Js Qs Ks"
         );
         CardRevealingSolver solver = new CardRevealingSolver();
-        List<Solution> solutions = solver.solve(deck, State.INITIAL_STATE);
-        assertEquals(1, solutions.size());
-        Solution solution = solutions.get(0);
+        Solution solution = solver.solve(deck, State.INITIAL_STATE);
         assertEquals("All cards are known, can't turn over any face down cards", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(0, solution.getActions().size());
@@ -60,9 +56,7 @@ public class CardRevealingSolverTest {
                 "As 9d Ad 4s Jc 2d 7s Jh 4d Kd 9c 8d 5s 2c 4h Qd Ts 5d 4c Ks 6c Tc 3s"
         );
         CardRevealingSolver solver = new CardRevealingSolver();
-        List<Solution> solutions = solver.solve(deck, State.create(20313, 51, 52));
-        assertEquals(1, solutions.size());
-        Solution solution = solutions.get(0);
+        Solution solution = solver.solve(deck, State.create(20313, 51, 52));
         assertEquals("Reveal the tableau cards at index(es): [16]", solution.getDescription());
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(State.create(19333, 25, 30), solution.getEndingState());

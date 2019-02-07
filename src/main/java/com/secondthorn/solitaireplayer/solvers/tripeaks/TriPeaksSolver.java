@@ -12,14 +12,13 @@ import java.util.List;
 public interface TriPeaksSolver {
     /**
      * Evaluates a deck for TriPeaks Solitaire (some cards may be unknown) and returns lists of steps to take to play
-     * the game towards a goal. There may be one or more solutions, even if there's nothing that can be done there
-     * will be a Solution object that says that.
+     * the game towards a goal.  If it's not possible to reach the goal, the Solution will indicate this.
      *
      * @param deck          a deck of cards for TriPeaks Solitaire
      * @param startingState the starting state for the solver to begin at (might not be the beginning of the game)
-     * @return a list of one or more Solution objects (some may indicate there is nothing possible to do)
+     * @return a Solution (may indicate there is nothing possible to do)
      */
-    List<Solution> solve(Deck deck, int startingState);
+    Solution solve(Deck deck, int startingState);
 
     /**
      * Given a state and a mapping from state to previous state, return a list of Actions to go from the start of the

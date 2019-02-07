@@ -5,14 +5,24 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ScoreChallengeSolver implements TriPeaksSolver {
+    /**
+     * The maximum possible score removing all 28 tableau cards in a single streak.
+     */
     public static final int MAX_POSSIBLE_SCORE = 84900;
 
+    /**
+     * The number of points needed to reach the goal.
+     */
     private int pointsNeeded;
 
+    /**
+     * Creates a Score Challenge solver to find a way to reach the goal score starting from the current score
+     * @param goalScore the final score needed to win the challenge
+     * @param currentScore the current score at the start of the game
+     */
     public ScoreChallengeSolver(int goalScore, int currentScore) {
         pointsNeeded = goalScore - currentScore;
         if (pointsNeeded <= 0) {
@@ -20,9 +30,16 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
         }
     }
 
+    /**
+     * Returns the best series of steps to play for a Score Challenge. Some cards in the tableau may be unknown.
+     * If the goal score can be reached, that will be the return value. Otherwise it will return the steps to reach
+     * the highest possible score. If all cards are known, this will be a definitive solution, otherwise it won't be.
+     * @param deck          a deck of cards for TriPeaks Solitaire
+     * @param startingState the starting state for the solver to begin at
+     * @return a Solution to either reach the goal, or the highest possible score otherwise
+     */
     @Override
-    public List<Solution> solve(Deck deck, int startingState) {
-        List<Solution> solutions = new ArrayList<>();
+    public Solution solve(Deck deck, int startingState) {
         IntFIFOQueue fringe = new IntFIFOQueue();
         TIntIntMap seenStates = new TIntIntHashMap();
         TIntObjectMap<ScoreCache> scoreCache = new TIntObjectHashMap<>();
@@ -39,8 +56,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
             if (score >= pointsNeeded) {
                 List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
                 String description = String.format("Gain %d points in %d steps", score, actions.size());
-                solutions.add(new Solution(description, true, actions, state));
-                break;
+                return new Solution(description, true, actions, state);
             }
             if (score > bestScore) {
                 bestScore = score;
@@ -55,12 +71,9 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
                 }
             }
         }
-        if (solutions.size() == 0) {
-            List<Action> actions = TriPeaksSolver.actions(bestState, seenStates, deck);
-            String description = String.format("Gain %d points in %d steps", bestScore, actions.size());
-            solutions.add(new Solution(description, !deck.hasUnknownCards(), actions, bestState));
-        }
-        return solutions;
+        List<Action> actions = TriPeaksSolver.actions(bestState, seenStates, deck);
+        String description = String.format("Gain %d points in %d steps", bestScore, actions.size());
+        return new Solution(description, !deck.hasUnknownCards(), actions, bestState);
     }
 
     /**

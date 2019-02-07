@@ -122,4 +122,9 @@ public class DeckTest {
         assertTrue(startingOrderedDeck.hasUnknownCards());
     }
 
+    @Test
+    void tableauRankMask() {
+        assertEquals(0b0100000000000010000000000001, orderedDeck.tableauRankMask('A'));
+        assertEquals(0b0010000000000001000000000000, orderedDeck.tableauRankMask('K'));
+    }
 }

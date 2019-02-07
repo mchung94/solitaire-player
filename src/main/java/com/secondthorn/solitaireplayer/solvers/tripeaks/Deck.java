@@ -90,10 +90,27 @@ public class Deck {
 
     /**
      * Returns an array of deck indexes of all the unknown cards in the deck.
+     *
      * @return an array of deck indexes (0-51)
      */
     public boolean hasUnknownCards() {
         return IntStream.range(0, cards.size()).anyMatch(this::isUnknownCard);
+    }
+
+    /**
+     * Returns a mask with bits set (0 - 27) on the tableau cards indexes with cards of the given rank.
+     *
+     * @param rank a card rank, one of A23456789TJQK
+     * @return a mask with bits set on the tableau indexes for the cards of the given rank
+     */
+    public int tableauRankMask(char rank) {
+        int mask = 0;
+        for (int i = 0; i < 28; i++) {
+            if (cardRank(cardAt(i)) == rank) {
+                mask |= 1 << i;
+            }
+        }
+        return mask;
     }
 
     /**

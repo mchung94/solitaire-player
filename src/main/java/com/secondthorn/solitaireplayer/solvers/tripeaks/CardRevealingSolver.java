@@ -19,8 +19,7 @@ public class CardRevealingSolver implements TriPeaksSolver {
      * @return a list containing one Solution to either reveal a card or do nothing
      */
     @Override
-    public List<Solution> solve(Deck deck, int startingState) {
-        List<Solution> solutions = new ArrayList<>();
+    public Solution solve(Deck deck, int startingState) {
         if (deck.hasUnknownCards()) {
             IntFIFOQueue fringe = new IntFIFOQueue();
             TIntIntMap seenStates = new TIntIntHashMap();
@@ -33,8 +32,7 @@ public class CardRevealingSolver implements TriPeaksSolver {
                     String description = String.format("Reveal the tableau cards at index(es): %s",
                             Arrays.toString(faceUpUnknowns));
                     List<Action> cards = TriPeaksSolver.actions(state, seenStates, deck);
-                    solutions.add(new Solution(description, true, cards, state));
-                    break;
+                    return new Solution(description, true, cards, state);
                 }
                 for (int nextState : nextStates) {
                     if (!seenStates.containsKey(nextState)) {
@@ -45,16 +43,16 @@ public class CardRevealingSolver implements TriPeaksSolver {
             }
         } else {
             String description = "All cards are known, can't turn over any face down cards";
-            solutions.add(new Solution(description, true, new ArrayList<>(), startingState));
+            return new Solution(description, true, new ArrayList<>(), startingState);
         }
 
-        if ((solutions.size() == 0) && (startingState != State.INITIAL_STATE)) {
-            List<Solution> solutionsFromBeginning = solve(deck, State.INITIAL_STATE);
-            Solution solution = solutionsFromBeginning.get(0);
+        if (startingState != State.INITIAL_STATE) {
+            Solution solution = solve(deck, State.INITIAL_STATE);
             solution.getActions().add(0, new Action("Undo Board", deck));
-            solutions.add(solution);
+            return solution;
+        } else {
+            String description = "Can't turn over any face down cards";
+            return new Solution(description, true, new ArrayList<>(), startingState);
         }
-
-        return solutions;
     }
 }

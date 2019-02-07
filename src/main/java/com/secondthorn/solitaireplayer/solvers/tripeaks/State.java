@@ -50,7 +50,7 @@ public class State {
      * @param tableauIndex the tableau ID representing the cards remaining on the tableau
      * @param wasteIndex   the deck index of the top card of the waste pile (0 - 51)
      * @param stockIndex   the deck index of the top card of the stock pile, or 52 if it's empty (29 - 52)
-     * @return
+     * @return a new state (an int value)
      */
     public static int create(int tableauIndex, int wasteIndex, int stockIndex) {
         return tableauIndex | (wasteIndex << 15) | (stockIndex << 21);

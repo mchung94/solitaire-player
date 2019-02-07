@@ -3,7 +3,6 @@ package com.secondthorn.solitaireplayer.solvers.tripeaks;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,8 +19,7 @@ public class BoardChallengeSolver implements TriPeaksSolver {
      * @return a list containing one Solution
      */
     @Override
-    public List<Solution> solve(Deck deck, int startingState) {
-        List<Solution> solutions = new ArrayList<>();
+    public Solution solve(Deck deck, int startingState) {
         IntFIFOQueue fringe = new IntFIFOQueue();
         TIntIntMap seenStates = new TIntIntHashMap();
         fringe.enqueue(startingState);
@@ -30,8 +28,7 @@ public class BoardChallengeSolver implements TriPeaksSolver {
             if (State.isTableauEmpty(state)) {
                 List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
                 String description = String.format("Clear the board in %d steps", actions.size());
-                solutions.add(new Solution(description, true, actions, state));
-                break;
+                return new Solution(description, true, actions, state);
             }
             for (int nextState : State.successors(state, deck)) {
                 if (!seenStates.containsKey(nextState)) {
@@ -40,11 +37,8 @@ public class BoardChallengeSolver implements TriPeaksSolver {
                 }
             }
         }
-        if (solutions.size() == 0) {
-            String description = "Lose Quickly: Impossible to clear the board";
-            solutions.add(new Solution(description, !deck.hasUnknownCards(),
-                    TriPeaksSolver.loseQuicklyActions(deck), startingState));
-        }
-        return solutions;
+        String description = "Lose Quickly: Impossible to clear the board";
+        List<Action> actions = TriPeaksSolver.loseQuicklyActions(deck);
+        return new Solution(description, !deck.hasUnknownCards(), actions, startingState);
     }
 }
