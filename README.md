@@ -47,7 +47,7 @@ Here are timings for finding out how to remove as many Aces as possible from the
 | 1500 random decks    |      6198 |        3610 |        67427 |             2:34:57 |
 
 #### TriPeaks Board Challenges
-Here are timings for clearing the board on the same 1500 random decks on the same 1500 random decks.  43 of them have no possible way to clear the board and the timing measurement is how long the program takes to find out there's no solution.
+Here are timings for clearing the board on the same 1500 random decks.  43 of them have no possible way to clear the board and the timing measurement is how long the program takes to find out there's no solution.
 
 | Decks                | Mean (ms) | Median (ms) | Maximum (ms) | Total (hrs:min:sec) |
 |:-------------------- | ---------:| -----------:| ------------:| -------------------:|
