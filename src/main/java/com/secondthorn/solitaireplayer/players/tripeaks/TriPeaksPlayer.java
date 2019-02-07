@@ -13,14 +13,10 @@ import com.secondthorn.solitaireplayer.solvers.tripeaks.State;
 import com.secondthorn.solitaireplayer.solvers.tripeaks.TriPeaksSolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.sikuli.script.Sikulix.popAsk;
-import static org.sikuli.script.Sikulix.popSelect;
 
 /**
  * Guides the user through a game of TriPeaks Solitaire. It interacts with the Microsoft Solitaire Collection window as
@@ -115,6 +111,8 @@ public class TriPeaksPlayer extends SolitairePlayer {
     public void preview(String filename) throws PlayException {
         List<String> cards = readCardsFromFile(filename);
         Deck deck = new Deck(verifyCards(cards));
+        Solution solution = solver.solve(deck, State.INITIAL_STATE);
+        printSolution(solution);
     }
 
     /**
