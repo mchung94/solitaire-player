@@ -12,7 +12,7 @@ solitaire-player is a Java program that can quickly find an optimal solution to 
 - Supports 3 types of Pyramid and TriPeaks Solitaire challenges:
   - Board Challenges: clear the board, even if there are still cards remaining in the stock or waste piles.
   - Card Challenges: remove a number of cards of a given rank.  For example, "Clear 12 Aces in 2 deals".
-  - Score Challenges: reach a given score, or just maximize the score.
+  - Score Challenges: reach a given score, or just maximize the score.  In Pyramid Solitaire the best possible score is guaranteed, but in TriPeaks it doesn't always get the maximum possible score.
 - In Pyramid Solitaire it's easy to find out all 52 cards in the game by looking through the stock pile and then restart the game from the beginning.  But in TriPeaks Solitaire, there are 18 face down cards that can only be revealed by playing the game and removing the cards blocking them from below.  This program can play to reveal the face down cards.
 - Can automatically play Pyramid or TriPeaks Solitaire in Microsoft Solitaire Collection on Windows 10.
   - You just need to have the app running at the beginning of a Pyramid or TriPeaks Solitaire game, and tell it which type of challenge you are playing.

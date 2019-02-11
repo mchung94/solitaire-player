@@ -223,7 +223,8 @@ There are four solvers for TriPeaks, all of which use Breadth-First Search, and
 always return a single best list of steps to play.
 1. Board Challenge Solver: find the shortest path to clearing the board.
 2. Score Challenge Solver: find the shortest path to get the goal score if
-possible, or the maximum possible score if not.
+possible, or try to find the maximum possible score if not (it's not guaranteed
+to find the maximum possible score).
 3. Card Challenge Solver: find the shortest path to the goal of removing a
 number of cards of a certain rank from the tableau.  If the goal can't be
 reached, try to find the shortest path to clearing the tableau.  If that can't
@@ -231,6 +232,14 @@ be done either, just try to clear the most of the goal card rank as possible.
 4. Card Revealing Solver: find the shortest path to turn over a face down card
 that isn't known yet.  Iterate and keep turning over face down cards, undoing
 the board and starting from the beginning if necessary.
+
+There needs to be more work on getting the optimal score for score challenges.
+So far my thinking is: we have to skip over states we've already seen before,
+or else it will take a long time and a lot of memory to finish.  But it's
+possible to reach the same state from different paths where one state has a
+lower current score but higher streak value - this might overtake another state
+with a higher current score but lower streak value but you can only know it if
+you look ahead.
 
 The main loop in `TriPeaksPlayer.autoplay()` tries to solve the game, and
 for as long as the solution indicates that there might be a better solution if
