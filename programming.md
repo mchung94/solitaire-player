@@ -233,14 +233,6 @@ be done either, just try to clear the most of the goal card rank as possible.
 that isn't known yet.  Iterate and keep turning over face down cards, undoing
 the board and starting from the beginning if necessary.
 
-There needs to be more work on getting the optimal score for score challenges.
-So far my thinking is: we have to skip over states we've already seen before,
-or else it will take a long time and a lot of memory to finish.  But it's
-possible to reach the same state from different paths where one state has a
-lower current score but higher streak value - this might overtake another state
-with a higher current score but lower streak value but you can only know it if
-you look ahead.
-
 The main loop in `TriPeaksPlayer.autoplay()` tries to solve the game, and
 for as long as the solution indicates that there might be a better solution if
 we reveal more of the the unknown face-down cards, it will run the card
@@ -251,6 +243,25 @@ have a method called `isDefinitiveSolution()`.  A solution is a definitive
 solution when the solver determines that turning over more face down cards
 and knowing what they are can't give us a better solution, for example when
 the player can already reach a score goal without knowing any more cards.
+
+### Suboptimal Score Challenge Solutions
+Score Challenges for TriPeaks don't guarantee the best possible solution.  The
+reason is because it's possible to arrive at the same state in different ways
+with a different score and/or streak.
+
+One way to reach the state might have a higher score but lower streak than
+another way, but we can't tell which is better unless we search both ways to
+see if the lower scoring path overtakes the other.
+
+So currently, we just let the one with the better current score win and skip
+over paths with lower score but longer streak.  That's not right, but it takes
+an extremely long time to try both.
+
+I've done some experiments on a compromise, which is to keep track of the best
+score and best streak reaching a given state, and if another path comes along
+with either a better score or a better streak, add it to the search.  That
+still makes it take a little longer than I'd like for interactive purposes
+though.
 
 ### Score and Solution Steps calculation
 The Breadth-First Search process uses a mapping from state to previous state
