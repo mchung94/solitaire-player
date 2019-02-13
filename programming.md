@@ -257,12 +257,6 @@ So currently, we just let the one with the better current score win and skip
 over paths with lower score but longer streak.  That's not right, but it takes
 an extremely long time to try both.
 
-I've done some experiments on a compromise, which is to keep track of the best
-score and best streak reaching a given state, and if another path comes along
-with either a better score or a better streak, add it to the search.  That
-still makes it take a little longer than I'd like for interactive purposes
-though.
-
 ### Score and Solution Steps calculation
 The Breadth-First Search process uses a mapping from state to previous state
 which can be used to look up the steps from the beginning of the game to the
