@@ -56,7 +56,7 @@ Here are timings for clearing the board on the same 1500 random decks.  43 of th
 | 43 unsolvable decks  |        81 |          93 |          125 |             0:00:04 |
 
 #### TriPeaks Score Challenges
-Here are timings for finding out how to get the maximum possible score on the same 1500 random decks.
+Here are timings for trying to get a relatively high score on the same 1500 random decks.  It doesn't guarantee the best possible score.
 
 | Decks                | Mean (ms) | Median (ms) | Maximum (ms) | Total (hrs:min:sec) |
 |:-------------------- | ---------:| -----------:| ------------:| -------------------:|
@@ -100,7 +100,7 @@ The TriPeaks options are basically the same as Pyramid but with the word TriPeak
   - `solitaire-player.bat TriPeaks Board`
     - This runs the Board Challenge solver - clear the board in as few steps as possible.
   - `solitaire-player.bat TriPeaks Score`
-    - This runs the Score Challenge solver - maximize the score in as few steps as possible.
+    - This runs the Score Challenge solver - try to get a relatively high score in as few steps as possible.
   - `solitaire-player.bat TriPeaks Score <goal score> <current score>`
     - For example: "solitaire-player.bat TriPeaks Score 90000 44300" means your current score is 44300 and if you reach 90000 points you win.
     - This runs the Score Challenge solver but knows it can stop playing if it reaches the goal score.
