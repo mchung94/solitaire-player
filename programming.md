@@ -80,10 +80,7 @@ So the program will ask the user to verify any cards it scans to correct any
 mistakes.
 
 ### Key Ideas for SikuliX Usage
-To deal with these issues, there are different images in the resource directory
-for each of the three scaling sizes.
-
-There are also JSON files containing the locations of where each card in the
+There are JSON files containing the locations of where each card in the
 the game should be at.
 
 For each card rank and suit, there is a subdirectory for containing multiple

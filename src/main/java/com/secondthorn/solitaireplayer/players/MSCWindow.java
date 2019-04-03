@@ -77,11 +77,13 @@ public abstract class MSCWindow {
      */
     protected MSCWindow(String gameName) throws InterruptedException, PlayException {
         positionForPlay();
-        Settings.InputFontSize = (int) (14 * (getPercentScaling() / 100.0));
-        String commonResourceDir = resourceDir("Common");
-        okImage = loadImage(commonResourceDir + "OK.png");
-        undoBoardImage = loadImage(commonResourceDir + "UndoBoard.png");
-        String gameResourceDir = resourceDir(gameName);
+        if (!getSizeString().equals("1024x768")) {
+            throw new PlayException("Windows Display Settings scaling size problem - only 100% scaling is supported.");
+        }
+        Settings.InputFontSize = 14;
+        okImage = loadImage("Common/OK.png");
+        undoBoardImage = loadImage("Common/UndoBoard.png");
+        String gameResourceDir = gameName + "/";
         Image gameImage = loadImage(gameResourceDir + "Game.png");
         if (appRegion().exists(gameImage, 0.0d) == null) {
             throw new PlayException("Can't detect if we're playing a game of " + gameName + " Solitaire.");
@@ -220,17 +222,6 @@ public abstract class MSCWindow {
     }
 
     /**
-     * Gets the main src/main/resources subdirectory for the given game and display scaling factor.
-     * For example in Pyramid Solitaire on a display with 100% scaling factor, will return "Pyramid/1024x768/".
-     *
-     * @param topLevelDir the directory under src/main/resources indicating which solitaire game is being played
-     * @return the directory containing images and other resources for the current game and display scaling factor
-     */
-    protected String resourceDir(String topLevelDir) {
-        return String.format("%s/%s/", topLevelDir, getSizeString());
-    }
-
-    /**
      * Returns a mapping between images and the rank / suit characters they represent.  Multiple images may map to
      * the same character.
      */
@@ -295,7 +286,7 @@ public abstract class MSCWindow {
         List<String> filenames = new ArrayList<>();
         for (Path path : ds) {
             int nameCount = path.getNameCount();
-            filenames.add(path.subpath(nameCount - 4, nameCount).toString());
+            filenames.add(path.subpath(nameCount - 3, nameCount).toString());
         }
         return filenames;
     }
@@ -338,11 +329,6 @@ public abstract class MSCWindow {
          * This is to see the display's true resolution instead of a scaled resolution.
          */
         DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT context);
-
-        /**
-         * Returns the DPI for the given window.
-         */
-        WinDef.UINT GetDpiForWindow(WinDef.HWND hwnd);
     }
 
     /**
@@ -353,30 +339,12 @@ public abstract class MSCWindow {
     }
 
     /**
-     * Returns true if the window is maximized.
-     */
-    private boolean isWindowMaximized() {
-        WinUser.WINDOWPLACEMENT windowPlacement = new WinUser.WINDOWPLACEMENT();
-        User32.INSTANCE.GetWindowPlacement(getHWND(), windowPlacement);
-        return windowPlacement.showCmd == WinUser.SW_MAXIMIZE;
-    }
-
-    /**
-     * Returns true if the window is maximized and on a 1080p display with a normal sized taskbar displayed.
-     * This is an unpublicized setting because it's so specific, and is meant as a development convenience since it
-     * makes the card guessing more accurate.
-     */
-    private boolean isMaximized1080p() {
-        return isWindowMaximized() && getSizeString().equals("1936x1056");
-    }
-
-    /**
      * Moves the Microsoft Solitaire Collection window to the (0, 0) virtual screen coordinates (the top-left corner
      * of the primary display) and resizes it to 1024x768.  Depending on the display scaling factor, the actual
      * resolution afterwards may be different.
      */
     private boolean moveWindow(WinDef.HWND hwnd) {
-        return isMaximized1080p() || User32.INSTANCE.MoveWindow(hwnd, 0, 0, 1024, 768, true);
+        return User32.INSTANCE.MoveWindow(hwnd, 0, 0, 1024, 768, true);
     }
 
     /**
@@ -384,7 +352,7 @@ public abstract class MSCWindow {
      * currently on the window.
      */
     private boolean showWindow(WinDef.HWND hwnd) {
-        return isMaximized1080p() || User32.INSTANCE.ShowWindow(hwnd, WinUser.SW_RESTORE);
+        return User32.INSTANCE.ShowWindow(hwnd, WinUser.SW_RESTORE);
     }
 
     /**
@@ -392,23 +360,6 @@ public abstract class MSCWindow {
      */
     private boolean setForegroundWindow(WinDef.HWND hwnd) {
         return User32.INSTANCE.SetForegroundWindow(hwnd);
-    }
-
-    /**
-     * Returns the display scaling factor for the window - it only supports 100%/200%/250%.
-     */
-    private int getPercentScaling() throws PlayException {
-        WinDef.UINT dpi = DpiUser32.INSTANCE.GetDpiForWindow(getHWND());
-        switch (dpi.intValue()) {
-            case 96:
-                return 100;
-            case 192:
-                return 200;
-            case 240:
-                return 250;
-            default:
-                throw new PlayException("Unsupported Windows Display Settings scaling size: it's not 100%/200%/250%");
-        }
     }
 
     /**
