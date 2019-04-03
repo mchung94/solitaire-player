@@ -12,7 +12,7 @@ import org.sikuli.basics.AnimatorOutQuarticEase;
 import org.sikuli.basics.AnimatorTimeBased;
 import org.sikuli.basics.Settings;
 import org.sikuli.script.App;
-import org.sikuli.script.IRobot;
+import org.sikuli.script.support.IRobot;
 import org.sikuli.script.Image;
 import org.sikuli.script.Location;
 import org.sikuli.script.Match;
