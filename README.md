@@ -1,5 +1,5 @@
 # solitaire-player
-Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.0.0](https://github.com/mchung94/solitaire-player/releases/download/v2.0.0/solitaire-player-v2.0.0.zip), but [version 1.2.0](https://github.com/mchung94/solitaire-player/releases/download/v1.2.0/solitaire-player-v1.2.0.zip) is still available.  v2.0.0 adds support for TriPeaks but v1.2.0 is the tried and true version which has been available for most of a year now.  This requires that you install the [64 bit JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) first.
+Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.1.0](https://github.com/mchung94/solitaire-player/releases/download/v2.1.0/solitaire-player-v2.1.0.zip), which supports TriPeaks as well as Pyramid Solitaire for the early 2019 update to Microsoft Solitaire Collection.  This requires that you install the [64 bit JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) first.
 
 
 ## Introduction
