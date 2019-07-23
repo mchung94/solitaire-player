@@ -74,6 +74,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
         System.out.println("Looking up which cards are on the board and in the stock pile.");
         System.out.println("Afterwards, please check and verify the cards it detected.");
         Deck deck = fillLastCard(verifyCards(scanCardsOnScreen(window)));
+        window.undoWhenNoMoreMoves();
         window.undoBoard();
         int state = State.INITIAL_STATE;
         System.out.println("Now searching for a solution...");
@@ -85,7 +86,11 @@ public class TriPeaksPlayer extends SolitairePlayer {
                 Thread.sleep(1000);
                 playSolution(cardRevealingSolution, window);
                 deck = updateDeck(deck, window);
-                state = cardRevealingSolution.getEndingState();
+                if (window.undoWhenNoMoreMoves()) {
+                    state = cardRevealingSolution.getPreviousState();
+                } else {
+                    state = cardRevealingSolution.getEndingState();
+                }
                 solution = solver.solve(deck, State.INITIAL_STATE);
             } else {
                 System.out.println("No way to turn over face down cards, try a non-definitive solution...");
@@ -179,7 +184,6 @@ public class TriPeaksPlayer extends SolitairePlayer {
             window.draw();
             cards.add(window.cardAtWaste());
         }
-        window.undoBoard();
         return cards;
     }
 

@@ -32,7 +32,7 @@ public class CardRevealingSolver implements TriPeaksSolver {
                     String description = String.format("Reveal the tableau cards at index(es): %s",
                             Arrays.toString(faceUpUnknowns));
                     List<Action> cards = TriPeaksSolver.actions(state, seenStates, deck);
-                    return new Solution(description, true, cards, state);
+                    return new Solution(description, true, cards, state, seenStates.get(state));
                 }
                 for (int nextState : nextStates) {
                     if (!seenStates.containsKey(nextState)) {
@@ -43,7 +43,7 @@ public class CardRevealingSolver implements TriPeaksSolver {
             }
         } else {
             String description = "All cards are known, can't turn over any face down cards";
-            return new Solution(description, true, new ArrayList<>(), startingState);
+            return new Solution(description, true, new ArrayList<>(), startingState, startingState);
         }
 
         if (startingState != State.INITIAL_STATE) {
@@ -52,7 +52,7 @@ public class CardRevealingSolver implements TriPeaksSolver {
             return solution;
         } else {
             String description = "Can't turn over any face down cards";
-            return new Solution(description, true, new ArrayList<>(), startingState);
+            return new Solution(description, true, new ArrayList<>(), startingState, startingState);
         }
     }
 }

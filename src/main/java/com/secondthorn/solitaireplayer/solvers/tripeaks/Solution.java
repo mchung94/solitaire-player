@@ -12,6 +12,7 @@ public class Solution {
     private boolean definitiveSolution;
     private List<Action> actions;
     private int endingState;
+    private int previousState;
 
     /**
      * Creates a Solution indicating a list of steps to play and other details around the list.
@@ -19,12 +20,15 @@ public class Solution {
      * @param description        a human-readable description of what the solution accomplishes
      * @param definitiveSolution true if there is no better solution or false if a better solution may exist
      * @param actions            a list of Actions to reach a goal
+     * @param endingState        the ending state after following the actions
+     * @param previousState      the state before the endingState (when undoing the last move is necessary)
      */
-    public Solution(String description, boolean definitiveSolution, List<Action> actions, int endingState) {
+    public Solution(String description, boolean definitiveSolution, List<Action> actions, int endingState, int previousState) {
         this.description = description;
         this.definitiveSolution = definitiveSolution;
         this.actions = actions;
         this.endingState = endingState;
+        this.previousState = previousState;
     }
 
     /**
@@ -63,5 +67,15 @@ public class Solution {
      */
     public int getEndingState() {
         return endingState;
+    }
+
+    /**
+     * Returns the state before the ending state after following the list of Actions.
+     * This is used when we have to undo the last move because there are no more possible moves.
+     *
+     * @return the state one step before the ending state
+     */
+    public int getPreviousState() {
+        return previousState;
     }
 }

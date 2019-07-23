@@ -100,7 +100,7 @@ public class CardChallengeSolver implements TriPeaksSolver {
     Solution buildSolution(boolean definitiveSolution, int state, TIntIntMap seenStates, Deck deck, int numRemoved) {
         List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
         String description = removeMessage(numRemoved, cardRankToClear, actions.size());
-        return new Solution(description, definitiveSolution, actions, state);
+        return new Solution(description, definitiveSolution, actions, state, seenStates.get(state));
     }
 
     /**

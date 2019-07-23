@@ -56,7 +56,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
             if (score >= pointsNeeded) {
                 List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
                 String description = String.format("Gain %d points in %d steps", score, actions.size());
-                return new Solution(description, true, actions, state);
+                return new Solution(description, true, actions, state, seenStates.get(state));
             }
             if (score > bestScore) {
                 bestScore = score;
@@ -73,7 +73,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
         }
         List<Action> actions = TriPeaksSolver.actions(bestState, seenStates, deck);
         String description = String.format("Gain %d points in %d steps", bestScore, actions.size());
-        return new Solution(description, !deck.hasUnknownCards(), actions, bestState);
+        return new Solution(description, !deck.hasUnknownCards(), actions, bestState, seenStates.get(bestState));
     }
 
     /**

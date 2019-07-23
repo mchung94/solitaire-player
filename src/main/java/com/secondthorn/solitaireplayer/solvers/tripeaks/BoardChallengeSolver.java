@@ -28,7 +28,7 @@ public class BoardChallengeSolver implements TriPeaksSolver {
             if (State.isTableauEmpty(state)) {
                 List<Action> actions = TriPeaksSolver.actions(state, seenStates, deck);
                 String description = String.format("Clear the board in %d steps", actions.size());
-                return new Solution(description, true, actions, state);
+                return new Solution(description, true, actions, state, seenStates.get(state));
             }
             for (int nextState : State.successors(state, deck)) {
                 if (!seenStates.containsKey(nextState)) {
@@ -39,6 +39,6 @@ public class BoardChallengeSolver implements TriPeaksSolver {
         }
         String description = "Lose Quickly: Impossible to clear the board";
         List<Action> actions = TriPeaksSolver.loseQuicklyActions(deck);
-        return new Solution(description, !deck.hasUnknownCards(), actions, startingState);
+        return new Solution(description, !deck.hasUnknownCards(), actions, startingState, seenStates.get(startingState));
     }
 }
