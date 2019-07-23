@@ -162,6 +162,7 @@ public abstract class MSCWindow {
      * @return a guess at what the card is at the region of the screen
      */
     protected String cardAt(Region region) {
+        region.highlight(0.5f); // add a highlight to make changes obvious
         Character rank = bestCardCharacter(region, rankImages);
         Character suit = bestCardCharacter(region, suitImages);
         if (rank != null && suit != null) {
