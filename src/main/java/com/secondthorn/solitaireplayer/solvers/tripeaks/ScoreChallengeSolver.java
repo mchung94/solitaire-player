@@ -108,7 +108,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
         int streak = sc.getStreak();
         int wasteCardIndex = State.getWasteIndex(state);
         if (wasteCardIndex < 28) {
-            total += 100 + streak * 200;
+            total += 300 + streak * 200;
             streak++;
         } else {
             streak = 0;
