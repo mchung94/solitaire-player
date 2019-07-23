@@ -197,7 +197,10 @@ public class TriPeaksPlayer extends SolitairePlayer {
                 cards.set(i, window.cardAtTableau(i));
             }
         }
-        return fillLastCard(verifyCards(cards));
+        if (numUnknownCards(cards) != missingCards(cards).size()) {
+            cards = verifyCards(cards);
+        }
+        return fillLastCard(cards);
     }
 
     /**
