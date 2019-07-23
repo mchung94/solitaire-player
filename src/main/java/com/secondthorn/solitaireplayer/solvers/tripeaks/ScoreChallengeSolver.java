@@ -11,7 +11,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
     /**
      * The maximum possible score removing all 28 tableau cards in a single streak.
      */
-    public static final int MAX_POSSIBLE_SCORE = 84900;
+    public static final int MAX_POSSIBLE_SCORE = 90500;
 
     /**
      * The number of points needed to reach the goal.

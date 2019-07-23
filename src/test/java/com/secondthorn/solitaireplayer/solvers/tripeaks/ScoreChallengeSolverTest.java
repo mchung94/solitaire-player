@@ -23,7 +23,7 @@ public class ScoreChallengeSolverTest {
         Solution solution = solver.solve(orderedDeck, State.INITIAL_STATE);
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(28, solution.getActions().size());
-        assertEquals("Gain 84900 points in 28 steps", solution.getDescription());
+        assertEquals("Gain 90500 points in 28 steps", solution.getDescription());
         assertTrue(new PlayTester(orderedDeck).areActionsPlayable(solution));
     }
 
@@ -32,8 +32,8 @@ public class ScoreChallengeSolverTest {
         ScoreChallengeSolver solver = new ScoreChallengeSolver(1400, 0);
         Solution solution = solver.solve(orderedDeck, State.INITIAL_STATE);
         assertTrue(solution.isDefinitiveSolution());
-        assertEquals(4, solution.getActions().size());
-        assertEquals("Gain 1600 points in 4 steps", solution.getDescription());
+        assertEquals(3, solution.getActions().size());
+        assertEquals("Gain 1500 points in 3 steps", solution.getDescription());
         assertTrue(new PlayTester(orderedDeck).areActionsPlayable(solution));
     }
 
@@ -51,7 +51,7 @@ public class ScoreChallengeSolverTest {
         Solution solution = solver.solve(deck, State.INITIAL_STATE);
         assertFalse(solution.isDefinitiveSolution());
         assertEquals(10, solution.getActions().size());
-        assertEquals("Gain 10000 points in 10 steps", solution.getDescription());
+        assertEquals("Gain 12000 points in 10 steps", solution.getDescription());
         assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
@@ -69,7 +69,7 @@ public class ScoreChallengeSolverTest {
         Solution solution = solver.solve(deck, State.INITIAL_STATE);
         assertTrue(solution.isDefinitiveSolution());
         assertEquals(49, solution.getActions().size());
-        assertEquals("Gain 22300 points in 49 steps", solution.getDescription());
+        assertEquals("Gain 27900 points in 49 steps", solution.getDescription());
         assertTrue(new PlayTester(deck).areActionsPlayable(solution));
     }
 
