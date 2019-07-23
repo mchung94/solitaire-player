@@ -77,6 +77,8 @@ Here are timings for finding out how to remove as many Aces as possible from the
 - [64 bit JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 - usually the program only needs a few hundred MB of RAM, but sometimes it needs a few GB
 - Windows - untested as of yet on other operating systems
+- This will try to resize the Microsoft Solitaire Collection window to 1440x900 so it'll run into problems if
+  the screen resolution is too small.
 
 #### Steps for automatically playing Pyramid or TriPeaks Solitaire
 1. Download the release and unzip it.
