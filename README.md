@@ -1,5 +1,5 @@
 # solitaire-player
-Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.1.0](https://github.com/mchung94/solitaire-player/releases/download/v2.1.0/solitaire-player-v2.1.0.zip), which supports TriPeaks as well as Pyramid Solitaire for the early 2019 update to Microsoft Solitaire Collection.  This requires that you install the [64 bit JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) first.
+Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.2.0](https://github.com/mchung94/solitaire-player/releases/download/v2.2.0/solitaire-player-v2.2.0.zip), which supports TriPeaks as well as Pyramid Solitaire for the early 2019 update to Microsoft Solitaire Collection.  This requires that you install a [64 bit JRE](https://adoptopenjdk.net/) first.
 
 
 ## Introduction
@@ -74,7 +74,7 @@ Here are timings for finding out how to remove as many Aces as possible from the
 ### Command Line program
 
 #### Requirements
-- [64 bit JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+- [64 bit JRE](https://adoptopenjdk.net/)
 - usually the program only needs a few hundred MB of RAM, but sometimes it needs a few GB
 - Windows - untested as of yet on other operating systems
 - This will try to resize the Microsoft Solitaire Collection window to 1440x900 so it'll run into problems if
