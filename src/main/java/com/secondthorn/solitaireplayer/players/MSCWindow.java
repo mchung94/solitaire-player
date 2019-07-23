@@ -68,6 +68,10 @@ public abstract class MSCWindow {
      */
     protected Regions regions;
 
+    private static final int WINDOW_WIDTH = 1440;
+    private static final int WINDOW_HEIGHT = 900;
+    private static final String WINDOW_SIZE = "" + WINDOW_WIDTH + "x" + WINDOW_HEIGHT;
+
     /**
      * Common setup for subclasses - since this class is abstract and cannot be instantiated, the subclasses must call
      * super to run this initialization code.
@@ -77,8 +81,9 @@ public abstract class MSCWindow {
      */
     protected MSCWindow(String gameName) throws InterruptedException, PlayException {
         positionForPlay();
-        if (!getSizeString().equals("1024x768")) {
-            throw new PlayException("Windows Display Settings scaling size problem - only 100% scaling is supported.");
+        if (!getSizeString().equals(WINDOW_SIZE)) {
+            throw new PlayException("Window size is not " + WINDOW_SIZE + ", " +
+                    "maybe the monitor resolution is too small or the scaling factor is not 100%");
         }
         Settings.InputFontSize = 14;
         okImage = loadImage("Common/OK.png");
@@ -144,8 +149,7 @@ public abstract class MSCWindow {
     }
 
     /**
-     * Moves the Microsoft Solitaire Collection window to the foreground, undo minimize/maximize, and resize it to
-     * 1024x768.
+     * Moves the Microsoft Solitaire Collection window to the foreground, undo minimize/maximize, and resize it.
      */
     public void positionForPlay() throws InterruptedException, PlayException {
         WinDef.HWND hwnd = getHWND();
@@ -162,7 +166,6 @@ public abstract class MSCWindow {
      * @return a guess at what the card is at the region of the screen
      */
     protected String cardAt(Region region) {
-        region.highlight(0.5f); // add a highlight to make changes obvious
         Character rank = bestCardCharacter(region, rankImages);
         Character suit = bestCardCharacter(region, suitImages);
         if (rank != null && suit != null) {
@@ -341,11 +344,11 @@ public abstract class MSCWindow {
 
     /**
      * Moves the Microsoft Solitaire Collection window to the (0, 0) virtual screen coordinates (the top-left corner
-     * of the primary display) and resizes it to 1024x768.  Depending on the display scaling factor, the actual
-     * resolution afterwards may be different.
+     * of the primary display) and resizes it.  Depending on the display scaling factor, the actual resolution
+     * afterwards may be different.
      */
     private boolean moveWindow(WinDef.HWND hwnd) {
-        return User32.INSTANCE.MoveWindow(hwnd, 0, 0, 1024, 768, true);
+        return User32.INSTANCE.MoveWindow(hwnd, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true);
     }
 
     /**
