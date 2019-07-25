@@ -1,5 +1,5 @@
 # solitaire-player
-Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.2.0](https://github.com/mchung94/solitaire-player/releases/download/v2.2.0/solitaire-player-v2.2.0.zip), which supports TriPeaks as well as Pyramid Solitaire for the early 2019 update to Microsoft Solitaire Collection.  This requires that you install a [64 bit JRE](https://adoptopenjdk.net/) first.
+Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.2.1](https://github.com/mchung94/solitaire-player/releases/download/v2.2.1/solitaire-player-v2.2.1.zip).  This requires that you install a [64 bit JRE](https://adoptopenjdk.net/) first.
 
 
 ## Introduction
@@ -16,7 +16,7 @@ solitaire-player is a Java program that can quickly find an optimal solution to 
 - In Pyramid Solitaire it's easy to find out all 52 cards in the game by looking through the stock pile and then restart the game from the beginning.  But in TriPeaks Solitaire, there are 18 face down cards that can only be revealed by playing the game and removing the cards blocking them from below.  This program can play to reveal the face down cards.
 - Can automatically play Pyramid or TriPeaks Solitaire in Microsoft Solitaire Collection on Windows 10.
   - You just need to have the app running at the beginning of a Pyramid or TriPeaks Solitaire game, and tell it which type of challenge you are playing.
-  - Supports 100% scaling sizes only (in Windows Display Settings).  It used to support 200% or 250% but I can no longer support this.
+  - Supports 100% scaling sizes only (in Windows Display Settings).
   - Scans the cards automatically so you don't have to tell the program what they are.
 - Can solve a deck of cards you give it, printing the solutions without automatically playing anything.
 
@@ -86,8 +86,10 @@ Here are timings for finding out how to remove as many Aces as possible from the
 3. Start Microsoft Solitaire Collection on Windows 10.
 4. In Microsoft Solitaire Collection start a Pyramid or TriPeaks Solitaire game - either a regular game or a challenge game.
 5. Run solitaire-player.bat with one of the following set of command line options:
-  - `solitaire-player.bat Pyramid Board`
+  - `solitaire-player.bat Pyramid`
     - This runs the Board Challenge solver - clear the board in as few steps as possible.
+  - `solitaire-player.bat Pyramid Board`
+    - This also runs the Board Challenge solver.
   - `solitaire-player.bat Pyramid Score`
     - This runs the Score Challenge solver - maximize the score in as few steps as possible.
   - `solitaire-player.bat Pyramid Score <goal score> <current score>`
@@ -99,8 +101,10 @@ Here are timings for finding out how to remove as many Aces as possible from the
     - This runs the Card Challenge solver which tries to find the shortest way to remove a number of cards of a given rank.
 
 The TriPeaks options are basically the same as Pyramid but with the word TriPeaks in place of Pyramid:
-  - `solitaire-player.bat TriPeaks Board`
+  - `solitaire-player.bat TriPeaks`
     - This runs the Board Challenge solver - clear the board in as few steps as possible.
+  - `solitaire-player.bat TriPeaks Board`
+    - This also runs the Board Challenge solver.
   - `solitaire-player.bat TriPeaks Score`
     - This runs the Score Challenge solver - try to get a relatively high score in as few steps as possible.
   - `solitaire-player.bat TriPeaks Score <goal score> <current score>`

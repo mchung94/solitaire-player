@@ -58,7 +58,7 @@ public class PyramidPlayer extends SolitairePlayer {
      * @throws IllegalArgumentException if the args don't properly describe a challenge
      */
     public PyramidPlayer(String[] args) {
-        String goalType = args[0];
+        String goalType = args.length > 0 ? args[0] : "Board";
         switch (goalType) {
             case "Board":
                 solver = new BoardChallengeSolver();

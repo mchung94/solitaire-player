@@ -26,7 +26,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
     private TriPeaksSolver solver;
 
     public TriPeaksPlayer(String[] args) {
-        String challenge = args[0];
+        String challenge = args.length > 0 ? args[0] : "Board";
         switch (challenge) {
             case "Board":
                 solver = new BoardChallengeSolver();

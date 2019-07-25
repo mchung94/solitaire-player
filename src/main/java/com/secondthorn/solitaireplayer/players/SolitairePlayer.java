@@ -53,7 +53,7 @@ public abstract class SolitairePlayer {
      * @throws IllegalArgumentException if there is a command line argument problem
      */
     public static SolitairePlayer newInstance(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 1) {
             throw new IllegalArgumentException("Too few arguments to create a solitaire player.");
         }
         String game = args[0];
