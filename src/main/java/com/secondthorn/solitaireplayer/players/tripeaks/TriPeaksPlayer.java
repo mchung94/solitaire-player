@@ -83,7 +83,6 @@ public class TriPeaksPlayer extends SolitairePlayer {
             System.out.println("No definite solution found yet - searching for a way to reveal face down cards.");
             Solution cardRevealingSolution = cardRevealingSolver.solve(deck, state);
             if (cardRevealingSolution.getActions().size() > 0) {
-                Thread.sleep(1000);
                 playSolution(cardRevealingSolution, window);
                 deck = updateDeck(deck, window);
                 if (window.undoWhenNoMoreMoves()) {
