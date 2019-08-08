@@ -23,11 +23,11 @@ public class CommandLineMain {
             System.exit(0);
         }
         Settings.InputFontMono = true;
-        String filename = getFilenameFromArgs(args);
-        if (filename != null) {
-            args = removeFilenameFromArgs(args);
-        }
         try {
+            String filename = getFilenameFromArgs(args);
+            if (filename != null) {
+                args = removeFilenameFromArgs(args);
+            }
             SolitairePlayer player = SolitairePlayer.newInstance(args);
             if (filename != null) {
                 player.preview(filename);
@@ -49,7 +49,7 @@ public class CommandLineMain {
      * out more detailed help.
      */
     private static void printUsage() {
-        System.err.println("Usage: solitaire-player.bat <Game> <Goal> [additional args for goal]");
+        System.err.println("Usage: solitaire-player.bat <Game> [Goal] [additional args for goal]");
         System.err.println("For help, run: solitaire-player.bat help");
     }
 
@@ -79,7 +79,11 @@ public class CommandLineMain {
     private static String getFilenameFromArgs(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-f")) {
-                return args[i + 1];
+                if (i < args.length - 1) {
+                    return args[i + 1];
+                } else {
+                    throw new IllegalArgumentException("A filename is required after an -f option.");
+                }
             }
         }
         return null;

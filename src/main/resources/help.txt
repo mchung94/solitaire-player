@@ -1,7 +1,7 @@
 Usage: solitaire-player.bat <Game> [Goal] [args for goal] [-f filename]
 
 <Game> can be either Pyramid or TriPeaks.
-<Goal> can either be Board, Score, or Card. The default is Board.
+[Goal] can either be Board, Score, or Card. The default is Board.
 [args for goal] depends, see below for details.
 [-f filename] is to pass in a deck of cards and print out a solution instead of
 trying to play the game.  See below for examples.  If you don't use this, the

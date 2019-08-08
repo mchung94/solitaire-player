@@ -216,7 +216,7 @@ public abstract class SolitairePlayer {
         try {
             return Arrays.asList(new String(Files.readAllBytes(Paths.get(filename))).trim().split("\\s+"));
         } catch (IOException ex) {
-            throw new PlayException("Unable to read " + filename, ex);
+            throw new PlayException("Unable to read file \"" + filename + "\".", ex);
         }
     }
 
