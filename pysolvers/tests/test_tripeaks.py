@@ -114,7 +114,7 @@ class TestState(unittest.TestCase):
         self.assertEqual(expected, set(self.state.successors()))
 
 
-@unittest.skip('These are full solver tests but very slow during development')
+@unittest.skip('Full solver tests that are too slow to run during development')
 class TestSolver(unittest.TestCase):
     def test_all_cards_solution(self):
         # the shortest solution is removing one tableau card after another
@@ -133,7 +133,6 @@ class TestSolver(unittest.TestCase):
         self.assertEqual([], tp.solve(deck))
 
 
-@unittest.skip('This is an extremely long test running the solver on 1500 decks')
 class Test1500ShuffledDecks(unittest.TestCase):
     @staticmethod
     def is_playable(deck, solution):
@@ -147,7 +146,7 @@ class Test1500ShuffledDecks(unittest.TestCase):
         waste_pile = list(deck[28:29])
         stock_pile = list(reversed(deck[29:]))
         for card in solution:
-            if card == stock_pile[-1]:
+            if stock_pile and (card == stock_pile[-1]):
                 stock_pile.pop()
             else:
                 if not tp.is_one_rank_apart(card, waste_pile[-1]):
@@ -167,6 +166,7 @@ class Test1500ShuffledDecks(unittest.TestCase):
         total = datetime.datetime.utcnow().timestamp() - start
         return tuple([deck, solution, total, Test1500ShuffledDecks.is_playable(deck, solution)])
 
+    @unittest.skip('An extremely long test running the solver on 1500 decks')
     def test_all_shuffled_decks(self):
         # make sure the working directory is the pysolvers directory
         with open('../src/test/resources/random-decks.txt') as f:
