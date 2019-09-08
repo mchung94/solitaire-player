@@ -1,3 +1,5 @@
+import datetime
+import sys
 import unittest
 
 import solvers.tripeaks as tp
@@ -133,16 +135,42 @@ class TestSolver(unittest.TestCase):
 
 @unittest.skip('This is an extremely long test running the solver on 1500 decks')
 class Test1500ShuffledDecks(unittest.TestCase):
+    @staticmethod
+    def is_playable(deck, solution):
+        """Return true if the solution is playable.
+
+        If there isn't a solution, return true."""
+        if not solution:
+            return True
+        tableau = list(deck[:28])
+        # so you can append/pop at the end of the list
+        waste_pile = list(deck[28:29])
+        stock_pile = list(reversed(deck[29:]))
+        for card in solution:
+            if card == stock_pile[-1]:
+                stock_pile.pop()
+            else:
+                if not tp.is_one_rank_apart(card, waste_pile[-1]):
+                    return False
+                try:
+                    tableau[tableau.index(card)] = None
+                except ValueError:
+                    return False
+            waste_pile.append(card)
+        return all([card is None for card in tableau])
+
+    def _get_solution_results(self, deck_string):
+        deck = tuple(deck_string.split())
+        self.assertTrue(tp.is_standard_deck(deck))
+        start = datetime.datetime.utcnow().timestamp()
+        solution = tp.solve(deck)
+        total = datetime.datetime.utcnow().timestamp() - start
+        return tuple([deck, solution, total, Test1500ShuffledDecks.is_playable(deck, solution)])
+
     def test_all_shuffled_decks(self):
-        import datetime
-        import sys
         # make sure the working directory is the pysolvers directory
         with open('../src/test/resources/random-decks.txt') as f:
             for deck_string in f:
-                deck = tuple(deck_string.split())
-                self.assertTrue(tp.is_standard_deck(deck))
-                start = datetime.datetime.utcnow().timestamp()
-                solution = tp.solve(deck)
-                total = datetime.datetime.utcnow().timestamp() - start
-                print(f'{tuple([deck, solution, total])}')
+                test_results = self._get_solution_results(deck_string)
+                print(f'{test_results}')
                 sys.stdout.flush()
