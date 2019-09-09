@@ -46,7 +46,7 @@ class PyramidWindow extends MSCWindow {
      * @param pyramidIndex a pyramid index from 0 to 27
      * @throws InterruptedException if the thread is interrupted
      */
-    void clickPyramidCardIndex(int pyramidIndex) throws InterruptedException {
+    void clickPyramidCardIndex(int pyramidIndex) throws InterruptedException, PlayException {
         clickRegion(regions.getTableau()[pyramidIndex]);
     }
 
@@ -54,7 +54,7 @@ class PyramidWindow extends MSCWindow {
      * Clicks on the card at the top of the stock pile. The user must make sure that there is a card here.
      * @throws InterruptedException if the thread is interrupted
      */
-    void clickStockCard() throws InterruptedException {
+    void clickStockCard() throws InterruptedException, PlayException {
         clickRegion(regions.getStock());
     }
 
@@ -62,7 +62,7 @@ class PyramidWindow extends MSCWindow {
      * Clicks on the card at the top of the waste pile. The user must make sure that there is a card here.
      * @throws InterruptedException
      */
-    void clickWasteCard() throws InterruptedException {
+    void clickWasteCard() throws InterruptedException, PlayException {
         clickRegion(regions.getWaste());
     }
 

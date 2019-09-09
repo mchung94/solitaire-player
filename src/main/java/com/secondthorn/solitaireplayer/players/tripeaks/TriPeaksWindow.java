@@ -35,7 +35,7 @@ class TriPeaksWindow extends MSCWindow {
      * @param index a tableau index from 0 to 27
      * @throws InterruptedException if the thread is interrupted
      */
-    void clickTableauCard(int index) throws InterruptedException {
+    void clickTableauCard(int index) throws InterruptedException, PlayException {
         clickRegion(regions.getTableau()[index]);
     }
 
@@ -45,7 +45,7 @@ class TriPeaksWindow extends MSCWindow {
      *
      * @throws InterruptedException if the thread is interrupted
      */
-    void clickStockCard() throws InterruptedException {
+    void clickStockCard() throws InterruptedException, PlayException {
         clickRegion(regions.getStock());
     }
 
@@ -54,7 +54,7 @@ class TriPeaksWindow extends MSCWindow {
      *
      * @throws InterruptedException if the thread is interrupted
      */
-    void draw() throws InterruptedException {
+    void draw() throws InterruptedException, PlayException {
         clickRegion(regions.getStock());
     }
 

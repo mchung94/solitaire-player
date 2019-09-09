@@ -195,7 +195,7 @@ public abstract class MSCWindow {
      * @param region the region to click on
      * @throws InterruptedException if the thread is interrupted
      */
-    protected void clickRegion(Region region) throws InterruptedException {
+    protected void clickRegion(Region region) throws InterruptedException, PlayException {
         Location center = region.getCenter();
         moveMouseSmoothly(center.x, center.y);
         IRobot robot = center.getScreen().getRobot();
@@ -379,13 +379,18 @@ public abstract class MSCWindow {
 
     /**
      * Smoothly move the mouse to the given (X, Y) virtual screen coordinates over 500 milliseconds.
+     * This program never intentionally moves the mouse to (0, 0), so if the mouse is moved there
+     * by the user, use this as a signal to abort the program.
      *
      * @param x the X coordinate to move to
      * @param y the Y coordinate to move to
      */
-    private void moveMouseSmoothly(int x, int y) {
+    private void moveMouseSmoothly(int x, int y) throws PlayException {
         Point p = getMousePosition();
         if (p != null) {
+            if ((p.x == 0) && (p.y == 0)) {
+                throw new PlayException("Mouse moved to (0, 0) to abort the program.");
+            }
             Animator aniX = new AnimatorTimeBased(new AnimatorOutQuarticEase((float) p.x, (float) x, 500));
             Animator aniY = new AnimatorTimeBased(new AnimatorOutQuarticEase((float) p.y, (float) y, 500));
             while (aniX.running()) {
