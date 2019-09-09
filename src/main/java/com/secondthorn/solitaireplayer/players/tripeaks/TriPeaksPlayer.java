@@ -70,6 +70,7 @@ public class TriPeaksPlayer extends SolitairePlayer {
     @Override
     public void autoplay() throws InterruptedException, PlayException {
         TriPeaksWindow window = new TriPeaksWindow();
+        window.undoWhenNoMoreMoves();
         CardRevealingSolver cardRevealingSolver = new CardRevealingSolver();
         System.out.println("Looking up which cards are on the board and in the stock pile.");
         System.out.println("Afterwards, please check and verify the cards it detected.");

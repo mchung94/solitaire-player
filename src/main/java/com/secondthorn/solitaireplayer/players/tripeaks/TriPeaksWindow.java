@@ -3,29 +3,39 @@ package com.secondthorn.solitaireplayer.players.tripeaks;
 import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
 import org.sikuli.script.Image;
+import org.sikuli.script.Region;
 
 /**
  * Methods for a TriPeaksPlayer to interact with the Microsoft Solitaire Collection window.
  */
 class TriPeaksWindow extends MSCWindow {
     /**
-     * The "Undo last move" button that appears when the player runs out of moves.
+     * An image to detect if the "No more moves" dialog popped up.
      */
-    private Image undoLastMoveImage;
+    private Image undoLastMoveDialogImage;
+
+    /**
+     * The location of the "Undo last move" button that appears when the player runs out of moves.
+     */
+    private Region undoLastMove = new Region(781, 542, 214, 23);
 
     TriPeaksWindow() throws InterruptedException, PlayException {
         super("TriPeaks");
-        undoLastMoveImage = loadImage("TriPeaks/UndoLastMove.png");
+        undoLastMoveDialogImage = loadImage("TriPeaks/UndoLastMoveDialog.png");
     }
 
     /**
      * Undo the last move if the "No more moves!" message appears.
      * @return true if the the program undid the last move
-     * @throws InterruptedException if the thread is interruped
+     * @throws InterruptedException if the thread is interrupted
      * @throws PlayException if unable to click on the button
      */
     boolean undoWhenNoMoreMoves() throws InterruptedException, PlayException {
-        return clickImage(undoLastMoveImage, 1.0);
+        if (appRegion().exists(undoLastMoveDialogImage, 1.0d) != null) {
+            clickRegion(undoLastMove);
+            return true;
+        }
+        return false;
     }
 
     /**

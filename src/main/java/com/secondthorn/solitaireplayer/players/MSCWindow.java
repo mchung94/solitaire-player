@@ -43,14 +43,19 @@ import java.util.Map;
  */
 public abstract class MSCWindow {
     /**
-     * An image of the optional OK button when undoing the board.
+     * An image to detect if the OK dialog popped up to confirm undoing the board.
      */
-    private org.sikuli.script.Image okImage;
+    private org.sikuli.script.Image okDialogImage;
 
     /**
-     * An image of the Undo Board button used to reset the game back to the beginning.
+     * The location of the Undo Board button.
      */
-    private org.sikuli.script.Image undoBoardImage;
+    private Region undoBoardButton = new Region(1020, 829, 37, 32);
+
+    /**
+     * The location of the OK button to confirm undoing the board.
+     */
+    private Region okButton = new Region(529, 547, 41, 23);
 
     /**
      * A mapping between images and a rank character - multiple images may map to the same rank.
@@ -83,8 +88,7 @@ public abstract class MSCWindow {
         positionForPlay();
         systemReport();
         Settings.InputFontSize = 14;
-        okImage = loadImage("Common/OK.png");
-        undoBoardImage = loadImage("Common/UndoBoard.png");
+        okDialogImage = loadImage("Common/OKDialog.png");
         String gameResourceDir = gameName + "/";
         Image gameImage = loadImage(gameResourceDir + "Game.png");
         if (appRegion().exists(gameImage, 0.0d) == null) {
@@ -139,12 +143,11 @@ public abstract class MSCWindow {
      * @throws PlayException        if there's a problem clicking on the Undo Board / OK buttons
      */
     public void undoBoard() throws InterruptedException, PlayException {
-        if (undoBoardImage != null && clickImage(undoBoardImage, 0.0d)) {
-            if (okImage != null) {
-                clickImage(okImage, 3.0d);
-                Thread.sleep(3000);
-            }
+        clickRegion(undoBoardButton);
+        if (appRegion().exists(okDialogImage, 3.0d) != null) {
+            clickRegion(okButton);
         }
+        Thread.sleep(3000);
     }
 
     /**
@@ -276,7 +279,7 @@ public abstract class MSCWindow {
     /**
      * Return the SikuliX region representing the Microsoft Solitaire Collection window location.
      */
-    private Region appRegion() throws InterruptedException, PlayException {
+    protected Region appRegion() throws InterruptedException, PlayException {
         positionForPlay();
         return App.focusedWindow();
     }

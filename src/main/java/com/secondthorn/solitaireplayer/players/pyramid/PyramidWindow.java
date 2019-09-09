@@ -3,6 +3,7 @@ package com.secondthorn.solitaireplayer.players.pyramid;
 import com.secondthorn.solitaireplayer.players.MSCWindow;
 import com.secondthorn.solitaireplayer.players.PlayException;
 import org.sikuli.script.Image;
+import org.sikuli.script.Region;
 
 /**
  * Methods for a PyramidPlayer to interact with the Microsoft Solitaire Collection window.
@@ -12,11 +13,10 @@ class PyramidWindow extends MSCWindow {
      * An image of the button to draw a card from the stock pile to the waste pile,
      * or recycle the deck when the stock pile is empty.
      */
-    private Image drawImage;
+    private Region drawButton = new Region(698, 579, 50, 33);
 
     PyramidWindow() throws InterruptedException, PlayException {
         super("Pyramid");
-        drawImage = loadImage("Pyramid/Draw.png");
     }
 
     /**
@@ -26,7 +26,7 @@ class PyramidWindow extends MSCWindow {
      * @throws PlayException if unable to click on the Draw button
      */
     void draw() throws InterruptedException, PlayException {
-        clickImage(drawImage, 1.0d);
+        clickRegion(drawButton);
     }
 
     /**
@@ -37,7 +37,7 @@ class PyramidWindow extends MSCWindow {
      * @throws PlayException if unable to click on the Draw button
      */
     void recycle() throws InterruptedException, PlayException {
-        clickImage(drawImage, 1.0d);
+        clickRegion(drawButton);
         Thread.sleep(1000);
     }
 
