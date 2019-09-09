@@ -3,9 +3,9 @@ import sys
 import unittest
 
 import solvers.deck
-import solvers.tripeaks
+import solvers.tripeaks as tp
 
-import tests.test_deck
+from tests.test_deck import ALL_CARDS
 
 
 class TestOneRankApart(unittest.TestCase):
@@ -28,36 +28,42 @@ class TestOneRankApart(unittest.TestCase):
                 'K': 'QA',
             }[rank1]
 
-        for card1 in tests.test_deck.ALL_CARDS:
-            for card2 in tests.test_deck.ALL_CARDS:
-                self.assertEqual(expected(card1, card2), solvers.tripeaks.is_one_rank_apart(card1, card2))
+        for card1 in ALL_CARDS:
+            for card2 in ALL_CARDS:
+                self.assertEqual(
+                    expected(card1, card2),
+                    tp.is_one_rank_apart(card1, card2)
+                )
 
 
 class TestState(unittest.TestCase):
     def setUp(self):
-        self.state = solvers.tripeaks.State.initial_state(tests.test_deck.ALL_CARDS)
+        self.state = tp.State.initial_state(ALL_CARDS)
 
     def tearDown(self):
         del self.state
 
     def test_initial_state(self):
-        self.assertEqual(tuple(tests.test_deck.ALL_CARDS[:28]), self.state.tableau)
-        self.assertEqual(tuple(tests.test_deck.ALL_CARDS[29:]), self.state.stock_pile)
-        self.assertEqual(tests.test_deck.ALL_CARDS[28], self.state.waste_card)
+        self.assertEqual(tuple(ALL_CARDS[:28]), self.state.tableau)
+        self.assertEqual(tuple(ALL_CARDS[29:]), self.state.stock_pile)
+        self.assertEqual(ALL_CARDS[28], self.state.waste_card)
 
     def test_initial_state_nonstandard_deck(self):
         with self.assertRaises(ValueError):
-            solvers.tripeaks.State.initial_state(tests.test_deck.ALL_CARDS[1:])
+            tp.State.initial_state(ALL_CARDS[1:])
 
     def test_face_up(self):
-        self.assertEqual([False] * 18 + [True] * 10, [self.state.is_face_up(i) for i in range(28)])
+        self.assertEqual(
+            [False] * 18 + [True] * 10,
+            [self.state.is_face_up(i) for i in range(28)]
+        )
 
     def test_face_up_with_missing_card(self):
         tableau = list(self.state.tableau)
         waste = self.state.tableau[23]
         tableau[22] = None
         tableau[23] = None
-        state = solvers.tripeaks.State(tuple(tableau), self.state.stock_pile, waste)
+        state = tp.State(tuple(tableau), self.state.stock_pile, waste)
         self.assertTrue(state.is_face_up(13))
         self.assertFalse(state.is_face_up(22))
         self.assertFalse(state.is_face_up(23))
@@ -67,52 +73,66 @@ class TestState(unittest.TestCase):
 
         for card in self.state.tableau:
             self.assertEqual(
-                solvers.tripeaks.is_one_rank_apart(card, waste_card),
+                tp.is_one_rank_apart(card, waste_card),
                 self.state.can_be_moved(card)
             )
 
         stock_card = self.state.stock_pile[0]
         self.assertEqual(
-            solvers.tripeaks.is_one_rank_apart(stock_card, waste_card),
+            tp.is_one_rank_apart(stock_card, waste_card),
             self.state.can_be_moved(stock_card)
         )
 
     def test_is_tableau_empty(self):
         self.assertFalse(self.state.is_tableau_empty())
-        empty_state = solvers.tripeaks.State((None,) * 28, self.state.stock_pile, self.state.waste_card)
+        empty_state = tp.State(
+            (None,) * 28,
+            self.state.stock_pile,
+            self.state.waste_card
+        )
         self.assertTrue(empty_state.is_tableau_empty())
 
     def test_successors(self):
         expected = {
-            solvers.tripeaks.State(self.state.tableau[:-1] + (None,), self.state.stock_pile, self.state.tableau[-1]),
-            solvers.tripeaks.State(self.state.tableau, self.state.stock_pile[1:], self.state.stock_pile[0]),
+            tp.State(
+                self.state.tableau[:-1] + (None,),
+                self.state.stock_pile,
+                self.state.tableau[-1]
+            ),
+            tp.State(
+                self.state.tableau,
+                self.state.stock_pile[1:],
+                self.state.stock_pile[0]
+            ),
         }
         self.assertEqual(expected, set(self.state.successors()))
 
 
-@unittest.skip('Full solver tests that are too slow to run during development')
+@unittest.skip('Slow TriPeaks solver tests')
 class TestSolver(unittest.TestCase):
     def test_all_cards_solution(self):
         # the shortest solution is removing one tableau card after another
         self.assertEqual(
-            list(reversed(tests.test_deck.ALL_CARDS[:28])),
-            solvers.tripeaks.solve(tests.test_deck.ALL_CARDS)
+            list(reversed(ALL_CARDS[:28])),
+            tp.solve(ALL_CARDS)
         )
 
     def test_tosunkaya_impossible_game(self):
         # reported as impossible by tosunkaya on github
-        deck_string = """      Kc          9d          7s
-                             7h  6s      2c  Kd      9c  2s
-                           3d  Ah  6d  6c  Ad  As  7c  Js  7d
-                         Jd  Td  Qc  2h  4s  8d  Th  4h  Qd  5c
-                         3s
-                         Jh Qs 2d 5d Ts 6h Qh Ac 8c Tc Jc Ks 8s 8h Kh 4c 3h 9h 3c 9s 4d 5h 5s"""
+        deck_string = """
+              Kc          9d          7s
+            7h  6s      2c  Kd      9c  2s
+          3d  Ah  6d  6c  Ad  As  7c  Js  7d
+        Jd  Td  Qc  2h  4s  8d  Th  4h  Qd  5c
+        3s
+        Jh Qs 2d 5d Ts 6h Qh Ac 8c Tc Jc Ks 8s 8h Kh 4c 3h 9h 3c 9s 4d 5h 5s
+        """
         deck = tuple(deck_string.split())
         self.assertTrue(solvers.deck.is_standard_deck(deck))
-        self.assertEqual([], solvers.tripeaks.solve(deck))
+        self.assertEqual([], tp.solve(deck))
 
 
-@unittest.skip('An extremely long test running the solver on 1500 decks')
+@unittest.skip('An extremely long TriPeaks test solving 1500 decks')
 class Test1500ShuffledDecks(unittest.TestCase):
     @staticmethod
     def is_playable(deck, solution):
@@ -129,7 +149,7 @@ class Test1500ShuffledDecks(unittest.TestCase):
             if stock_pile and (card == stock_pile[-1]):
                 stock_pile.pop()
             else:
-                if not solvers.tripeaks.is_one_rank_apart(card, waste_pile[-1]):
+                if not tp.is_one_rank_apart(card, waste_pile[-1]):
                     return False
                 try:
                     tableau[tableau.index(card)] = None
@@ -142,9 +162,9 @@ class Test1500ShuffledDecks(unittest.TestCase):
         deck = tuple(deck_string.split())
         self.assertTrue(solvers.deck.is_standard_deck(deck))
         start = datetime.datetime.utcnow().timestamp()
-        solution = solvers.tripeaks.solve(deck)
+        solution = tp.solve(deck)
         total = datetime.datetime.utcnow().timestamp() - start
-        return tuple([deck, solution, total, Test1500ShuffledDecks.is_playable(deck, solution)])
+        return tuple([deck, solution, total, self.is_playable(deck, solution)])
 
     def test_all_shuffled_decks(self):
         # make sure the working directory is the pysolvers directory

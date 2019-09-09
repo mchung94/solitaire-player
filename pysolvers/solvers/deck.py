@@ -1,3 +1,13 @@
+"""Card and Deck definitions.
+
+Cards are strings containing a rank character followed by a suit character,
+because it's simpler than defining a class or named tuple while still being
+immutable, hashable, easy to create, and human-readable.
+
+I also want to define a deck as just a tuple of cards that contain exactly
+all 52 cards in a standard deck. I think this is the simplest way with the
+fewest surprises/pitfalls.
+"""
 import collections
 
 RANKS = 'A23456789TJQK'
