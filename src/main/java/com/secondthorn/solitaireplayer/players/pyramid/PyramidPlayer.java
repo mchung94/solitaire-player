@@ -103,14 +103,14 @@ public class PyramidPlayer extends SolitairePlayer {
     public void autoplay() throws InterruptedException, PlayException {
         PyramidWindow window = new PyramidWindow();
         window.undoBoard();
-        window.moveMouse(0, 0);
+        window.moveMouse(1, 1);
         List<String> cards = scanCardsOnScreen(window);
         Deck deck = new Deck(verifyCards(cards));
         Map<String, List<Action>> solutions = solver.solve(deck);
         printSolutions(solutions);
         List<Action> solutionToPlay = chooseSolution(solutions);
         window.undoBoard();
-        window.moveMouse(0, 0);
+        window.moveMouse(1, 1);
         playSolution(solutionToPlay, window);
     }
 

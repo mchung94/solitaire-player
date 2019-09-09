@@ -81,10 +81,7 @@ public abstract class MSCWindow {
      */
     protected MSCWindow(String gameName) throws InterruptedException, PlayException {
         positionForPlay();
-        if (!getSizeString().equals(WINDOW_SIZE)) {
-            throw new PlayException("Window size is not " + WINDOW_SIZE + ", " +
-                    "maybe the monitor resolution is too small or the scaling factor is not 100%");
-        }
+        systemReport();
         Settings.InputFontSize = 14;
         okImage = loadImage("Common/OK.png");
         undoBoardImage = loadImage("Common/UndoBoard.png");
@@ -96,6 +93,43 @@ public abstract class MSCWindow {
         rankImages = loadCharacterImages(gameResourceDir, "A23456789TJQK");
         suitImages = loadCharacterImages(gameResourceDir, "cdhs");
         regions = RegionDeserializer.createRegions(gameResourceDir + "regions.json");
+    }
+
+    /**
+     * Print the primary screen size according to the given DPI Awareness value.
+     * The DPI_AWARENESS_CONTEXT determines how the size is reported: if
+     * UNAWARE, then the sizes are scaled by their DPI, and if it's
+     * PER_MONITOR_AWARE_V2, then it will return the monitor's actual size.
+     * @param context a DPI_AWARENESS_CONTEXT
+     * @return a String containing the width/height of the primary monitor in pixels
+     */
+    private String primaryScreenSize(DPI_AWARENESS_CONTEXT context) {
+        DPI_AWARENESS_CONTEXT oldContext = DpiUser32.INSTANCE.SetThreadDpiAwarenessContext(context);
+        int width = User32.INSTANCE.GetSystemMetrics(WinUser.SM_CXSCREEN);
+        int height = User32.INSTANCE.GetSystemMetrics(WinUser.SM_CYSCREEN);
+        DpiUser32.INSTANCE.SetThreadDpiAwarenessContext(oldContext);
+        return width + "x" + height;
+    }
+
+    /**
+     * Print out a system report that users can report to developers to
+     * investigate issues with the program not working.
+     */
+    private void systemReport() {
+        String sizeString = getSizeString();
+        WinDef.UINT dpi = DpiUser32.INSTANCE.GetDpiForWindow(getHWND());
+        System.out.println("System Report:");
+        System.out.println("    Window Size (after adjustment) = " + sizeString);
+        System.out.println("    Expected Window Size = " + WINDOW_SIZE);
+        System.out.println("    DPI = " + dpi);
+        System.out.println("    Expected DPI = 96");
+        System.out.println("    Scaling Factor = " + (100 * dpi.longValue() / 96.0) + "%");
+        String unaware = primaryScreenSize(DPI_AWARENESS_CONTEXT.UNAWARE);
+        String actual = primaryScreenSize(DPI_AWARENESS_CONTEXT.PER_MONITOR_AWARE_V2);
+        System.out.println("    Primary Screen Size (Adjusted for Scaling Factor) = " + unaware);
+        System.out.println("    Expected Primary Screen Size = " + actual);
+        System.out.println("If the scaling factor isn't 100% or the values don't match the expected,");
+        System.out.println("then this program may not work properly.");
     }
 
     /**
@@ -311,7 +345,11 @@ public abstract class MSCWindow {
      * Represents Windows DPI awareness contexts - here it is used to see the true resolution of the display.
      */
     public static class DPI_AWARENESS_CONTEXT extends WinNT.HANDLE {
+        static final DPI_AWARENESS_CONTEXT UNAWARE = new DPI_AWARENESS_CONTEXT(-1);
+        static final DPI_AWARENESS_CONTEXT SYSTEM_AWARE = new DPI_AWARENESS_CONTEXT(-2);
+        static final DPI_AWARENESS_CONTEXT PER_MONITOR_AWARE = new DPI_AWARENESS_CONTEXT(-3);
         static final DPI_AWARENESS_CONTEXT PER_MONITOR_AWARE_V2 = new DPI_AWARENESS_CONTEXT(-4);
+        static final DPI_AWARENESS_CONTEXT UNAWARE_GDISCALED = new DPI_AWARENESS_CONTEXT(-5);
 
         public DPI_AWARENESS_CONTEXT() {
             // do nothing; a public no-arg constructor is required
@@ -333,6 +371,7 @@ public abstract class MSCWindow {
          * This is to see the display's true resolution instead of a scaled resolution.
          */
         DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT context);
+        WinDef.UINT GetDpiForWindow(WinDef.HWND hwnd);
     }
 
     /**
