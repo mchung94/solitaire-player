@@ -1,7 +1,12 @@
-"""Find out how to 'clear the board' in TriPeaks Solitaire."""
+"""Find out how to 'clear the board' in TriPeaks Solitaire.
+
+The design is meant to be simple to understand so it is less likely to have
+bugs, but not meant to be fast. However, some optimizations are unavoidable or
+else it will take too long to run at all."""
 import collections
 
 import solvers.deck
+
 
 def is_one_rank_apart(card1, card2):
     """Return true if card2 is one rank above/below card1.
