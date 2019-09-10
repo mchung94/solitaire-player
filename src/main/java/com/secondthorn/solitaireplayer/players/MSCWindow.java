@@ -48,9 +48,9 @@ public abstract class MSCWindow {
     private org.sikuli.script.Image okDialogImage;
 
     /**
-     * The location of the Undo Board button.
+     * The location of the Undo Board buttons.
      */
-    private Region undoBoardButton = new Region(1020, 829, 37, 32);
+    private Image undoBoardImage = loadImage("Common/UndoBoard.png");
 
     /**
      * The location of the OK button to confirm undoing the board.
@@ -143,7 +143,7 @@ public abstract class MSCWindow {
      * @throws PlayException        if there's a problem clicking on the Undo Board / OK buttons
      */
     public void undoBoard() throws InterruptedException, PlayException {
-        clickRegion(undoBoardButton);
+        clickImage(undoBoardImage, 1.0d);
         if (appRegion().exists(okDialogImage, 3.0d) != null) {
             clickRegion(okButton);
         }
