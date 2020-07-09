@@ -84,6 +84,10 @@ Here are timings for finding out how to remove as many Aces as possible from the
 1. Download the release and unzip it.
 2. Go to solitaire-player/bin.
 3. Start Microsoft Solitaire Collection on Windows 10.
+  - The game must be running in Windowed View, not Full Screen.
+  - Only the Classic theme and card deck can be used, it won't properly detect other themes or card decks.
+  - Only 100% scaling sizes works, this can be changed in Windows Display Settings.
+  - The monitor resolution must be greater than 1440x900.
 4. In Microsoft Solitaire Collection start a Pyramid or TriPeaks Solitaire game - either a regular game or a challenge game.
 5. Run solitaire-player.bat with one of the following set of command line options:
   - `solitaire-player.bat Pyramid`
