@@ -11,7 +11,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
     /**
      * The maximum possible score removing all 28 tableau cards in a single streak.
      */
-    public static final int MAX_POSSIBLE_SCORE = 90500;
+    public static final int MAX_POSSIBLE_SCORE = 84900;
 
     /**
      * The number of points needed to reach the goal.
@@ -108,7 +108,7 @@ public class ScoreChallengeSolver implements TriPeaksSolver {
         int streak = sc.getStreak();
         int wasteCardIndex = State.getWasteIndex(state);
         if (wasteCardIndex < 28) {
-            total += 300 + streak * 200;
+            total += 100 + streak * 200;
             streak++;
         } else {
             streak = 0;
