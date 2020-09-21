@@ -1,5 +1,6 @@
 package com.secondthorn.solitaireplayer.players;
 
+import com.secondthorn.solitaireplayer.players.freecell.FreeCellPlayer;
 import com.secondthorn.solitaireplayer.players.pyramid.PyramidPlayer;
 import com.secondthorn.solitaireplayer.players.tripeaks.TriPeaksPlayer;
 
@@ -62,8 +63,10 @@ public abstract class SolitairePlayer {
         switch (game) {
             case "Klondike":
             case "Spider":
-            case "FreeCell":
                 throw new IllegalArgumentException(game + " is not implemented yet.");
+            case "FreeCell":
+                player = new FreeCellPlayer(args);
+                break;
             case "TriPeaks":
                 player = new TriPeaksPlayer(args);
                 break;
