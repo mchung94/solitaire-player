@@ -60,17 +60,17 @@ public abstract class SolitairePlayer {
         String game = args[0];
         args = Arrays.copyOfRange(args, 1, args.length);
         SolitairePlayer player;
-        switch (game) {
-            case "Klondike":
-            case "Spider":
+        switch (game.toLowerCase()) {
+            case "klondike":
+            case "spider":
                 throw new IllegalArgumentException(game + " is not implemented yet.");
-            case "FreeCell":
+            case "freecell":
                 player = new FreeCellPlayer(args);
                 break;
-            case "TriPeaks":
+            case "tripeaks":
                 player = new TriPeaksPlayer(args);
                 break;
-            case "Pyramid":
+            case "pyramid":
                 player = new PyramidPlayer(args);
                 break;
             default:
@@ -130,11 +130,13 @@ public abstract class SolitairePlayer {
     /**
      * Returns command line arguments as card ranks.
      * A card rank must be one of the following chars: A 2 3 4 5 6 7 8 9 T J Q K.
+     * Lower case input will be converted to upper case.
      *
      * @param s a command line argument
      * @return a char card rank of the argument
      */
     protected char parseCardRank(String s) {
+        s = s.toUpperCase();
         if ((s.length() == 1) && "A23456789TJQK".contains(s)) {
             return s.charAt(0);
         } else {

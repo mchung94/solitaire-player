@@ -17,12 +17,12 @@ import static org.sikuli.script.Sikulix.inputText;
 public class FreeCellPlayer extends SolitairePlayer {
 
     public FreeCellPlayer(String[] args) {
-        String goalType = args.length > 0 ? args[0] : "Board";
-        switch (goalType) {
-            case "Board":
+        String goalType = args.length > 0 ? args[0] : "board";
+        switch (goalType.toLowerCase()) {
+            case "board":
                 break;
-            case "Score":
-            case "Card":
+            case "score":
+            case "card":
                 throw new IllegalArgumentException("Score and Card challenges aren't implemented yet.");
             default:
                 throw new IllegalArgumentException("Unknown goal for FreeCell Solitaire: " + goalType);

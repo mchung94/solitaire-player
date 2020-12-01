@@ -58,13 +58,13 @@ public class PyramidPlayer extends SolitairePlayer {
      * @throws IllegalArgumentException if the args don't properly describe a challenge
      */
     public PyramidPlayer(String[] args) {
-        String goalType = args.length > 0 ? args[0] : "Board";
-        switch (goalType) {
-            case "Board":
+        String goalType = args.length > 0 ? args[0] : "board";
+        switch (goalType.toLowerCase()) {
+            case "board":
                 solver = new BoardChallengeSolver();
                 System.out.println("Starting a Pyramid Solitaire Board Challenge...");
                 break;
-            case "Score":
+            case "score":
                 int goalScore = (args.length > 1) ? parseInt(args[1]) : ScoreChallengeSolver.MAX_POSSIBLE_SCORE;
                 int currentScore = (args.length > 2) ? parseInt(args[2]) : 0;
                 solver = new ScoreChallengeSolver(goalScore, currentScore);
@@ -75,7 +75,7 @@ public class PyramidPlayer extends SolitairePlayer {
                     System.out.println("go from " + currentScore + " to " + goalScore + " points...");
                 }
                 break;
-            case "Card":
+            case "card":
                 if (args.length != 4) {
                     throw new IllegalArgumentException("Wrong number of args for Pyramid Solitaire Card Challenge");
                 }
