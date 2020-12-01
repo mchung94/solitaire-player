@@ -235,7 +235,11 @@ public class PyramidPlayer extends SolitairePlayer {
                 Arrays.sort(keys);
                 String message = "Select a solution, Cancel to exit without automatically playing.";
                 String title = "Multiple Solutions Found";
-                solutionDescription = popSelect(message, title, keys);
+                if (showPrompts) {
+                    solutionDescription = popSelect(message, title, keys);
+                } else {
+                    solutionDescription = keys[0];
+                }
                 solution = solutions.get(solutionDescription);
                 break;
         }
@@ -245,7 +249,9 @@ public class PyramidPlayer extends SolitairePlayer {
         confirmMessage.append(solutionDescription);
         confirmMessage.append("\n");
 
-        if ((solution != null) && popAsk(confirmMessage.toString(), "Play the solution?")) {
+        if (!showPrompts) {
+            return solution;
+        } else if ((solution != null) && popAsk(confirmMessage.toString(), "Play the solution?")) {
             return solution;
         } else {
             throw new PlayException("User cancelled selecting and playing a solution.");

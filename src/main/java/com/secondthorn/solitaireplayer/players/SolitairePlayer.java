@@ -47,6 +47,11 @@ public abstract class SolitairePlayer {
     protected abstract String cardsToString(List<String> cards);
 
     /**
+     * Show verification/confirmation prompts so you can check what it's doing.
+     */
+    protected boolean showPrompts = false;
+
+    /**
      * Instantiates and returns supported Solitaire Players.
      *
      * @param args command line args
@@ -54,11 +59,21 @@ public abstract class SolitairePlayer {
      * @throws IllegalArgumentException if there is a command line argument problem
      */
     public static SolitairePlayer newInstance(String[] args) {
-        if (args.length < 1) {
+        ArrayList<String> argsList = new ArrayList<>(Arrays.asList(args));
+        boolean showPrompts = false;
+        for (int i=0; i<argsList.size(); i++) {
+            if (argsList.get(i).equalsIgnoreCase("--show-prompts")) {
+                showPrompts = true;
+                argsList.remove(i);
+                break;
+            }
+        }
+        if (argsList.size() < 1) {
             throw new IllegalArgumentException("Too few arguments to create a solitaire player.");
         }
-        String game = args[0];
-        args = Arrays.copyOfRange(args, 1, args.length);
+        String game = argsList.get(0);
+        argsList.remove(0);
+        args = argsList.toArray(new String[0]);
         SolitairePlayer player;
         switch (game.toLowerCase()) {
             case "klondike":
@@ -76,6 +91,7 @@ public abstract class SolitairePlayer {
             default:
                 throw new IllegalArgumentException("Unknown game: " + game);
         }
+        player.showPrompts = showPrompts;
         return player;
     }
 
@@ -91,25 +107,37 @@ public abstract class SolitairePlayer {
         List<String> duplicates = duplicateCards(cards);
         List<String> malformed = malformedCards(cards);
         long numUnknownCards = numUnknownCards(cards);
-        do {
-            String message = "Please verify the list of cards is correct and edit if necessary.";
-            message += "\nClick Cancel to quit.";
-            message += "\nNumber of Cards: " + cards.size();
-            message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
-            message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
-            message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
-            message += "\nNumber of Unknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
-            String newDeckText = inputText(message, "Deck Verification", 8, 120, cardsToString(cards));
-            if (newDeckText == null) {
-                throw new PlayException("User cancelled verification of deck cards and the program will quit.");
-            }
-            cards = new ArrayList<>(Arrays.asList(newDeckText.trim().split("\\s+")));
-            missing = missingCards(cards);
-            duplicates = duplicateCards(cards);
-            malformed = malformedCards(cards);
-            numUnknownCards = numUnknownCards(cards);
+        if (showPrompts) {
+            do {
+                String message = "Please verify the list of cards is correct and edit if necessary.";
+                message += "\nClick Cancel to quit.";
+                message += "\nNumber of Cards: " + cards.size();
+                message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
+                message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
+                message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
+                message += "\nNumber of Unknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
+                String newDeckText = inputText(message, "Deck Verification", 8, 120, cardsToString(cards));
+                if (newDeckText == null) {
+                    throw new PlayException("User cancelled verification of deck cards and the program will quit.");
+                }
+                cards = new ArrayList<>(Arrays.asList(newDeckText.trim().split("\\s+")));
+                missing = missingCards(cards);
+                duplicates = duplicateCards(cards);
+                malformed = malformedCards(cards);
+                numUnknownCards = numUnknownCards(cards);
 
-        } while (!isValidCards(cards, missing, duplicates, malformed, numUnknownCards));
+            } while (!isValidCards(cards, missing, duplicates, malformed, numUnknownCards));
+        } else {
+            if (!isValidCards(cards, missing, duplicates, malformed, numUnknownCards)) {
+                String message = "The cards don't make sense. Try again with --show-prompts to tell it the right cards.";
+                message += "\nNumber of Cards: " + cards.size();
+                message += "\nMissing Cards: " + ((missing.size() > 0) ? missing : "None");
+                message += "\nDuplicate Cards: " + ((duplicates.size() > 0) ? duplicates : "None");
+                message += "\nMalformed Cards: " + ((malformed.size() > 0) ? malformed : "None");
+                message += "\nNumber of Unknown Cards: " + (numUnknownCards > 0 ? numUnknownCards : "None");
+                throw new PlayException(message);
+            }
+        }
         return cards;
     }
 

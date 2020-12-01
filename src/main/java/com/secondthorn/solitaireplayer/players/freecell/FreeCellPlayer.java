@@ -43,7 +43,13 @@ public class FreeCellPlayer extends SolitairePlayer {
         List<String> cards = scanCardsOnScreen(window);
         cards = verifyCards(cards);
         String message = "Copy the deck into https://fc-solve.shlomifish.org/js-fc-solve/text/ for the solution";
-        String solutionText = inputText(message, "Deck in fc-solve format", 8, 120, cardsToFCSolveString(cards));
+        String fcDeck = cardsToFCSolveString(cards);
+        if (showPrompts) {
+            String solutionText = inputText(message, "Deck in fc-solve format", 8, 120, fcDeck);
+        } else {
+            System.out.println("Deck in fc-solve format:");
+            System.out.println(fcDeck);
+        }
     }
 
     /**

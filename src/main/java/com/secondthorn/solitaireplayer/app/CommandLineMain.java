@@ -49,7 +49,7 @@ public class CommandLineMain {
      * out more detailed help.
      */
     private static void printUsage() {
-        System.err.println("Usage: solitaire-player.bat <Game> [Goal] [additional args for goal]");
+        System.err.println("Usage: solitaire-player.bat [--show-prompts] <Game> [Goal] [additional args for goal]");
         System.err.println("For help, run: solitaire-player.bat help");
     }
 
