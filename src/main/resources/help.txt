@@ -1,7 +1,8 @@
 Usage: solitaire-player.bat <Game> [Goal] [args for goal] [-f filename]
 
-<Game> can be either Pyramid or TriPeaks.
+<Game> can be either Pyramid, TriPeaks, or FreeCell.
 [Goal] can either be Board, Score, or Card. The default is Board.
+For FreeCell, only Board works, Score and Card challenges aren't implemented yet.
 [args for goal] depends, see below for details.
 [-f filename] is to pass in a deck of cards and print out a solution instead of
 trying to play the game.  See below for examples.  If you don't use this, the
@@ -47,16 +48,16 @@ When passing in a filename, create a text file that looks like this:
 For TriPeaks Solitaire:
 1. TriPeaks
    - Solve board challenges, clearing all cards from the board.
-1. TriPeaks Board
+2. TriPeaks Board
    - The same as just TriPeaks (solving board challenges).
-2. TriPeaks Score
+3. TriPeaks Score
    - Find the way to get the maximum possible score.
-3. TriPeaks Score <Goal Score> <Current Score>
+4. TriPeaks Score <Goal Score> <Current Score>
    - "TriPeaks Score 90000 38000" means you currently have 38000 points and the
      goal is to get 90000 points.
    - Find the way to reach the goal score given the current score, or if
      impossible, find the way to get the maximum possible score.
-4. TriPeaks Card <Goal number of cards> <Card Rank> <number currently cleared>
+5. TriPeaks Card <Goal number of cards> <Card Rank> <number currently cleared>
    - "TriPeaks Card 11 A 2" means the goal is to remove 11 Aces, and you have
      currently removed 2.  So you need 9 more Aces to reach the goal.
    - This finds the best way to reach the goal or otherwise maximize the number
@@ -74,3 +75,12 @@ When passing in a filename, create a text file that looks like this:
 
 6h is the top of the waste pile, 7h is the top of the stock pile, and Ks is the
 bottom of the stock pile.
+
+For FreeCell Solitaire:
+FreeCell is totally different right now. It can scan the cards and show you the
+cards in text format that you can copy and paste into Shlomi Fish's online
+solver at https://fc-solve.shlomifish.org/js-fc-solve/text/
+1. FreeCell
+   - Scan the cards and print the deck in for Shlomi Fish's solver to receive.
+2. FreeCell Board
+   - The same as just FreeCell (solving board challenges).
