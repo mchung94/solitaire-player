@@ -53,6 +53,11 @@ public abstract class MSCWindow {
     private Image undoBoardImage = loadImage("Common/UndoBoard.png");
 
     /**
+     * The location of the Undo Board button, used when the first one doesn't exist.
+     */
+    private Image undoBoardImage2 = loadImage("Common/UndoBoard2.png");
+    
+    /**
      * The location of the OK button to confirm undoing the board.
      */
     private Region okButton = new Region(529, 547, 41, 23);
@@ -143,7 +148,9 @@ public abstract class MSCWindow {
      * @throws PlayException        if there's a problem clicking on the Undo Board / OK buttons
      */
     public void undoBoard() throws InterruptedException, PlayException {
-        clickImage(undoBoardImage, 1.0d);
+        if (!clickImage(undoBoardImage, 1.0d)) {
+            clickImage(undoBoardImage2, 1.0d);
+        }
         if (appRegion().exists(okDialogImage, 3.0d) != null) {
             clickRegion(okButton);
         }
