@@ -213,7 +213,9 @@ public abstract class MSCWindow {
         Character rank = bestCardCharacter(region, rankImages);
         Character suit = bestCardCharacter(region, suitImages);
         if (rank != null && suit != null) {
-            return rank.toString() + suit.toString();
+            String card = rank.toString() + suit.toString();
+            // convenient place to hardcode card recognition mistakes
+            return card;
         }
         return "??";
     }

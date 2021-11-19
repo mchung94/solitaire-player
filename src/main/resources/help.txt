@@ -1,7 +1,10 @@
-Usage: solitaire-player.bat [--show-prompts] <Game> [Goal] [args for goal] [-f filename]
+Usage: solitaire-player.bat [--show-prompts] [--show-error] <Game> [Goal] [args for goal] [-f filename]
 
 [--show-prompts] is optional and will prompt you to verify cards or confirm
 actions. If you don't use this, it'll basically run unattended.
+[--show-error] is also optional and will prompt you to verify cards or confirm
+actions just like --show-prompts, but only if there is a problem detected, such
+as duplicate cards.
 <Game> is required, and can be either Pyramid, TriPeaks, or FreeCell.
 [Goal] can either be Board, Score, or Card. The default is Board.
 For FreeCell, only Board works, Score and Card challenges aren't implemented yet.

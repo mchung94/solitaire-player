@@ -52,6 +52,11 @@ public abstract class SolitairePlayer {
     protected boolean showPrompts = false;
 
     /**
+     * Show verification/confirmation prompts only when there's a problem detected.
+     */
+    protected boolean showError = false;
+
+    /**
      * Instantiates and returns supported Solitaire Players.
      *
      * @param args command line args
@@ -64,6 +69,14 @@ public abstract class SolitairePlayer {
         for (int i=0; i<argsList.size(); i++) {
             if (argsList.get(i).equalsIgnoreCase("--show-prompts")) {
                 showPrompts = true;
+                argsList.remove(i);
+                break;
+            }
+        }
+        boolean showError = false;
+        for (int i=0; i<argsList.size(); i++) {
+            if (argsList.get(i).equalsIgnoreCase("--show-error")) {
+                showError = true;
                 argsList.remove(i);
                 break;
             }
@@ -92,6 +105,7 @@ public abstract class SolitairePlayer {
                 throw new IllegalArgumentException("Unknown game: " + game);
         }
         player.showPrompts = showPrompts;
+        player.showError = showError;
         return player;
     }
 
@@ -107,7 +121,7 @@ public abstract class SolitairePlayer {
         List<String> duplicates = duplicateCards(cards);
         List<String> malformed = malformedCards(cards);
         long numUnknownCards = numUnknownCards(cards);
-        if (showPrompts) {
+        if (showPrompts || (showError && !isValidCards(cards, missing, duplicates, malformed, numUnknownCards))) {
             do {
                 String message = "Please verify the list of cards is correct and edit if necessary.";
                 message += "\nClick Cancel to quit.";
