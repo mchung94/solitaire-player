@@ -390,7 +390,7 @@ public abstract class MSCWindow {
      * Returns the handle to the Microsoft Solitaire Collection window, so other actions can be performed on it.
      */
     private WinDef.HWND getHWND() {
-        return User32.INSTANCE.FindWindow("ApplicationFrameWindow", "Microsoft Solitaire Collection");
+        return User32.INSTANCE.FindWindow("ApplicationFrameWindow", "Solitaire Collection");
     }
 
     /**
