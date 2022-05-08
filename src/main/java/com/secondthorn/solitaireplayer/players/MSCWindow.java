@@ -95,7 +95,7 @@ public abstract class MSCWindow {
         Settings.InputFontSize = 14;
         okDialogImage = loadImage("Common/OKDialog.png");
         String gameResourceDir = gameName + "/";
-        validateGameBeingPlayed(gameResourceDir);
+        validateGameBeingPlayed(gameName);
         rankImages = loadCharacterImages(gameResourceDir, "A23456789TJQK");
         suitImages = loadCharacterImages(gameResourceDir, "cdhs");
         regions = RegionDeserializer.createRegions(gameResourceDir + "regions.json");
