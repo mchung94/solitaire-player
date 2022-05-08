@@ -95,13 +95,22 @@ public abstract class MSCWindow {
         Settings.InputFontSize = 14;
         okDialogImage = loadImage("Common/OKDialog.png");
         String gameResourceDir = gameName + "/";
-        Image gameImage = loadImage(gameResourceDir + "Game.png");
-        if (appRegion().exists(gameImage, 0.0d) == null) {
-            throw new PlayException("Can't detect if we're playing a game of " + gameName + " Solitaire.");
-        }
+        validateGameBeingPlayed(gameResourceDir);
         rankImages = loadCharacterImages(gameResourceDir, "A23456789TJQK");
         suitImages = loadCharacterImages(gameResourceDir, "cdhs");
         regions = RegionDeserializer.createRegions(gameResourceDir + "regions.json");
+    }
+
+    private void validateGameBeingPlayed(String gameName) throws InterruptedException, PlayException {
+        String gameResourceDir = gameName + "/";
+        Image gameImage = loadImage(gameResourceDir + "Game.png");
+        if (appRegion().exists(gameImage, 0.0d) == null) {
+            // we don't see Game.png, try one more time with BonusGame.png
+            gameImage = loadImage(gameResourceDir + "BonusGame.png");
+            if (appRegion().exists(gameImage, 0.0d) == null) {
+                throw new PlayException("Can't detect if we're playing a game of " + gameName + " Solitaire.");
+            }
+        }
     }
 
     /**
