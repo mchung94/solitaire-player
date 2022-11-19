@@ -399,7 +399,17 @@ public abstract class MSCWindow {
      * Returns the handle to the Microsoft Solitaire Collection window, so other actions can be performed on it.
      */
     private WinDef.HWND getHWND() {
-        return User32.INSTANCE.FindWindow("ApplicationFrameWindow", "Solitaire Collection");
+        String[] windowNames = {
+                "Solitaire & Casual Games",
+                "Solitaire Collection"
+        };
+        for (String windowName : windowNames) {
+            WinDef.HWND hwnd = User32.INSTANCE.FindWindow("ApplicationFrameWindow", windowName);
+            if (hwnd != null) {
+                return hwnd;
+            }
+        }
+        return null;
     }
 
     /**
