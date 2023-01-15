@@ -26,7 +26,7 @@ class TriPeaksWindow extends MSCWindow {
 
     /**
      * Undo the last move if the "No more moves!" message appears.
-     * @return true if the the program undid the last move
+     * @return true if the program undid the last move
      * @throws InterruptedException if the thread is interrupted
      * @throws PlayException if unable to click on the button
      */

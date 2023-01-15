@@ -139,11 +139,11 @@ public class TriPeaksPlayer extends SolitairePlayer {
                                    long numUnknownCards) {
         return ((cards.size() == 52) &&
                 (0 <= missing.size()) &&
-                (missing.size() <= 18) &&
+                (missing.size() <= 19) &&
                 (duplicates.size() == 0) &&
                 (malformed.size() == 0) &&
                 (0 <= numUnknownCards) &&
-                (numUnknownCards <= 18));
+                (numUnknownCards <= 19));
     }
 
     /**
@@ -180,8 +180,17 @@ public class TriPeaksPlayer extends SolitairePlayer {
             cards.add(window.cardAtTableau(i));
         }
         cards.add(window.cardAtWaste());
-        for (int i = 0; i < 23; i++) {
+        for (int i = 0; i < 22; i++) {
             window.draw();
+            cards.add(window.cardAtWaste());
+        }
+        // The last card may pop up a "No more moves!" dialog box which is in the way of being able to read the last
+        // card. You can click "OK" or "Undo last move" but either option does not let you see the card.
+        // So try to read the card, but leave it unknown if you can't read it.
+        window.draw();
+        if (window.undoWhenNoMoreMoves()) {
+            cards.add("??");
+        } else {
             cards.add(window.cardAtWaste());
         }
         return cards;
