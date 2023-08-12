@@ -1,6 +1,23 @@
 # solitaire-player
 Solve and automatically play Pyramid or TriPeaks Solitaire.  Watch the [demonstration video for getting started and solving TriPeaks Solitaire](https://youtu.be/15EBJO5PNnU), or the [demonstration video for Pyramid Solitaire](https://youtu.be/2fs49YDfUR4).  The latest release for Windows 10 for download is [version 2.6.10](https://github.com/mchung94/solitaire-player/releases/download/v2.6.10/solitaire-player-v2.6.10.zip).  This requires that you install a [64 bit JRE 11](https://adoptium.net/) first.
 
+## 2023-08-12
+This program has been in "maintenance mode" for several years now, with updates as new versions of Microsoft Solitaire Collection are released.
+But now the game comes with its own solver, but I'm still interested in maintaining and enhancing this program as I think it's interesting from a programming perspective.
+I just haven't really had time to spend on it yet.
+
+Some things I'd like to figure out:
+- How to use OpenCV directly to recognize cards in a better way. I've only spent a short time on this but I think it's more difficult than I thought.
+  - This would be good to help people who are using a scaling factor on their display other than 100%, on high resolution displays.
+  - This program hardcodes moving the game window to the upper left hand of the main display and resizes it to 1440x900 but I'd like to make it work without that.
+  - This program also doesn't let you use themes because it is designed for the classic theme, can we change this?
+- Configuration data not bundled with the .jar
+  - If there is a new release of the game where graphics change, people should be able to override the default configurations of images, card locations, etc.
+  - This can help when people use themes, or different things where the program doesn't normally work.
+- A better GUI
+  - Something where you can see what it's thinking and doing.
+  - A better way to abort the program when it's controlling the pointer and clicking on cards.
+  - But it still needs to be "scriptable" and able to run with no human interaction. There should be an option where the GUI never appears.
 
 ## Introduction
 
